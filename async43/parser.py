@@ -224,218 +224,247 @@ class WhoisEntry(dict):
         if text.strip() == "No whois server is known for this kind of object.":
             raise WhoisDomainNotFoundError(text)
 
-        if domain.endswith(".com"):
-            return WhoisCom(domain, text)
-        elif domain.endswith(".net"):
-            return WhoisNet(domain, text)
-        elif domain.endswith(".org"):
-            return WhoisOrg(domain, text)
-        elif domain.endswith(".name"):
-            return WhoisName(domain, text)
-        elif domain.endswith(".me"):
-            return WhoisMe(domain, text)
-        elif domain.endswith(".ae"):
+        # A
+        if domain.endswith(".ae"):
             return WhoisAe(domain, text)
+        elif domain.endswith(".ai"):
+            return WhoisAi(domain, text)
+        elif domain.endswith(".app"):
+            return WhoisApp(domain, text)
+        elif domain.endswith(".ar"):
+            return WhoisAr(domain, text)
+        elif domain.endswith(".at"):
+            return WhoisAt(domain, text)
         elif domain.endswith(".au"):
             return WhoisAU(domain, text)
-        elif domain.endswith(".ru"):
-            return WhoisRu(domain, text)
-        elif domain.endswith(".us"):
-            return WhoisUs(domain, text)
-        elif domain.endswith(".uk"):
-            return WhoisUk(domain, text)
-        elif domain.endswith(".fr"):
-            return WhoisFr(domain, text)
-        elif domain.endswith(".nl"):
-            return WhoisNl(domain, text)
-        elif domain.endswith(".lt"):
-            return WhoisLt(domain, text)
+        # B
+        elif domain.endswith(".be"):
+            return WhoisBe(domain, text)
+        elif domain.endswith(".bg"):
+            return WhoisBg(domain, text)
+        elif domain.endswith(".biz"):
+            return WhoisBiz(domain, text)
+        elif domain.endswith(".br"):
+            return WhoisBr(domain, text)
+        elif domain.endswith(".bw"):
+            return WhoisBw(domain, text)
+        elif domain.endswith(".by"):
+            return WhoisBy(domain, text)
+        elif domain.endswith(".bz"):
+            return WhoisBz(domain, text)
+        # C
+        elif domain.endswith(".ca"):
+            return WhoisCa(domain, text)
+        elif domain.endswith(".cat"):
+            return WhoisCat(domain, text)
+        elif domain.endswith(".ch"):
+            return WhoisChLi(domain, text)
+        elif domain.endswith(".cl"):
+            return WhoisCl(domain, text)
+        elif domain.endswith(".cm"):
+            return WhoisCm(domain, text)
+        elif domain.endswith(".cn"):
+            return WhoisCn(domain, text)
+        elif domain.endswith(".co"):
+            return WhoisCo(domain, text)
+        elif domain.endswith(".com"):
+            return WhoisCom(domain, text)
+        elif domain.endswith(".cr"):
+            return WhoisCr(domain, text)
+        elif domain.endswith(".city"):
+            return WhoisCity(domain, text)
+        elif domain.endswith(".cz"):
+            return WhoisCz(domain, text)
+        # D
+        elif domain.endswith(".de"):
+            return WhoisDe(domain, text)
+        elif domain.endswith(".design"):
+            return WhoisDesign(domain, text)
+        elif domain.endswith(".dk"):
+            return WhoisDk(domain, text)
+        elif domain.endswith(".do"):
+            return WhoisDo(domain, text)
+        # E
+        elif domain.endswith(".edu"):
+            return WhoisEdu(domain, text)
+        elif domain.endswith(".ee"):
+            return WhoisEe(domain, text)
+        elif domain.endswith(".eu"):
+            return WhoisEu(domain, text)
+        # F
         elif domain.endswith(".fi"):
             return WhoisFi(domain, text)
+        elif domain.endswith(".fr"):
+            return WhoisFr(domain, text)
+        # G
+        elif domain.endswith(".ga"):
+            return WhoisGa(domain, text)
+        elif domain.endswith(".gg"):
+            return WhoisGg(domain, text)
+        elif domain.endswith(".group"):
+            return WhoisGroup(domain, text)
+        # H
         elif domain.endswith(".hr"):
             return WhoisHr(domain, text)
         elif domain.endswith(".hn"):
             return WhoisHn(domain, text)
         elif domain.endswith(".hk"):
             return WhoisHk(domain, text)
-        elif domain.endswith(".jp"):
-            return WhoisJp(domain, text)
-        elif domain.endswith(".pl"):
-            return WhoisPl(domain, text)
-        elif domain.endswith(".br"):
-            return WhoisBr(domain, text)
-        elif domain.endswith(".eu"):
-            return WhoisEu(domain, text)
-        elif domain.endswith(".ee"):
-            return WhoisEe(domain, text)
-        elif domain.endswith(".kr"):
-            return WhoisKr(domain, text)
-        elif domain.endswith(".pt"):
-            return WhoisPt(domain, text)
-        elif domain.endswith(".bg"):
-            return WhoisBg(domain, text)
-        elif domain.endswith(".de"):
-            return WhoisDe(domain, text)
-        elif domain.endswith(".at"):
-            return WhoisAt(domain, text)
-        elif domain.endswith(".ca"):
-            return WhoisCa(domain, text)
-        elif domain.endswith(".be"):
-            return WhoisBe(domain, text)
-        elif domain.endswith(".рф"):
-            return WhoisRf(domain, text)
-        elif domain.endswith(".info"):
-            return WhoisInfo(domain, text)
-        elif domain.endswith(".su"):
-            return WhoisSu(domain, text)
-        elif domain.endswith(".si"):
-            return WhoisSi(domain, text)
-        elif domain.endswith(".kg"):
-            return WhoisKg(domain, text)
-        elif domain.endswith(".io"):
-            return WhoisIo(domain, text)
-        elif domain.endswith(".biz"):
-            return WhoisBiz(domain, text)
-        elif domain.endswith(".mobi"):
-            return WhoisMobi(domain, text)
-        elif domain.endswith(".ch"):
-            return WhoisChLi(domain, text)
-        elif domain.endswith(".li"):
-            return WhoisChLi(domain, text)
+        elif domain.endswith(".hu"):
+            return WhoisHu(domain, text)
+        # I
         elif domain.endswith(".id"):
             return WhoisID(domain, text)
-        elif domain.endswith(".sk"):
-            return WhoisSK(domain, text)
-        elif domain.endswith(".se"):
-            return WhoisSe(domain, text)
-        elif domain.endswith(".no"):
-            return WhoisNo(domain, text)
-        elif domain.endswith(".nu"):
-            return WhoisSe(domain, text)
-        elif domain.endswith(".is"):
-            return WhoisIs(domain, text)
-        elif domain.endswith(".dk"):
-            return WhoisDk(domain, text)
-        elif domain.endswith(".it"):
-            return WhoisIt(domain, text)
-        elif domain.endswith(".mx"):
-            return WhoisMx(domain, text)
-        elif domain.endswith(".ai"):
-            return WhoisAi(domain, text)
+        elif domain.endswith(".ie"):
+            return WhoisIe(domain, text)
         elif domain.endswith(".il"):
             return WhoisIl(domain, text)
         elif domain.endswith(".in"):
             return WhoisIn(domain, text)
-        elif domain.endswith(".cat"):
-            return WhoisCat(domain, text)
-        elif domain.endswith(".ie"):
-            return WhoisIe(domain, text)
-        elif domain.endswith(".nz"):
-            return WhoisNz(domain, text)
-        elif domain.endswith(".space"):
-            return WhoisSpace(domain, text)
-        elif domain.endswith(".lu"):
-            return WhoisLu(domain, text)
-        elif domain.endswith(".cz"):
-            return WhoisCz(domain, text)
-        elif domain.endswith(".online"):
-            return WhoisOnline(domain, text)
-        elif domain.endswith(".cn"):
-            return WhoisCn(domain, text)
-        elif domain.endswith(".app"):
-            return WhoisApp(domain, text)
-        elif domain.endswith(".money"):
-            return WhoisMoney(domain, text)
-        elif domain.endswith(".cl"):
-            return WhoisCl(domain, text)
-        elif domain.endswith(".ar"):
-            return WhoisAr(domain, text)
-        elif domain.endswith(".by"):
-            return WhoisBy(domain, text)
-        elif domain.endswith(".cr"):
-            return WhoisCr(domain, text)
-        elif domain.endswith(".do"):
-            return WhoisDo(domain, text)
-        elif domain.endswith(".jobs"):
-            return WhoisJobs(domain, text)
-        elif domain.endswith(".lat"):
-            return WhoisLat(domain, text)
-        elif domain.endswith(".pe"):
-            return WhoisPe(domain, text)
-        elif domain.endswith(".ro"):
-            return WhoisRo(domain, text)
-        elif domain.endswith(".sa"):
-            return WhoisSa(domain, text)
-        elif domain.endswith(".tw"):
-            return WhoisTw(domain, text)
-        elif domain.endswith(".tr"):
-            return WhoisTr(domain, text)
-        elif domain.endswith(".ve"):
-            return WhoisVe(domain, text)
-        elif domain.endswith(".ua"):
-            if domain.endswith(".pp.ua"):
-                return WhoisPpUa(domain, text)
-            return WhoisUA(domain, text)
-        elif domain.endswith(".укр") or domain.endswith(".xn--j1amh"):
-            return WhoisUkr(domain, text)
-        elif domain.endswith(".kz"):
-            return WhoisKZ(domain, text)
+        elif domain.endswith(".info"):
+            return WhoisInfo(domain, text)
+        elif domain.endswith(".io"):
+            return WhoisIo(domain, text)
         elif domain.endswith(".ir"):
             return WhoisIR(domain, text)
-        elif domain.endswith(".中国"):
-            return WhoisZhongGuo(domain, text)
-        elif domain.endswith(".website"):
-            return WhoisWebsite(domain, text)
-        elif domain.endswith(".sg"):
-            return WhoisSG(domain, text)
-        elif domain.endswith(".ml"):
-            return WhoisML(domain, text)
-        elif domain.endswith(".ooo"):
-            return WhoisOoo(domain, text)
-        elif domain.endswith(".group"):
-            return WhoisGroup(domain, text)
+        elif domain.endswith(".is"):
+            return WhoisIs(domain, text)
+        elif domain.endswith(".it"):
+            return WhoisIt(domain, text)
+        # J
+        elif domain.endswith(".jp"):
+            return WhoisJp(domain, text)
+        elif domain.endswith(".jobs"):
+            return WhoisJobs(domain, text)
+        # K
+        elif domain.endswith(".kg"):
+            return WhoisKg(domain, text)
+        elif domain.endswith(".kr"):
+            return WhoisKr(domain, text)
+        elif domain.endswith(".kz"):
+            return WhoisKZ(domain, text)
+        # L
+        elif domain.endswith(".lat"):
+            return WhoisLat(domain, text)
+        elif domain.endswith(".li"):
+            return WhoisChLi(domain, text)
+        elif domain.endswith(".life"):
+            return WhoisLife(domain, text)
+        elif domain.endswith(".lt"):
+            return WhoisLt(domain, text)
+        elif domain.endswith(".lu"):
+            return WhoisLu(domain, text)
+        elif domain.endswith(".lv"):
+            return WhoisLv(domain, text)
+        # M
         elif domain.endswith(".market"):
             return WhoisMarket(domain, text)
-        elif domain.endswith(".za"):
-            return WhoisZa(domain, text)
-        elif domain.endswith(".bw"):
-            return WhoisBw(domain, text)
-        elif domain.endswith(".bz"):
-            return WhoisBz(domain, text)
-        elif domain.endswith(".gg"):
-            return WhoisGg(domain, text)
-        elif domain.endswith(".city"):
-            return WhoisCity(domain, text)
-        elif domain.endswith(".design"):
-            return WhoisDesign(domain, text)
+        elif domain.endswith(".me"):
+            return WhoisMe(domain, text)
+        elif domain.endswith(".ml"):
+            return WhoisML(domain, text)
+        elif domain.endswith(".mobi"):
+            return WhoisMobi(domain, text)
+        elif domain.endswith(".money"):
+            return WhoisMoney(domain, text)
+        elif domain.endswith(".mx"):
+            return WhoisMx(domain, text)
+        # N
+        elif domain.endswith(".name"):
+            return WhoisName(domain, text)
+        elif domain.endswith(".net"):
+            return WhoisNet(domain, text)
+        elif domain.endswith(".nl"):
+            return WhoisNl(domain, text)
+        elif domain.endswith(".no"):
+            return WhoisNo(domain, text)
+        elif domain.endswith(".nu"):
+            return WhoisSe(domain, text)
+        elif domain.endswith(".nz"):
+            return WhoisNz(domain, text)
+        # O
+        elif domain.endswith(".online"):
+            return WhoisOnline(domain, text)
+        elif domain.endswith(".ooo"):
+            return WhoisOoo(domain, text)
+        elif domain.endswith(".org"):
+            return WhoisOrg(domain, text)
+        # P
+        elif domain.endswith(".pe"):
+            return WhoisPe(domain, text)
+        elif domain.endswith(".pl"):
+            return WhoisPl(domain, text)
+        elif domain.endswith(".pt"):
+            return WhoisPt(domain, text)
+        # Q
+        # R
+        elif domain.endswith(".ro"):
+            return WhoisRo(domain, text)
+        elif domain.endswith(".rs"):
+            return WhoisRs(domain, text)
+        elif domain.endswith(".ru"):
+            return WhoisRu(domain, text)
+        # S
+        elif domain.endswith(".sa"):
+            return WhoisSa(domain, text)
+        elif domain.endswith(".se"):
+            return WhoisSe(domain, text)
+        elif domain.endswith(".sg"):
+            return WhoisSG(domain, text)
+        elif domain.endswith(".si"):
+            return WhoisSi(domain, text)
+        elif domain.endswith(".site"):
+            return WhoisSite(domain, text)
+        elif domain.endswith(".sk"):
+            return WhoisSK(domain, text)
+        elif domain.endswith(".space"):
+            return WhoisSpace(domain, text)
         elif domain.endswith(".studio"):
             return WhoisStudio(domain, text)
         elif domain.endswith(".style"):
             return WhoisStyle(domain, text)
-        elif domain.endswith(".рус") or domain.endswith(".xn--p1acf"):
-            return WhoisPyc(domain, text)
-        elif domain.endswith(".life"):
-            return WhoisLife(domain, text)
+        elif domain.endswith(".su"):
+            return WhoisSu(domain, text)
+        # T
+        elif domain.endswith(".td"):
+            return WhoisTD(domain, text)
         elif domain.endswith(".tn"):
             return WhoisTN(domain, text)
-        elif domain.endswith(".rs"):
-            return WhoisRs(domain, text)
-        elif domain.endswith(".site"):
-            return WhoisSite(domain, text)
-        elif domain.endswith(".edu"):
-            return WhoisEdu(domain, text)
-        elif domain.endswith(".lv"):
-            return WhoisLv(domain, text)
-        elif domain.endswith(".co"):
-            return WhoisCo(domain, text)
-        elif domain.endswith(".ga"):
-            return WhoisGa(domain, text)
-        elif domain.endswith(".cm"):
-            return WhoisCm(domain, text)
-        elif domain.endswith(".hu"):
-            return WhoisHu(domain, text)
+        elif domain.endswith(".tr"):
+            return WhoisTr(domain, text)
+        elif domain.endswith(".tw"):
+            return WhoisTw(domain, text)
+        # U
+        elif domain.endswith(".ua"):
+            if domain.endswith(".pp.ua"):
+                return WhoisPpUa(domain, text)
+            return WhoisUA(domain, text)
+        elif domain.endswith(".uk"):
+            return WhoisUk(domain, text)
+        elif domain.endswith(".us"):
+            return WhoisUs(domain, text)
+        # V
+        elif domain.endswith(".ve"):
+            return WhoisVe(domain, text)
+        # W
+        elif domain.endswith(".website"):
+            return WhoisWebsite(domain, text)
+        # X
         elif domain.endswith(".xyz"):
             return WhoisXyz(domain, text)
+        # Y
+        # Z
+        elif domain.endswith(".za"):
+            return WhoisZa(domain, text)
+        # i18n
+        elif domain.endswith(".рф"):
+            return WhoisRf(domain, text)
+        elif domain.endswith(".рус") or domain.endswith(".xn--p1acf"):
+            return WhoisPyc(domain, text)
+        elif domain.endswith(".укр") or domain.endswith(".xn--j1amh"):
+            return WhoisUkr(domain, text)
+        elif domain.endswith(".中国"):
+            return WhoisZhongGuo(domain, text)
         else:
             return WhoisEntry(domain, text)
 
@@ -3619,3 +3648,11 @@ class WhoisXyz(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
+class WhoisTD(WhoisEntry):
+    """Whois parser for .td domains"""
+
+    def __init__(self, domain: str, text: str):
+        if "The queried object does not exist: No Object Found" in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text)

@@ -8,9 +8,9 @@ import socket
 import sys
 from typing import Any, Optional, Pattern
 
-from .exceptions import WhoisError
-from .parser import WhoisEntry
-from .whois import NICClient
+from async43.exceptions import WhoisError
+from async43.parser import WhoisEntry
+from async43.whois import NICClient
 
 logger = logging.getLogger(__name__)
 
