@@ -1,0 +1,1 @@
+{"domain_name": "abc.rs", "expiration_date": "2026-03-26 16:18:03+00:00", "updated_date": "2025-02-11 08:24:15+00:00", "registrar": "Mainstream Public Cloud Services d.o.o.", "registrar_url": null, "creation_date": "2008-03-26 16:18:03+00:00", "status": "Active https://www.rnids.rs/en/domain-name-status-codes#Active"}

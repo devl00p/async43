@@ -1,0 +1,38 @@
+Whois Server for the KZ top level domain name.
+This server is maintained by KazNIC Organization, a ccTLD manager for Kazakhstan Republic.
+
+Domain Name............: yandex.kz
+
+Organization Using Domain Name
+Name...................: Yandex.Kazakhstan LLP
+Organization Name......: Yandex.Kazakhstan LLP
+Street Address.........: Dostyk street 43
+City...................: Almaty
+State..................: -
+Postal Code............: 050051
+Country................: KZ
+
+Administrative Contact/Agent
+NIC Handle.............: HOSTERKZ-280570
+Name...................: Domain manager
+Phone Number...........: +7.4957397000
+Fax Number.............: +7.4957397000
+Email Address..........: hostmaster@yandex.net
+
+Nameserver in listed order
+
+Primary server.........: ns1.yandex.net
+Primary ip address.....: 213.180.193.1
+
+Secondary server.......: ns2.yandex.net
+Secondary ip address...: 213.180.199.34
+
+
+Domain created: 2009-07-01 12:44:02 (GMT+0:00)
+Last modified : 2022-08-04 10:20:10 (GMT+0:00)
+Domain status : clientTransferProhibited - status prohibits domain transfer without documents (статус запрещает трансфер домена без предоставления документов)
+                clientDeleteProhibited - status prevent domain deletion from the Register (статус предотвращает удаление домена из реестра)
+                clientRenewProhibited - status prevent domain auto renewal without payment (статус предотвращает авто продление без оплаты)
+
+Registar created: KAZNIC
+Current Registar: HOSTER.KZ
