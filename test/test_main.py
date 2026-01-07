@@ -16,12 +16,12 @@ class TestExtractDomain(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(domain, await extract_domain(url))
 
     async def test_simple_unicode_domain(self):
-        url = "http://нарояци.com/"
+        url = "https://нарояци.com/"
         domain = "нарояци.com"
         self.assertEqual(domain, await extract_domain(url))
 
     async def test_unicode_domain_and_tld(self):
-        url = "http://россия.рф/"
+        url = "https://россия.рф/"
         domain = "россия.рф"
         self.assertEqual(domain, await extract_domain(url))
 

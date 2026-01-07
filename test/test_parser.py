@@ -10,8 +10,8 @@ from dateutil.tz import tzoffset
 
 from async43.exceptions import WhoisUnknownDateFormatError
 from async43.parsers.cctld import WhoisCa
-from async43 import WhoisEntry
-from async43.parsers.base import datetime_parse, cast_date
+from async43 import WhoisEntry, load
+from async43.parsers.base import cast_date
 
 utc = tzoffset('UTC', 0)
 
@@ -26,7 +26,7 @@ class TestParser(unittest.TestCase):
 
         >>> Last update of whois database: Sun, 31 Aug 2008 00:18:23 UTC <<<
         """
-        w = WhoisEntry.load("urlowl.com", data)
+        w = load("urlowl.com", data)
         expires = w.expiration_date.strftime("%Y-%m-%d")
         self.assertEqual(expires, "2018-02-21")
 
@@ -46,7 +46,7 @@ class TestParser(unittest.TestCase):
 
     def test_com_allsamples(self):
         """
-        Iterate over all of the sample/whois/*.com files, read the data,
+        Iterate over all the sample/whois/*.com files, read the data,
         parse it, and compare to the expected values in sample/expected/.
         Only keys defined in keys_to_test will be tested.
 
@@ -74,7 +74,7 @@ class TestParser(unittest.TestCase):
             with open(path, encoding="utf-8") as whois_fp:
                 data = whois_fp.read()
 
-            w = WhoisEntry.load(domain, data)
+            w = load(domain, data)
             results = {key: w.get(key) for key in keys_to_test}
 
             # NOTE: Toggle condition below to write expected results from the
@@ -90,7 +90,7 @@ class TestParser(unittest.TestCase):
 
                 outfile_name = os.path.join(expect_path, domain)
                 with open(outfile_name, "w") as outfil:
-                    expected_results = json.dump(results, outfil, default=date2str4json)
+                    json.dump(results, outfil, default=date2str4json)
                 continue
 
             # Load expected result
@@ -173,7 +173,7 @@ class TestParser(unittest.TestCase):
 Domain Name: google.ai
 Registry Domain ID: 6eddd132ab114b12bd2bd4cf9c492a04-DONUTS
 Registrar WHOIS Server: whois.markmonitor.com
-Registrar URL: http://www.markmonitor.com
+Registrar URL: https://www.markmonitor.com
 Updated Date: 2025-01-23T22:17:03Z
 Creation Date: 2017-12-16T05:37:20Z
 Registry Expiry Date: 2025-09-25T05:37:20Z
@@ -378,7 +378,7 @@ ds-rdata:     64134 13 2 77B9519D16B62D0A70A7301945CBB3092A7978BFDE75A3BCFB3D471
 whois:        whois.weare.ie
 
 status:       ACTIVE
-remarks:      Registration information: http://www.weare.ie
+remarks:      Registration information: https://www.weare.ie
 
 created:      1988-01-27
 changed:      2021-03-11
@@ -432,7 +432,7 @@ DNSSEC: signedDelegation
         Date out of quarantine: 2020-12-06T20:31:25
         """
 
-        w = WhoisEntry.load("randomtest.nl", data)
+        w = load("randomtest.nl", data)
         expires = w.expiration_date.strftime("%Y-%m-%d")
         self.assertEqual(expires, "2020-12-06")
 
@@ -500,7 +500,7 @@ Hostname:             p.nic.dk
     def _parse_and_compare(
         self, domain_name, data, expected_results, whois_entry=WhoisEntry
     ):
-        actual_results = whois_entry.load(domain_name, data)
+        actual_results = load(domain_name, data)
         # import pprint; pprint.pprint(actual_results)
         self.assertEqual(expected_results, actual_results)
 
@@ -576,7 +576,7 @@ Hostname:             p.nic.dk
     def test_bw_parse(self):
         data = """
 % IANA WHOIS server
-% for more information on IANA, visit http://www.iana.org
+% for more information on IANA, visit https://www.iana.org
 % This query returned 1 object
 
 refer:        whois.nic.net.bw
@@ -619,7 +619,7 @@ nserver:      PCH.NIC.NET.BW 2001:500:14:6070:ad:0:0:1 204.61.216.70
 whois:        whois.nic.net.bw
 
 status:       ACTIVE
-remarks:      Registration information: http://nic.net.bw
+remarks:      Registration information: https://nic.net.bw
 
 created:      1993-03-19
 changed:      2022-07-27

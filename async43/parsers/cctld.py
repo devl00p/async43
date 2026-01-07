@@ -1,9 +1,8 @@
 import re
 from datetime import timezone, timedelta
 
-from async43 import WhoisEntry
 from async43.exceptions import WhoisDomainNotFoundError
-from async43.parsers.base import EMAIL_REGEX, cast_date
+from async43.parsers.base import EMAIL_REGEX, cast_date, WhoisEntry
 from async43.time_zones import tz_data
 
 

@@ -8,7 +8,7 @@ def read(filename):
 
 setuptools.setup(
     name="async43",
-    version="0.0.1",
+    version="0.0.2",
     description="Asynchronous WHOIS client for Python using asyncio. Supports IPv6 and IP rotation.",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",

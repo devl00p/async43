@@ -9,6 +9,7 @@ import sys
 from typing import Any, Optional, Pattern
 
 from async43.exceptions import WhoisError
+from async43.parsers import load
 from async43.parsers.base import WhoisEntry
 from async43.whois import NICClient
 
@@ -58,12 +59,9 @@ async def whois(
     if command:
         # try native whois command
         whois_command = [executable, domain]
-        if executable_opts:
-            if isinstance(executable_opts, list):
+        if executable_opts and isinstance(executable_opts, list):
                 whois_command.extend(executable_opts)
-            else:
-                whois_command.append(executable_opts)
-        
+
         proc = await asyncio.create_subprocess_exec(
             *whois_command,
             stdout=asyncio.subprocess.PIPE,
@@ -83,7 +81,7 @@ async def whois(
         text = await nic_client.whois_lookup(None, domain, flags, quiet=quiet, ignore_socket_errors=ignore_socket_errors, timeout=timeout)
         if not text:
             raise WhoisError("Whois command returned no output")
-    entry = WhoisEntry.load(domain, text)
+    entry = load(domain, text)
     if inc_raw:
         entry["raw"] = text
     return entry
@@ -95,7 +93,7 @@ suffixes: Optional[set] = None
 async def extract_domain(url: str) -> str:
     """Extract the domain from the given URL
 
-    >>> logger.info(extract_domain('http://www.google.com.au/tos.html'))
+    >>> logger.info(extract_domain('https://www.google.com.au/tos.html'))
     google.com.au
     >>> logger.info(extract_domain('abc.def.com'))
     def.com
@@ -136,8 +134,6 @@ async def extract_domain(url: str) -> str:
                 if line and not line.startswith("//")
             )
 
-    if not isinstance(url, str):
-        url = url.decode("utf-8")
     url = re.sub("^.*://", "", url)
     url = url.split("/")[0].lower()
 

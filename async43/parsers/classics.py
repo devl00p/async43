@@ -1,6 +1,5 @@
-from async43 import WhoisEntry
 from async43.exceptions import WhoisDomainNotFoundError
-from async43.parsers.base import EMAIL_REGEX
+from async43.parsers.base import EMAIL_REGEX, WhoisEntry
 
 
 class WhoisCom(WhoisEntry):
