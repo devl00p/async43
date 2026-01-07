@@ -1,14 +1,14 @@
 import os
-import setuptools
+from setuptools import setup, find_packages
 
 
 def read(filename):
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
 
 
-setuptools.setup(
+setup(
     name="async43",
-    version="0.0.2",
+    version="0.0.3",
     description="Asynchronous WHOIS client for Python using asyncio. Supports IPv6 and IP rotation.",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -33,7 +33,7 @@ setuptools.setup(
     author_email="nicolas.surribas@gmail.com",
     url="https://github.com/devl00p/async43",
     license="MIT",
-    packages=["async43"],
+    packages=find_packages(exclude=["test", "test.*"]),
     package_dir={"async43": "async43"},
     install_requires=["python-dateutil"],
     tests_require=["pytest"],
