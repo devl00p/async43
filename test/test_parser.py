@@ -9,12 +9,9 @@ from glob import glob
 from dateutil.tz import tzoffset
 
 from async43.exceptions import WhoisUnknownDateFormatError
-from async43.parser import (
-    WhoisCa,
-    WhoisEntry,
-    cast_date,
-    datetime_parse,
-)
+from async43.parsers.cctld import WhoisCa
+from async43 import WhoisEntry
+from async43.parsers.base import datetime_parse, cast_date
 
 utc = tzoffset('UTC', 0)
 

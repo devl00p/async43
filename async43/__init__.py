@@ -9,7 +9,7 @@ import sys
 from typing import Any, Optional, Pattern
 
 from async43.exceptions import WhoisError
-from async43.parser import WhoisEntry
+from async43.parsers.base import WhoisEntry
 from async43.whois import NICClient
 
 logger = logging.getLogger(__name__)
