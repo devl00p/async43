@@ -307,7 +307,7 @@ class WhoisBy(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
-class WhoisBz(WhoisRu):
+class WhoisBz(WhoisEntry):
     """Whois parser for .bz domains"""
 
     regex: dict[str, str] = {
@@ -357,6 +357,9 @@ class WhoisBz(WhoisRu):
         "expiration_date": r"Registrar Registration Expiration Date: *(.+)",
         "updated_date": r"Updated Date: *(.+)",
         "dnssec": r"DNSSEC: *(.+)",
+        "free_date": r"free-date: *(.+)",
+        "emails": EMAIL_REGEX,  # list of email addresses
+        "org": r"org: *(.+)",
     }
 
     def __init__(self, domain: str, text: str):
@@ -981,415 +984,6 @@ class WhoisHu(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
-class WhoisJp(WhoisEntry):
-    """Parser for .jp domains
-
-    For testing, try *both* of:
-        nintendo.jp
-        nintendo.co.jp
-
-    """
-
-    not_found = "No match!!"
-    regex: dict[str, str] = {
-        "domain_name": r"^(?:a\. )?\[Domain Name\]\s*(.+)",
-        "registrant_org": r"^(?:g\. )?\[(?:Organization|Registrant)\](.+)",
-        "creation_date": r"\[(?:Registered Date|Created on)\][ \t]*(.+)",
-        "organization_type": r"^(?:l\. )?\[Organization Type\]\s*(.+)$",
-        "technical_contact_name": r"^(?:n. )?\[(?:Technical Contact)\]\s*(.+)",
-        "administrative_contact_name": r"^(?:m. )?(?:\[Administrative Contact\]\s*(.+)|Contact Information:\s+^\[Name\](.*))",
-        # These don't need the X. at the beginning, I just was too lazy to split the pattern off
-        "administrative_contact_email": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Email\]\s*(.*))",
-        "administrative_contact_phone": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Phone\]\s*(.*))",
-        "administrative_contact_fax": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Fax\]\s*(.*))",
-        "administrative_contact_post_code": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Postal code\]\s*(.*))",
-        "administrative_contact_postal_address": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Postal Address\]\s*(.*))",
-        "expiration_date": r"\[Expires on\]\s*(.+)",
-        "name_servers": r"^(?:p\. )?\[Name Server\]\s*(.+)",  # list
-        "updated_date": r"^\[Last Updated?\]\s?(.+)",
-        "signing_key": r"^(?:s\. )?\[Signing Key\](.+)$",
-        "status": r"\[(?:State|Status)\]\s*(.+)",  # list
-    }
-
-    def __init__(self, domain: str, text: str):
-        if self.not_found in text:
-            raise WhoisDomainNotFoundError(text)
-
-        super().__init__(domain, text, self.regex)
-
-    def _preprocess(self, attr, value):
-        # handle named timezone.  cast_date can't handle it, since datetime.parse doesn't support the format and
-        # strptime doesn't handle custom timezone names.
-        value = value.strip()
-        if value and isinstance(value, str) and "_date" in attr and value.endswith(" (JST)"):
-            value = value.replace(' (JST)', '')
-            value = cast_date(value, dayfirst=self.dayfirst, yearfirst=self.yearfirst)
-            value = value.replace(tzinfo=timezone(timedelta(seconds=tz_data['JST'])))
-            return value
-        else:
-            return super()._preprocess(attr, value)
-
-
-class WhoisKr(WhoisEntry):
-    """Whois parser for .kr domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"Domain Name\s*: *(.+)",
-        "registrant_name": r"Registrant\s*: *(.+)",
-        "registrant_address": r"Registrant Address\s*: *(.+)",
-        "registrant_postal_code": r"Registrant Zip Code\s*: *(.+)",
-        "admin_name": r"Administrative Contact\(AC\)\s*: *(.+)",
-        "admin_email": r"AC E-Mail\s*: *(.+)",
-        "admin_phone": r"AC Phone Number\s*: *(.+)",
-        "creation_date": r"Registered Date\s*: *(.+)",
-        "updated_date": r"Last updated Date\s*: *(.+)",
-        "expiration_date": r"Expiration Date\s*: *(.+)",
-        "registrar": r"Authorized Agency\s*: *(.+)",
-        "name_servers": r"Host Name\s*: *(.+)",  # list of name servers
-    }
-
-    def __init__(self, domain: str, text: str):
-        if text.endswith(" no match") or "The requested domain was not found" in text:
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisLt(WhoisEntry):
-    """Whois parser for .lt domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"Domain:\s?(.+)",
-        "expiration_date": r"Expires:\s?(.+)",
-        "creation_date": r"Registered:\s?(.+)",
-        "status": r"\nStatus:\s?(.+)",  # list of statuses
-    }
-
-    def __init__(self, domain: str, text: str):
-        if text.rstrip().endswith("available"):
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-        match = re.compile(
-            r"Domain nameservers:(.*?)Record maintained by", re.DOTALL
-        ).search(text)
-        if match:
-            duplicate_nameservers_with_ip = [
-                line.strip() for line in match.groups()[0].strip().splitlines()
-            ]
-            duplicate_nameservers_without_ip = [
-                nameserver.split(" ")[0] for nameserver in duplicate_nameservers_with_ip
-            ]
-            self["name_servers"] = sorted(list(set(duplicate_nameservers_without_ip)))
-
-
-class WhoisMe(WhoisEntry):
-    """Whois parser for .me domains"""
-
-    regex: dict[str, str] = {
-        "domain_id": r"Registry Domain ID:(.+)",
-        "domain_name": r"Domain Name:(.+)",
-        "creation_date": r"Creation Date:(.+)",
-        "updated_date": r"Updated Date:(.+)",
-        "expiration_date": r"Registry Expiry Date: (.+)",
-        "registrar": r"Registrar:(.+)",
-        "status": r"Domain Status:(.+)",  # list of statuses
-        "registrant_id": r"Registrant ID:(.+)",
-        "registrant_name": r"Registrant Name:(.+)",
-        "registrant_org": r"Registrant Organization:(.+)",
-        "registrant_address": r"Registrant Address:(.+)",
-        "registrant_address2": r"Registrant Address2:(.+)",
-        "registrant_address3": r"Registrant Address3:(.+)",
-        "registrant_city": r"Registrant City:(.+)",
-        "registrant_state_province": r"Registrant State/Province:(.+)",
-        "registrant_country": r"Registrant Country/Economy:(.+)",
-        "registrant_postal_code": r"Registrant Postal Code:(.+)",
-        "registrant_phone": r"Registrant Phone:(.+)",
-        "registrant_phone_ext": r"Registrant Phone Ext\.:(.+)",
-        "registrant_fax": r"Registrant FAX:(.+)",
-        "registrant_fax_ext": r"Registrant FAX Ext\.:(.+)",
-        "registrant_email": r"Registrant E-mail:(.+)",
-        "admin_id": r"Admin ID:(.+)",
-        "admin_name": r"Admin Name:(.+)",
-        "admin_org": r"Admin Organization:(.+)",
-        "admin_address": r"Admin Address:(.+)",
-        "admin_address2": r"Admin Address2:(.+)",
-        "admin_address3": r"Admin Address3:(.+)",
-        "admin_city": r"Admin City:(.+)",
-        "admin_state_province": r"Admin State/Province:(.+)",
-        "admin_country": r"Admin Country/Economy:(.+)",
-        "admin_postal_code": r"Admin Postal Code:(.+)",
-        "admin_phone": r"Admin Phone:(.+)",
-        "admin_phone_ext": r"Admin Phone Ext\.:(.+)",
-        "admin_fax": r"Admin FAX:(.+)",
-        "admin_fax_ext": r"Admin FAX Ext\.:(.+)",
-        "admin_email": r"Admin E-mail:(.+)",
-        "tech_id": r"Tech ID:(.+)",
-        "tech_name": r"Tech Name:(.+)",
-        "tech_org": r"Tech Organization:(.+)",
-        "tech_address": r"Tech Address:(.+)",
-        "tech_address2": r"Tech Address2:(.+)",
-        "tech_address3": r"Tech Address3:(.+)",
-        "tech_city": r"Tech City:(.+)",
-        "tech_state_province": r"Tech State/Province:(.+)",
-        "tech_country": r"Tech Country/Economy:(.+)",
-        "tech_postal_code": r"Tech Postal Code:(.+)",
-        "tech_phone": r"Tech Phone:(.+)",
-        "tech_phone_ext": r"Tech Phone Ext\.:(.+)",
-        "tech_fax": r"Tech FAX:(.+)",
-        "tech_fax_ext": r"Tech FAX Ext\.:(.+)",
-        "tech_email": r"Tech E-mail:(.+)",
-        "name_servers": r"Nameservers:(.+)",  # list of name servers
-    }
-
-    def __init__(self, domain: str, text: str):
-        if "NOT FOUND" in text or "Domain not found" in text:
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisNl(WhoisEntry):
-    """Whois parser for .nl domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"Domain Name: *(.+)",
-        "expiration_date": r"Date\sout\sof\squarantine:\s*(.+)",
-        "updated_date": r"Updated\sDate:\s*(.+)",
-        "creation_date": r"Creation\sDate:\s*(.+)",
-        "status": r"Status: *(.+)",  # list of statuses
-        "registrar": r"Registrar:\s*(.*\n)",
-        "registrar_address": r"Registrar:\s*(?:.*\n){1}\s*(.*)",
-        "registrar_postal_code": r"Registrar:\s*(?:.*\n){2}\s*(\S*)\s(?:.*)",
-        "registrar_city": r"Registrar:\s*(?:.*\n){2}\s*(?:\S*)\s(.*)",
-        "registrar_country": r"Registrar:\s*(?:.*\n){3}\s*(.*)",
-        "reseller": r"Reseller:\s*(.*\n)",
-        "reseller_address": r"Reseller:\s*(?:.*\n){1}\s*(.*)",
-        "reseller_postal_code": r"Reseller:\s*(?:.*\n){2}\s*(\S*)\s(?:.*)",
-        "reseller_city": r"Reseller:\s*(?:.*\n){2}\s*(?:\S*)\s(.*)",
-        "reseller_country": r"Reseller:\s*(?:.*\n){3}\s*(.*)",
-        "abuse_phone": r"Abuse Contact:\s*(.*\n)",
-        "abuse_email": r"Abuse Contact:\s*(?:.*\n){1}\s*(.*)",
-        "dnssec": r"DNSSEC: *(.+)",
-    }
-
-    def __init__(self, domain: str, text: str):
-        if text.rstrip().endswith("is free"):
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-        match = re.compile(
-            r"Domain nameservers:(.*?)Record maintained by", re.DOTALL
-        ).search(text)
-        if match:
-            duplicate_nameservers_with_ip = []
-            for line in match.groups()[0].strip().splitlines():
-                if line.strip() == "":
-                    break
-                duplicate_nameservers_with_ip.append(line.strip())
-            duplicate_nameservers_without_ip = [
-                nameserver.split(" ")[0] for nameserver in duplicate_nameservers_with_ip
-            ]
-            self["name_servers"] = sorted(list(set(duplicate_nameservers_without_ip)))
-
-
-class WhoisRo(WhoisEntry):
-    """Whois parser for .ro domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"Domain Name: *(.+)",
-        "domain_status": r"Domain Status: *(.+)",
-        "registrar": r"Registrar: *(.+)",
-        "referral_url": r"Referral URL: *(.+)",  # http url of whois_server: empty usually
-        "creation_date": r"Registered On: *(.+)",
-        "expiration_date": r"Expires On: *(.+)",
-        "name_servers": r"Nameserver: *(.+)",  # list of name servers
-        "status": r"Status: *(.+)",  # list of statuses
-        "dnssec": r"DNSSEC: *(.+)",
-    }
-
-    def __init__(self, domain: str, text: str):
-        if text.strip() == "NOT FOUND" or "No entries found for the selected source" in text:
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisRu(WhoisEntry):
-    """Whois parser for .ru domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"domain: *(.+)",
-        "registrar": r"registrar: *(.+)",
-        "creation_date": r"created: *(.+)",
-        "expiration_date": r"paid-till: *(.+)",
-        "free_date": r"free-date: *(.+)",
-        "name_servers": r"nserver: *(.+)",  # list of name servers
-        "status": r"state: *(.+)",  # list of statuses
-        "emails": EMAIL_REGEX,  # list of email addresses
-        "org": r"org: *(.+)",
-    }
-
-    def __init__(self, domain: str, text: str):
-        if "No entries found" in text:
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisUs(WhoisEntry):
-    """Whois parser for .us domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"Domain Name: *(.+)",
-        "domain__id": r"Domain ID: *(.+)",
-        "whois_server": r"Registrar WHOIS Server: *(.+)",
-        "registrar": r"Registrar: *(.+)",
-        "registrar_id": r"Registrar IANA ID: *(.+)",
-        "registrar_url": r"Registrar URL: *(.+)",
-        "registrar_email": r"Registrar Abuse Contact Email: *(.+)",
-        "registrar_phone": r"Registrar Abuse Contact Phone: *(.+)",
-        "status": r"Domain Status: *(.+)",  # list of statuses
-        "registrant_id": r"Registry Registrant ID: *(.+)",
-        "registrant_name": r"Registrant Name: *(.+)",
-        "registrant_organization": r"Registrant Organization: *(.+)",
-        "registrant_street": r"Registrant Street: *(.+)",
-        "registrant_city": r"Registrant City: *(.+)",
-        "registrant_state_province": r"Registrant State/Province: *(.+)",
-        "registrant_postal_code": r"Registrant Postal Code: *(.+)",
-        "registrant_country": r"Registrant Country: *(.+)",
-        "registrant_phone": r"Registrant Phone: *(.+)",
-        "registrant_email": r"Registrant Email: *(.+)",
-        "registrant_fax": r"Registrant Fax: *(.+)",
-        "registrant_application_purpose": r"Registrant Application Purpose: *(.+)",
-        "registrant_nexus_category": r"Registrant Nexus Category: *(.+)",
-        "admin_id": r"Registry Admin ID: *(.+)",
-        "admin": r"Admin Name: *(.+)",
-        "admin_organization": r"Admin Organization: *(.+)",
-        "admin_street": r"Admin Street: *(.+)",
-        "admin_city": r"Admin City: *(.+)",
-        "admin_state_province": r"Admin State/Province: *(.+)",
-        "admin_postal_code": r"Admin Postal Code: *(.+)",
-        "admin_country": r"Admin Country: *(.+)",
-        "admin_phone": r"Admin Phone: *(.+)",
-        "admin_email": r"Admin Email: *(.+)",
-        "admin_fax": r"Admin Fax: *(.+)",
-        "admin_application_purpose": r"Admin Application Purpose: *(.+)",
-        "admin_nexus_category": r"Admin Nexus Category: *(.+)",
-        "tech_id": r"Registry Tech ID: *(.+)",
-        "tech_name": r"Tech Name: *(.+)",
-        "tech_organization": r"Tech Organization: *(.+)",
-        "tech_street": r"Tech Street: *(.+)",
-        "tech_city": r"Tech City: *(.+)",
-        "tech_state_province": r"Tech State/Province: *(.+)",
-        "tech_postal_code": r"Tech Postal Code: *(.+)",
-        "tech_country": r"Tech Country: *(.+)",
-        "tech_phone": r"Tech Phone: *(.+)",
-        "tech_email": r"Tech Email: *(.+)",
-        "tech_fax": r"Tech Fax: *(.+)",
-        "tech_application_purpose": r"Tech Application Purpose: *(.+)",
-        "tech_nexus_category": r"Tech Nexus Category: *(.+)",
-        "name_servers": r"Name Server: *(.+)",  # list of name servers
-        "creation_date": r"Creation Date: *(.+)",
-        "expiration_date": r"Registry Expiry Date: *(.+)",
-        "updated_date": r"Updated Date: *(.+)",
-    }
-
-    def __init__(self, domain, text):
-        if "No Data Found" in text:
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisPl(WhoisEntry):
-    """Whois parser for .pl domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"DOMAIN NAME: *(.+)\n",
-        "name_servers": r"nameservers:(?:\s+(\S+)\.[^\n]*\n)(?:\s+(\S+)\.[^\n]*\n)?(?:\s+(\S+)\.[^\n]*\n)?(?:\s+(\S+)\.[^\n]*\n)?",  # up to 4
-        "registrar": r"REGISTRAR:\s*(.+)",
-        "registrar_url": r"URL: *(.+)",  # not available
-        "status": r"Registration status:\n\s*(.+)",  # not available
-        "registrant_name": r"Registrant:\n\s*(.+)",  # not available
-        "creation_date": r"(?<! )created: *(.+)\n",
-        "expiration_date": r"renewal date: *(.+)",
-        "updated_date": r"last modified: *(.+)\n",
-    }
-
-    def __init__(self, domain: str, text: str):
-        if "No information available about domain name" in text:
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisRs(WhoisEntry):
-    """Whois parser for .rs domains"""
-
-    _regex: dict[str, str] = {
-        "domain_name": r"Domain name: *(.+)",
-        "status": r"Domain status: *(.+)",  # list of statuses
-        "creation_date": r"Registration date: *(.+)",
-        "updated_date": r"Modification date: *(.+)",
-        "expiration_date": r"Expiration date: *(.+)",
-        "registrar": r"Registrar: *(.+)",
-        "name": r"Registrant: *(.+)",
-        "address": r"Registrant: *.+\nAddress: *(.+)",
-        "admin_name": r"Administrative contact: *(.+)",
-        "admin_address": r"Administrative contact: *.+\nAddress: *(.+)",
-        "tech_name": r"Technical contact: *(.+)",
-        "tech_address": r"Technical contact: *.+\nAddress: *(.+)",
-        "name_servers": r"DNS: *(\S+)",  # list of name servers
-        "dnssec": r"DNSSEC signed: *(\S+)",
-    }
-
-    def __init__(self, domain: str, text: str):
-        if text.strip() == "%ERROR:103: Domain is not registered":
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisPt(WhoisEntry):
-    """Whois parser for .pt domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"Domain: *(.+)",
-        "creation_date": r"Creation Date: *(.+)",
-        "expiration_date": r"Expiration Date: *(.+)",
-        "registrant_name": r"Owner Name: *(.+)",
-        "registrant_street": r"Owner Address: *(.+)",
-        "registrant_city": r"Owner Locality: *(.+)",
-        "registrant_postal_code": r"Owner ZipCode: *(.+)",
-        "registrant_email": r"Owner Email: *(.+)",
-        "admin": r"Admin Name: *(.+)",
-        "admin_street": r"Admin Address: *(.+)",
-        "admin_city": r"Admin Locality: *(.+)",
-        "admin_postal_code": r"Admin ZipCode: *(.+)",
-        "admin_email": r"Admin Email: *(.+)",
-        "name_servers": r"Name Server: *(.+) \|",  # list of name servers
-        "status": r"Domain Status: *(.+)",  # list of statuses
-        "emails": EMAIL_REGEX,  # list of email addresses
-    }
-    dayfirst = True
-
-    def __init__(self, domain: str, text: str):
-        if text.strip() == "No entries found":
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
-
-
-class WhoisRf(WhoisRu):
-    """Whois parser for .su domains"""
-
-    def __init__(self, domain: str, text: str):
-        WhoisRu.__init__(self, domain, text)
-
-
 class WhoisID(WhoisEntry):
     """Whois parser for .id domains"""
 
@@ -1608,6 +1202,55 @@ class WhoisIt(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
+class WhoisJp(WhoisEntry):
+    """Parser for .jp domains
+
+    For testing, try *both* of:
+        nintendo.jp
+        nintendo.co.jp
+
+    """
+
+    not_found = "No match!!"
+    regex: dict[str, str] = {
+        "domain_name": r"^(?:a\. )?\[Domain Name\]\s*(.+)",
+        "registrant_org": r"^(?:g\. )?\[(?:Organization|Registrant)\](.+)",
+        "creation_date": r"\[(?:Registered Date|Created on)\][ \t]*(.+)",
+        "organization_type": r"^(?:l\. )?\[Organization Type\]\s*(.+)$",
+        "technical_contact_name": r"^(?:n. )?\[(?:Technical Contact)\]\s*(.+)",
+        "administrative_contact_name": r"^(?:m. )?(?:\[Administrative Contact\]\s*(.+)|Contact Information:\s+^\[Name\](.*))",
+        # These don't need the X. at the beginning, I just was too lazy to split the pattern off
+        "administrative_contact_email": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Email\]\s*(.*))",
+        "administrative_contact_phone": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Phone\]\s*(.*))",
+        "administrative_contact_fax": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Fax\]\s*(.*))",
+        "administrative_contact_post_code": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Postal code\]\s*(.*))",
+        "administrative_contact_postal_address": r"^(?:X. )?(?:\[Administrative Contact\]\s*(?:.+)|Contact Information:\s+)(?:^\s*.*\s+)*(?:^\[Postal Address\]\s*(.*))",
+        "expiration_date": r"\[Expires on\]\s*(.+)",
+        "name_servers": r"^(?:p\. )?\[Name Server\]\s*(.+)",  # list
+        "updated_date": r"^\[Last Updated?\]\s?(.+)",
+        "signing_key": r"^(?:s\. )?\[Signing Key\](.+)$",
+        "status": r"\[(?:State|Status)\]\s*(.+)",  # list
+    }
+
+    def __init__(self, domain: str, text: str):
+        if self.not_found in text:
+            raise WhoisDomainNotFoundError(text)
+
+        super().__init__(domain, text, self.regex)
+
+    def _preprocess(self, attr, value):
+        # handle named timezone.  cast_date can't handle it, since datetime.parse doesn't support the format and
+        # strptime doesn't handle custom timezone names.
+        value = value.strip()
+        if value and isinstance(value, str) and "_date" in attr and value.endswith(" (JST)"):
+            value = value.replace(' (JST)', '')
+            value = cast_date(value, dayfirst=self.dayfirst, yearfirst=self.yearfirst)
+            value = value.replace(tzinfo=timezone(timedelta(seconds=tz_data['JST'])))
+            return value
+        else:
+            return super()._preprocess(attr, value)
+
+
 class WhoisKg(WhoisEntry):
     """Whois parser for .kg domains"""
 
@@ -1633,6 +1276,31 @@ class WhoisKg(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
+class WhoisKr(WhoisEntry):
+    """Whois parser for .kr domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"Domain Name\s*: *(.+)",
+        "registrant_name": r"Registrant\s*: *(.+)",
+        "registrant_address": r"Registrant Address\s*: *(.+)",
+        "registrant_postal_code": r"Registrant Zip Code\s*: *(.+)",
+        "admin_name": r"Administrative Contact\(AC\)\s*: *(.+)",
+        "admin_email": r"AC E-Mail\s*: *(.+)",
+        "admin_phone": r"AC Phone Number\s*: *(.+)",
+        "creation_date": r"Registered Date\s*: *(.+)",
+        "updated_date": r"Last updated Date\s*: *(.+)",
+        "expiration_date": r"Expiration Date\s*: *(.+)",
+        "registrar": r"Authorized Agency\s*: *(.+)",
+        "name_servers": r"Host Name\s*: *(.+)",  # list of name servers
+    }
+
+    def __init__(self, domain: str, text: str):
+        if text.endswith(" no match") or "The requested domain was not found" in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
 class WhoisKZ(WhoisEntry):
     """Whois parser for .kz domains"""
 
@@ -1653,6 +1321,35 @@ class WhoisKZ(WhoisEntry):
             raise WhoisDomainNotFoundError(text)
         else:
             WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+class WhoisLt(WhoisEntry):
+    """Whois parser for .lt domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"Domain:\s?(.+)",
+        "expiration_date": r"Expires:\s?(.+)",
+        "creation_date": r"Registered:\s?(.+)",
+        "status": r"\nStatus:\s?(.+)",  # list of statuses
+    }
+
+    def __init__(self, domain: str, text: str):
+        if text.rstrip().endswith("available"):
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+        match = re.compile(
+            r"Domain nameservers:(.*?)Record maintained by", re.DOTALL
+        ).search(text)
+        if match:
+            duplicate_nameservers_with_ip = [
+                line.strip() for line in match.groups()[0].strip().splitlines()
+            ]
+            duplicate_nameservers_without_ip = [
+                nameserver.split(" ")[0] for nameserver in duplicate_nameservers_with_ip
+            ]
+            self["name_servers"] = sorted(list(set(duplicate_nameservers_without_ip)))
 
 
 class WhoisLu(WhoisEntry):
@@ -1707,6 +1404,72 @@ class WhoisLv(WhoisEntry):
 
     def __init__(self, domain: str, text: str):
         if "Status: free" in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+class WhoisMe(WhoisEntry):
+    """Whois parser for .me domains"""
+
+    regex: dict[str, str] = {
+        "domain_id": r"Registry Domain ID:(.+)",
+        "domain_name": r"Domain Name:(.+)",
+        "creation_date": r"Creation Date:(.+)",
+        "updated_date": r"Updated Date:(.+)",
+        "expiration_date": r"Registry Expiry Date: (.+)",
+        "registrar": r"Registrar:(.+)",
+        "status": r"Domain Status:(.+)",  # list of statuses
+        "registrant_id": r"Registrant ID:(.+)",
+        "registrant_name": r"Registrant Name:(.+)",
+        "registrant_org": r"Registrant Organization:(.+)",
+        "registrant_address": r"Registrant Address:(.+)",
+        "registrant_address2": r"Registrant Address2:(.+)",
+        "registrant_address3": r"Registrant Address3:(.+)",
+        "registrant_city": r"Registrant City:(.+)",
+        "registrant_state_province": r"Registrant State/Province:(.+)",
+        "registrant_country": r"Registrant Country/Economy:(.+)",
+        "registrant_postal_code": r"Registrant Postal Code:(.+)",
+        "registrant_phone": r"Registrant Phone:(.+)",
+        "registrant_phone_ext": r"Registrant Phone Ext\.:(.+)",
+        "registrant_fax": r"Registrant FAX:(.+)",
+        "registrant_fax_ext": r"Registrant FAX Ext\.:(.+)",
+        "registrant_email": r"Registrant E-mail:(.+)",
+        "admin_id": r"Admin ID:(.+)",
+        "admin_name": r"Admin Name:(.+)",
+        "admin_org": r"Admin Organization:(.+)",
+        "admin_address": r"Admin Address:(.+)",
+        "admin_address2": r"Admin Address2:(.+)",
+        "admin_address3": r"Admin Address3:(.+)",
+        "admin_city": r"Admin City:(.+)",
+        "admin_state_province": r"Admin State/Province:(.+)",
+        "admin_country": r"Admin Country/Economy:(.+)",
+        "admin_postal_code": r"Admin Postal Code:(.+)",
+        "admin_phone": r"Admin Phone:(.+)",
+        "admin_phone_ext": r"Admin Phone Ext\.:(.+)",
+        "admin_fax": r"Admin FAX:(.+)",
+        "admin_fax_ext": r"Admin FAX Ext\.:(.+)",
+        "admin_email": r"Admin E-mail:(.+)",
+        "tech_id": r"Tech ID:(.+)",
+        "tech_name": r"Tech Name:(.+)",
+        "tech_org": r"Tech Organization:(.+)",
+        "tech_address": r"Tech Address:(.+)",
+        "tech_address2": r"Tech Address2:(.+)",
+        "tech_address3": r"Tech Address3:(.+)",
+        "tech_city": r"Tech City:(.+)",
+        "tech_state_province": r"Tech State/Province:(.+)",
+        "tech_country": r"Tech Country/Economy:(.+)",
+        "tech_postal_code": r"Tech Postal Code:(.+)",
+        "tech_phone": r"Tech Phone:(.+)",
+        "tech_phone_ext": r"Tech Phone Ext\.:(.+)",
+        "tech_fax": r"Tech FAX:(.+)",
+        "tech_fax_ext": r"Tech FAX Ext\.:(.+)",
+        "tech_email": r"Tech E-mail:(.+)",
+        "name_servers": r"Nameservers:(.+)",  # list of name servers
+    }
+
+    def __init__(self, domain: str, text: str):
+        if "NOT FOUND" in text or "Domain not found" in text:
             raise WhoisDomainNotFoundError(text)
         else:
             WhoisEntry.__init__(self, domain, text, self.regex)
@@ -1775,6 +1538,51 @@ class WhoisMx(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
+class WhoisNl(WhoisEntry):
+    """Whois parser for .nl domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"Domain Name: *(.+)",
+        "expiration_date": r"Date\sout\sof\squarantine:\s*(.+)",
+        "updated_date": r"Updated\sDate:\s*(.+)",
+        "creation_date": r"Creation\sDate:\s*(.+)",
+        "status": r"Status: *(.+)",  # list of statuses
+        "registrar": r"Registrar:\s*(.*\n)",
+        "registrar_address": r"Registrar:\s*(?:.*\n){1}\s*(.*)",
+        "registrar_postal_code": r"Registrar:\s*(?:.*\n){2}\s*(\S*)\s(?:.*)",
+        "registrar_city": r"Registrar:\s*(?:.*\n){2}\s*(?:\S*)\s(.*)",
+        "registrar_country": r"Registrar:\s*(?:.*\n){3}\s*(.*)",
+        "reseller": r"Reseller:\s*(.*\n)",
+        "reseller_address": r"Reseller:\s*(?:.*\n){1}\s*(.*)",
+        "reseller_postal_code": r"Reseller:\s*(?:.*\n){2}\s*(\S*)\s(?:.*)",
+        "reseller_city": r"Reseller:\s*(?:.*\n){2}\s*(?:\S*)\s(.*)",
+        "reseller_country": r"Reseller:\s*(?:.*\n){3}\s*(.*)",
+        "abuse_phone": r"Abuse Contact:\s*(.*\n)",
+        "abuse_email": r"Abuse Contact:\s*(?:.*\n){1}\s*(.*)",
+        "dnssec": r"DNSSEC: *(.+)",
+    }
+
+    def __init__(self, domain: str, text: str):
+        if text.rstrip().endswith("is free"):
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+        match = re.compile(
+            r"Domain nameservers:(.*?)Record maintained by", re.DOTALL
+        ).search(text)
+        if match:
+            duplicate_nameservers_with_ip = []
+            for line in match.groups()[0].strip().splitlines():
+                if line.strip() == "":
+                    break
+                duplicate_nameservers_with_ip.append(line.strip())
+            duplicate_nameservers_without_ip = [
+                nameserver.split(" ")[0] for nameserver in duplicate_nameservers_with_ip
+            ]
+            self["name_servers"] = sorted(list(set(duplicate_nameservers_without_ip)))
+
+
 class WhoisNo(WhoisEntry):
     """Whois parser for .no domains"""
 
@@ -1840,6 +1648,28 @@ class WhoisPe(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
+class WhoisPl(WhoisEntry):
+    """Whois parser for .pl domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"DOMAIN NAME: *(.+)\n",
+        "name_servers": r"nameservers:(?:\s+(\S+)\.[^\n]*\n)(?:\s+(\S+)\.[^\n]*\n)?(?:\s+(\S+)\.[^\n]*\n)?(?:\s+(\S+)\.[^\n]*\n)?",  # up to 4
+        "registrar": r"REGISTRAR:\s*(.+)",
+        "registrar_url": r"URL: *(.+)",  # not available
+        "status": r"Registration status:\n\s*(.+)",  # not available
+        "registrant_name": r"Registrant:\n\s*(.+)",  # not available
+        "creation_date": r"(?<! )created: *(.+)\n",
+        "expiration_date": r"renewal date: *(.+)",
+        "updated_date": r"last modified: *(.+)\n",
+    }
+
+    def __init__(self, domain: str, text: str):
+        if "No information available about domain name" in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
 class WhoisPpUa(WhoisEntry):
     """Whois parser for .pp.ua domains"""
 
@@ -1878,6 +1708,129 @@ class WhoisPpUa(WhoisEntry):
 
     def __init__(self, domain: str, text: str):
         if "No entries found." in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+class WhoisPt(WhoisEntry):
+    """Whois parser for .pt domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"Domain: *(.+)",
+        "creation_date": r"Creation Date: *(.+)",
+        "expiration_date": r"Expiration Date: *(.+)",
+        "registrant_name": r"Owner Name: *(.+)",
+        "registrant_street": r"Owner Address: *(.+)",
+        "registrant_city": r"Owner Locality: *(.+)",
+        "registrant_postal_code": r"Owner ZipCode: *(.+)",
+        "registrant_email": r"Owner Email: *(.+)",
+        "admin": r"Admin Name: *(.+)",
+        "admin_street": r"Admin Address: *(.+)",
+        "admin_city": r"Admin Locality: *(.+)",
+        "admin_postal_code": r"Admin ZipCode: *(.+)",
+        "admin_email": r"Admin Email: *(.+)",
+        "name_servers": r"Name Server: *(.+) \|",  # list of name servers
+        "status": r"Domain Status: *(.+)",  # list of statuses
+        "emails": EMAIL_REGEX,  # list of email addresses
+    }
+    dayfirst = True
+
+    def __init__(self, domain: str, text: str):
+        if text.strip() == "No entries found":
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+class WhoisRf(WhoisEntry):
+    """Whois parser for .su domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"domain: *(.+)",
+        "registrar": r"registrar: *(.+)",
+        "creation_date": r"created: *(.+)",
+        "expiration_date": r"paid-till: *(.+)",
+        "free_date": r"free-date: *(.+)",
+        "name_servers": r"nserver: *(.+)",  # list of name servers
+        "status": r"state: *(.+)",  # list of statuses
+        "emails": EMAIL_REGEX,  # list of email addresses
+        "org": r"org: *(.+)",
+    }
+
+    def __init__(self, domain: str, text: str):
+        if "No entries found" in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+class WhoisRo(WhoisEntry):
+    """Whois parser for .ro domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"Domain Name: *(.+)",
+        "domain_status": r"Domain Status: *(.+)",
+        "registrar": r"Registrar: *(.+)",
+        "referral_url": r"Referral URL: *(.+)",  # http url of whois_server: empty usually
+        "creation_date": r"Registered On: *(.+)",
+        "expiration_date": r"Expires On: *(.+)",
+        "name_servers": r"Nameserver: *(.+)",  # list of name servers
+        "status": r"Status: *(.+)",  # list of statuses
+        "dnssec": r"DNSSEC: *(.+)",
+    }
+
+    def __init__(self, domain: str, text: str):
+        if text.strip() == "NOT FOUND" or "No entries found for the selected source" in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+class WhoisRs(WhoisEntry):
+    """Whois parser for .rs domains"""
+
+    _regex: dict[str, str] = {
+        "domain_name": r"Domain name: *(.+)",
+        "status": r"Domain status: *(.+)",  # list of statuses
+        "creation_date": r"Registration date: *(.+)",
+        "updated_date": r"Modification date: *(.+)",
+        "expiration_date": r"Expiration date: *(.+)",
+        "registrar": r"Registrar: *(.+)",
+        "name": r"Registrant: *(.+)",
+        "address": r"Registrant: *.+\nAddress: *(.+)",
+        "admin_name": r"Administrative contact: *(.+)",
+        "admin_address": r"Administrative contact: *.+\nAddress: *(.+)",
+        "tech_name": r"Technical contact: *(.+)",
+        "tech_address": r"Technical contact: *.+\nAddress: *(.+)",
+        "name_servers": r"DNS: *(\S+)",  # list of name servers
+        "dnssec": r"DNSSEC signed: *(\S+)",
+    }
+
+    def __init__(self, domain: str, text: str):
+        if text.strip() == "%ERROR:103: Domain is not registered":
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+class WhoisRu(WhoisEntry):
+    """Whois parser for .ru domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"domain: *(.+)",
+        "registrar": r"registrar: *(.+)",
+        "creation_date": r"created: *(.+)",
+        "expiration_date": r"paid-till: *(.+)",
+        "free_date": r"free-date: *(.+)",
+        "name_servers": r"nserver: *(.+)",  # list of name servers
+        "status": r"state: *(.+)",  # list of statuses
+        "emails": EMAIL_REGEX,  # list of email addresses
+        "org": r"org: *(.+)",
+    }
+
+    def __init__(self, domain: str, text: str):
+        if "No entries found" in text:
             raise WhoisDomainNotFoundError(text)
         else:
             WhoisEntry.__init__(self, domain, text, self.regex)
@@ -2026,57 +1979,6 @@ class WhoisSu(WhoisRu):
 
     def __init__(self, domain: str, text: str):
         WhoisRu.__init__(self, domain, text)
-
-
-class WhoisVe(WhoisEntry):
-    """Whois parser for .ve domains"""
-
-    regex: dict[str, str] = {
-        "domain_name": r"Nombre de Dominio: *(.+)",
-        "status": r"Estatus del dominio: *(.+)",
-        "registrar": r"registrar: *(.+)",
-        "updated_date": r"Ultima Actualización: *(.+)",
-        "creation_date": r"Fecha de Creación: *(.+)",
-        "expiration_date": r"Fecha de Vencimiento: *(.+)",
-        "name_servers": r"Nombres de Dominio:((?:\s+- .*)*)",
-        "registrant_name": r"Titular:\s*(?:.*\n){1}\s+(.*)",
-        "registrant_city": r"Titular:\s*(?:.*\n){3}\s+([\s\w]*)",
-        "registrant_street": r"Titular:\s*(?:.*\n){2}\s+(.*)",
-        "registrant_state_province": r"Titular:\s*(?:.*\n){3}\s+.*?,(.*),",
-        "registrant_country": r"Titular:\s*(?:.*\n){3}\s+.*, .+  (.*)",
-        "registrant_phone": r"Titular:\s*(?:.*\n){4}\s+(\+*\d.+)",
-        "registrant_email": r"Titular:\s*.*\t(.*)",
-        "tech": r"Contacto Técnico:\s*(?:.*\n){1}\s+(.*)",
-        "tech_city": r"Contacto Técnico:\s*(?:.*\n){3}\s+([\s\w]*)",
-        "tech_street": r"Contacto Técnico:\s*(?:.*\n){2}\s+(.*)",
-        "tech_state_province": r"Contacto Técnico:\s*(?:.*\n){3}\s+.*?,(.*),",
-        "tech_country": r"Contacto Técnico:\s*(?:.*\n){3}\s+.*, .+  (.*)",
-        "tech_phone": r"Contacto Técnico:\s*(?:.*\n){4}\s+(\+*\d.*)\(",
-        "tech_fax": r"Contacto Técnico:\s*(?:.*\n){4}\s+.*\(FAX\) (.*)",
-        "tech_email": r"Contacto Técnico:\s*.*\t(.*)",
-        "admin": r"Contacto Administrativo:\s*(?:.*\n){1}\s+(.*)",
-        "admin_city": r"Contacto Administrativo:\s*(?:.*\n){3}\s+([\s\w]*)",
-        "admin_street": r"Contacto Administrativo:\s*(?:.*\n){2}\s+(.*)",
-        "admin_state_province": r"Contacto Administrativo:\s*(?:.*\n){3}\s+.*?,(.*),",
-        "admin_country": r"Contacto Administrativo:\s*(?:.*\n){3}\s+.*, .+  (.*)",
-        "admin_phone": r"Contacto Administrativo:\s*(?:.*\n){4}\s+(\+*\d.*)\(",
-        "admin_fax": r"Contacto Administrativo:\s*(?:.*\n){4}\s+.*\(FAX\) (.*)",
-        "admin_email": r"Contacto Administrativo:\s*.*\t(.*)",
-        "billing": r"Contacto de Cobranza:\s*(?:.*\n){1}\s+(.*)",
-        "billing_city": r"Contacto de Cobranza:\s*(?:.*\n){3}\s+([\s\w]*)",
-        "billing_street": r"Contacto de Cobranza:\s*(?:.*\n){2}\s+(.*)",
-        "billing_state_province": r"Contacto de Cobranza:\s*(?:.*\n){3}\s+.*?,(.*),",
-        "billing_country": r"Contacto de Cobranza:\s*(?:.*\n){3}\s+.*, .+  (.*)",
-        "billing_phone": r"Contacto de Cobranza:\s*(?:.*\n){4}\s+(\+*\d.*)\(",
-        "billing_fax": r"Contacto de Cobranza:\s*(?:.*\n){4}\s+.*\(FAX\) (.*)",
-        "billing_email": r"Contacto de Cobranza:\s*.*\t(.*)",
-    }
-
-    def __init__(self, domain: str, text: str):
-        if text.strip() == "El dominio no existe.":
-            raise WhoisDomainNotFoundError(text)
-        else:
-            WhoisEntry.__init__(self, domain, text, self.regex)
 
 
 class WhoisTD(WhoisEntry):
@@ -2290,6 +2192,69 @@ class WhoisUk(WhoisEntry):
             WhoisEntry.__init__(self, domain, text, self.regex)
 
 
+class WhoisUs(WhoisEntry):
+    """Whois parser for .us domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"Domain Name: *(.+)",
+        "domain__id": r"Domain ID: *(.+)",
+        "whois_server": r"Registrar WHOIS Server: *(.+)",
+        "registrar": r"Registrar: *(.+)",
+        "registrar_id": r"Registrar IANA ID: *(.+)",
+        "registrar_url": r"Registrar URL: *(.+)",
+        "registrar_email": r"Registrar Abuse Contact Email: *(.+)",
+        "registrar_phone": r"Registrar Abuse Contact Phone: *(.+)",
+        "status": r"Domain Status: *(.+)",  # list of statuses
+        "registrant_id": r"Registry Registrant ID: *(.+)",
+        "registrant_name": r"Registrant Name: *(.+)",
+        "registrant_organization": r"Registrant Organization: *(.+)",
+        "registrant_street": r"Registrant Street: *(.+)",
+        "registrant_city": r"Registrant City: *(.+)",
+        "registrant_state_province": r"Registrant State/Province: *(.+)",
+        "registrant_postal_code": r"Registrant Postal Code: *(.+)",
+        "registrant_country": r"Registrant Country: *(.+)",
+        "registrant_phone": r"Registrant Phone: *(.+)",
+        "registrant_email": r"Registrant Email: *(.+)",
+        "registrant_fax": r"Registrant Fax: *(.+)",
+        "registrant_application_purpose": r"Registrant Application Purpose: *(.+)",
+        "registrant_nexus_category": r"Registrant Nexus Category: *(.+)",
+        "admin_id": r"Registry Admin ID: *(.+)",
+        "admin": r"Admin Name: *(.+)",
+        "admin_organization": r"Admin Organization: *(.+)",
+        "admin_street": r"Admin Street: *(.+)",
+        "admin_city": r"Admin City: *(.+)",
+        "admin_state_province": r"Admin State/Province: *(.+)",
+        "admin_postal_code": r"Admin Postal Code: *(.+)",
+        "admin_country": r"Admin Country: *(.+)",
+        "admin_phone": r"Admin Phone: *(.+)",
+        "admin_email": r"Admin Email: *(.+)",
+        "admin_fax": r"Admin Fax: *(.+)",
+        "admin_application_purpose": r"Admin Application Purpose: *(.+)",
+        "admin_nexus_category": r"Admin Nexus Category: *(.+)",
+        "tech_id": r"Registry Tech ID: *(.+)",
+        "tech_name": r"Tech Name: *(.+)",
+        "tech_organization": r"Tech Organization: *(.+)",
+        "tech_street": r"Tech Street: *(.+)",
+        "tech_city": r"Tech City: *(.+)",
+        "tech_state_province": r"Tech State/Province: *(.+)",
+        "tech_postal_code": r"Tech Postal Code: *(.+)",
+        "tech_country": r"Tech Country: *(.+)",
+        "tech_phone": r"Tech Phone: *(.+)",
+        "tech_email": r"Tech Email: *(.+)",
+        "tech_fax": r"Tech Fax: *(.+)",
+        "tech_application_purpose": r"Tech Application Purpose: *(.+)",
+        "tech_nexus_category": r"Tech Nexus Category: *(.+)",
+        "name_servers": r"Name Server: *(.+)",  # list of name servers
+        "creation_date": r"Creation Date: *(.+)",
+        "expiration_date": r"Registry Expiry Date: *(.+)",
+        "updated_date": r"Updated Date: *(.+)",
+    }
+
+    def __init__(self, domain, text):
+        if "No Data Found" in text:
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
 
 
 class WhoisZa(WhoisEntry):
@@ -2361,6 +2326,59 @@ class WhoisZa(WhoisEntry):
 
     def __init__(self, domain: str, text: str):
         if text.startswith("Available"):
+            raise WhoisDomainNotFoundError(text)
+        else:
+            WhoisEntry.__init__(self, domain, text, self.regex)
+
+
+
+
+class WhoisVe(WhoisEntry):
+    """Whois parser for .ve domains"""
+
+    regex: dict[str, str] = {
+        "domain_name": r"Nombre de Dominio: *(.+)",
+        "status": r"Estatus del dominio: *(.+)",
+        "registrar": r"registrar: *(.+)",
+        "updated_date": r"Ultima Actualización: *(.+)",
+        "creation_date": r"Fecha de Creación: *(.+)",
+        "expiration_date": r"Fecha de Vencimiento: *(.+)",
+        "name_servers": r"Nombres de Dominio:((?:\s+- .*)*)",
+        "registrant_name": r"Titular:\s*(?:.*\n){1}\s+(.*)",
+        "registrant_city": r"Titular:\s*(?:.*\n){3}\s+([\s\w]*)",
+        "registrant_street": r"Titular:\s*(?:.*\n){2}\s+(.*)",
+        "registrant_state_province": r"Titular:\s*(?:.*\n){3}\s+.*?,(.*),",
+        "registrant_country": r"Titular:\s*(?:.*\n){3}\s+.*, .+  (.*)",
+        "registrant_phone": r"Titular:\s*(?:.*\n){4}\s+(\+*\d.+)",
+        "registrant_email": r"Titular:\s*.*\t(.*)",
+        "tech": r"Contacto Técnico:\s*(?:.*\n){1}\s+(.*)",
+        "tech_city": r"Contacto Técnico:\s*(?:.*\n){3}\s+([\s\w]*)",
+        "tech_street": r"Contacto Técnico:\s*(?:.*\n){2}\s+(.*)",
+        "tech_state_province": r"Contacto Técnico:\s*(?:.*\n){3}\s+.*?,(.*),",
+        "tech_country": r"Contacto Técnico:\s*(?:.*\n){3}\s+.*, .+  (.*)",
+        "tech_phone": r"Contacto Técnico:\s*(?:.*\n){4}\s+(\+*\d.*)\(",
+        "tech_fax": r"Contacto Técnico:\s*(?:.*\n){4}\s+.*\(FAX\) (.*)",
+        "tech_email": r"Contacto Técnico:\s*.*\t(.*)",
+        "admin": r"Contacto Administrativo:\s*(?:.*\n){1}\s+(.*)",
+        "admin_city": r"Contacto Administrativo:\s*(?:.*\n){3}\s+([\s\w]*)",
+        "admin_street": r"Contacto Administrativo:\s*(?:.*\n){2}\s+(.*)",
+        "admin_state_province": r"Contacto Administrativo:\s*(?:.*\n){3}\s+.*?,(.*),",
+        "admin_country": r"Contacto Administrativo:\s*(?:.*\n){3}\s+.*, .+  (.*)",
+        "admin_phone": r"Contacto Administrativo:\s*(?:.*\n){4}\s+(\+*\d.*)\(",
+        "admin_fax": r"Contacto Administrativo:\s*(?:.*\n){4}\s+.*\(FAX\) (.*)",
+        "admin_email": r"Contacto Administrativo:\s*.*\t(.*)",
+        "billing": r"Contacto de Cobranza:\s*(?:.*\n){1}\s+(.*)",
+        "billing_city": r"Contacto de Cobranza:\s*(?:.*\n){3}\s+([\s\w]*)",
+        "billing_street": r"Contacto de Cobranza:\s*(?:.*\n){2}\s+(.*)",
+        "billing_state_province": r"Contacto de Cobranza:\s*(?:.*\n){3}\s+.*?,(.*),",
+        "billing_country": r"Contacto de Cobranza:\s*(?:.*\n){3}\s+.*, .+  (.*)",
+        "billing_phone": r"Contacto de Cobranza:\s*(?:.*\n){4}\s+(\+*\d.*)\(",
+        "billing_fax": r"Contacto de Cobranza:\s*(?:.*\n){4}\s+.*\(FAX\) (.*)",
+        "billing_email": r"Contacto de Cobranza:\s*.*\t(.*)",
+    }
+
+    def __init__(self, domain: str, text: str):
+        if text.strip() == "El dominio no existe.":
             raise WhoisDomainNotFoundError(text)
         else:
             WhoisEntry.__init__(self, domain, text, self.regex)
