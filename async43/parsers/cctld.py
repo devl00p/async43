@@ -1199,6 +1199,8 @@ class WhoisIt(WhoisEntry):
             raise WhoisDomainNotFoundError(text)
         else:
             WhoisEntry.__init__(self, domain, text, self.regex)
+            if self["name_servers"] and isinstance(self["name_servers"], str):
+                self["name_servers"] = self["name_servers"].split()
 
 
 class WhoisJp(WhoisEntry):

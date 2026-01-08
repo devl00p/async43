@@ -1,3 +1,2 @@
-include async43/data/public_suffix_list.dat
 include LICENSE.txt README.md
 recursive-exclude test *

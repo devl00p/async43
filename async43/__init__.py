@@ -13,7 +13,10 @@ from async43.parsers import load
 from async43.parsers.base import WhoisEntry
 from async43.whois import NICClient
 
+import tldextract
+
 logger = logging.getLogger(__name__)
+extractor = tldextract.TLDExtract(include_psl_private_domains=True)
 
 # thanks to https://www.regextester.com/104038
 IPV4_OR_V6: Pattern[str] = re.compile(
@@ -98,9 +101,9 @@ async def extract_domain(url: str) -> str:
     >>> logger.info(extract_domain('abc.def.com'))
     def.com
     >>> logger.info(extract_domain(u'www.公司.hk'))
-    公司.hk
+    www.公司.hk
     >>> logger.info(extract_domain('chambagri.fr'))
-    chambagri.fr
+    None
     >>> logger.info(extract_domain('www.webscraping.com'))
     webscraping.com
     >>> logger.info(extract_domain('198.252.206.140'))
@@ -117,47 +120,23 @@ async def extract_domain(url: str) -> str:
     1e100.net
     """
     if IPV4_OR_V6.match(url):
-        # this is an IP address
-        return (await asyncio.get_running_loop().getnameinfo((url, 0)))[0]
+        try:
+            result = await asyncio.get_running_loop().getnameinfo((url, 0))
+            hostname = result[0]
+            return await extract_domain(hostname)
+        except (socket.herror, socket.gaierror):
+            return url
 
-    # load known TLD suffixes
-    global suffixes
-    if not suffixes:
-        # downloaded from https://publicsuffix.org/list/public_suffix_list.dat
-        tlds_path = os.path.join(
-            os.getcwd(), os.path.dirname(__file__), "data", "public_suffix_list.dat"
-        )
-        with open(tlds_path, encoding="utf-8") as tlds_fp:
-            suffixes = set(
-                line.encode("utf-8")
-                for line in tlds_fp.read().splitlines()
-                if line and not line.startswith("//")
-            )
-
-    url = re.sub("^.*://", "", url)
-    url = url.split("/")[0].lower()
-
-    # find the longest suffix match
-    domain = b""
-    split_url = url.split(".")
-    for section in reversed(split_url):
-        if domain:
-            domain = b"." + domain
-        domain = section.encode("utf-8") + domain
-        if domain not in suffixes:
-            if b"." not in domain and len(split_url) >= 2:
-                # If this is the first section and there wasn't a match, try to
-                # match the first two sections - if that works, keep going
-                # See https://github.com/richardpenman/whois/issues/50
-                second_order_tld = ".".join([split_url[-2], split_url[-1]])
-                if not second_order_tld.encode("utf-8") in suffixes:
-                    break
-            else:
-                break
-    return domain.decode("utf-8")
+    ext = extractor(url)
+    return ext.top_domain_under_public_suffix
 
 
 async def main():
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
     try:
         url = sys.argv[1]
     except IndexError:
