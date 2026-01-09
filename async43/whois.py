@@ -8,6 +8,8 @@ import sys
 from contextlib import asynccontextmanager
 from typing import Optional, Tuple, AsyncGenerator, Iterator
 
+from async_lru import alru_cache
+
 logger = logging.getLogger(__name__)
 
 
@@ -142,56 +144,71 @@ class NICClient:
         )
         return s
 
-    @asynccontextmanager
-    async def _connect(self, hostname: str, timeout: int) -> AsyncGenerator[Tuple[asyncio.StreamReader, asyncio.StreamWriter], None]:
-        """Resolve WHOIS IP address and connect to its TCP 43 port."""
+    async def _open_connection(
+            self,
+            hostname: str,
+            timeout: int,
+    ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
         port = 43
-        writer = None
+
+        if "SOCKS" in os.environ:
+            s = NICClient.get_socks_socket()
+            s.settimeout(timeout)
+            s.connect((hostname, port))
+            return await asyncio.open_connection(sock=s)
+
+        loop = asyncio.get_running_loop()
+        addr_infos = await loop.getaddrinfo(
+            hostname,
+            port,
+            family=socket.AF_UNSPEC,
+            type=socket.SOCK_STREAM,
+        )
+
+        if self.prefer_ipv6:
+            addr_infos.sort(key=lambda x: x[0], reverse=True)
+
+        last_err: Exception | None = None
+
+        for family, _, _, _, sockaddr in addr_infos:
+            local_addr = None
+            if family == socket.AF_INET6 and self.ipv6_cycle:
+                source_address = next(self.ipv6_cycle)
+                local_addr = (source_address, 0)
+
+            try:
+                return await asyncio.wait_for(
+                    asyncio.open_connection(
+                        host=sockaddr[0],
+                        port=sockaddr[1],
+                        local_addr=local_addr,
+                    ),
+                    timeout=timeout,
+                )
+            except (OSError, asyncio.TimeoutError) as e:
+                last_err = e
+
+        raise last_err or OSError(f"Could not connect to {hostname}")
+
+    @asynccontextmanager
+    async def _connect(
+            self,
+            hostname: str,
+            timeout: int,
+    ) -> AsyncGenerator[Tuple[asyncio.StreamReader, asyncio.StreamWriter], None]:
+        writer: asyncio.StreamWriter | None = None
+
         try:
-            if "SOCKS" in os.environ:
-                s = NICClient.get_socks_socket()
-                s.settimeout(timeout)
-                s.connect((hostname, port))
-                reader, writer = await asyncio.open_connection(sock=s)
-                yield reader, writer
-                return
-
-            loop = asyncio.get_running_loop()
-            addr_infos = await loop.getaddrinfo(hostname, port, family=socket.AF_UNSPEC, type=socket.SOCK_STREAM)
-
-            if self.prefer_ipv6:
-                addr_infos.sort(key=lambda x: x[0], reverse=True)
-
-            last_err = None
-            for family, sock_type, proto, __, sockaddr in addr_infos:
-                local_addr = None
-                if family == socket.AF_INET6 and self.ipv6_cycle:
-                    source_address = next(self.ipv6_cycle)
-                    local_addr = (source_address, 0)
-                
-                try:
-                    reader, writer = await asyncio.wait_for(
-                        asyncio.open_connection(host=sockaddr[0], port=sockaddr[1], local_addr=local_addr),
-                        timeout=timeout
-                    )
-                    yield reader, writer
-                    return  # Connection successful, exit the generator
-                except (socket.error, asyncio.TimeoutError, OSError) as e:
-                    last_err = e
-                    if writer:
-                        writer.close()
-                        await writer.wait_closed()
-                        writer = None # Reset writer to avoid closing it again in finally
-                    continue
-            
-            raise last_err or socket.error(f"Could not connect to {hostname}")
-        
+            reader, writer = await self._open_connection(hostname, timeout)
+            yield reader, writer
         finally:
             if writer:
                 writer.close()
                 await writer.wait_closed()
 
+    @alru_cache(ttl=86400)
     async def findwhois_iana(self, tld: str, timeout: int = 10) -> Optional[str]:
+        # noinspection PyArgumentList
         async with self._connect("whois.iana.org", timeout) as (reader, writer):
             writer.write(bytes(tld, "utf-8") + b"\r\n")
             await writer.drain()
@@ -216,6 +233,7 @@ class NICClient:
         there for contact details.
         """
         try:
+            # noinspection PyArgumentList
             async with self._connect(hostname, timeout) as (reader, writer):
                 if hostname == NICClient.DENICHOST:
                     query_bytes = "-T dn,ace -C UTF-8 " + query

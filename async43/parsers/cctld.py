@@ -14,6 +14,7 @@ class WhoisAe(WhoisEntry):
         "status": r"Status: *(.+)",
         "registrant_name": r"Registrant Contact Name: *(.+)",
         "tech_name": r"Tech Contact Name: *(.+)",
+        "name_servers": r"Name Server: *(.+)",  # list of name servers
     }
 
     def __init__(self, domain: str, text: str):
@@ -168,7 +169,7 @@ class WhoisBe(WhoisEntry):
         "fax": r"Fax: *(.+)",
         "email": r"Email: *(.+)",
         "creation_date": r"Registered: *(.+)",
-        "name_servers": r"Nameservers:\s((?:\s+?[\w.]+\s)*)",  # list of name servers
+        "name_servers": r"(?:Nameservers:|\s+)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})"
     }
 
     def __init__(self, domain: str, text: str):
@@ -1199,8 +1200,6 @@ class WhoisIt(WhoisEntry):
             raise WhoisDomainNotFoundError(text)
         else:
             WhoisEntry.__init__(self, domain, text, self.regex)
-            if self["name_servers"] and isinstance(self["name_servers"], str):
-                self["name_servers"] = self["name_servers"].split()
 
 
 class WhoisJp(WhoisEntry):

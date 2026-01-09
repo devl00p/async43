@@ -168,6 +168,11 @@ class WhoisEntry(dict):
                             # avoid duplicates
                             values.append(value)
 
+                if attr in ("name_servers", "status") and len(values) == 1:
+                    raw_value = str(values[0])
+                    split_values = re.split(r'[\r\n\t,]+', raw_value)
+                    values = [v.strip() for v in split_values if v.strip()]
+
                 if values and attr in ("registrar", "whois_server", "referral_url"):
                     values = values[-1:]  # ignore junk
                 if len(values) == 1:

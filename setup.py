@@ -8,7 +8,7 @@ def read(filename):
 
 setup(
     name="async43",
-    version="0.0.4",
+    version="0.0.6",
     description="Asynchronous WHOIS client for Python using asyncio. Supports IPv6 and IP rotation.",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -33,7 +33,12 @@ setup(
     license="MIT",
     packages=find_packages(exclude=["test", "test.*"]),
     package_dir={"async43": "async43"},
-    install_requires=["python-dateutil"],
+    install_requires=[
+        "async-lru>=2.0.5",
+        "python-dateutil>=2.9.0.post0",
+        "PySocks>=1.7.1",
+        "tldextract>=5.3.1",
+    ],
     tests_require=["pytest"],
     include_package_data=True,
     zip_safe=False,
