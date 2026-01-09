@@ -592,7 +592,7 @@ class WhoisDk(WhoisEntry):
         "registrant_postal_code": r"Registrant\s*(?:.*\n){4}\s*Postalcode: *(.+)",
         "registrant_city": r"Registrant\s*(?:.*\n){5}\s*City: *(.+)",
         "registrant_country": r"Registrant\s*(?:.*\n){6}\s*Country: *(.+)",
-        "name_servers": r"Nameservers\n *([\n\S\s]+)",
+        "name_servers": r"Hostname:\s*(.+)",
     }
 
     def __init__(self, domain: str, text: str):
@@ -600,15 +600,6 @@ class WhoisDk(WhoisEntry):
             raise WhoisDomainNotFoundError(text)
         else:
             WhoisEntry.__init__(self, domain, text, self.regex)
-
-    def _preprocess(self, attr, value):
-        if attr == "name_servers":
-            return [
-                line.split(":")[-1].strip()
-                for line in value.split("\n")
-                if line.startswith("Hostname")
-            ]
-        return super(WhoisDk, self)._preprocess(attr, value)
 
 
 class WhoisDo(WhoisEntry):
