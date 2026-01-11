@@ -35,6 +35,7 @@ setup(
     package_dir={"async43": "async43"},
     install_requires=[
         "async-lru>=2.0.5",
+        "dnspython>=2.8.0",
         "python-dateutil>=2.9.0.post0",
         "PySocks>=1.7.1",
         "tldextract>=5.3.1",

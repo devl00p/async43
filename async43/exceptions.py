@@ -14,6 +14,14 @@ class WhoisDomainNotFoundError(WhoisError):
     pass
 
 
+class WhoisPolicyRestrictedError(WhoisError):
+    """
+    WHOIS access is intentionally restricted by the registry.
+    The response is policy-based and does not reflect domain status.
+    """
+    pass
+
+
 class FailedParsingWhoisOutputError(WhoisError):
     pass
 

@@ -118,6 +118,8 @@ TLD_PARSER_MAP = {
     # IDNs
     "рф": cctld.WhoisRf,
     "рус": idn.WhoisPyc,
+    "xn--xkc2dl3a5ee0h": idn.WhoisXnXkc2dl3a5ee0h,
+    "இந்தியா": idn.WhoisXnXkc2dl3a5ee0h,
     "xn--p1acf": idn.WhoisPyc,
     "укр": idn.WhoisUkr,
     "xn--j1amh": idn.WhoisUkr,

@@ -1,5 +1,5 @@
 from async43.parsers.base import WhoisEntry
-from async43.exceptions import WhoisDomainNotFoundError
+from async43.exceptions import WhoisDomainNotFoundError, WhoisPolicyRestrictedError
 from async43.parsers.base import EMAIL_REGEX
 from async43.parsers.cctld import WhoisRu
 
@@ -49,6 +49,19 @@ class WhoisUkr(WhoisEntry):
         if attr == "name_servers":
             return [line.strip() for line in value.split("\n") if line != ""]
         return super(WhoisUkr, self)._preprocess(attr, value)
+
+
+class WhoisXnXkc2dl3a5ee0h(WhoisEntry):
+    """Whois parser for xn--xkc2dl3a5ee0h (India IDN TLD)"""
+
+    def __init__(self, domain: str, text: str):
+        if "This name is not available for registration" in text:
+            raise WhoisPolicyRestrictedError(
+                "WHOIS access is restricted by registry policy"
+            )
+
+        # fallback (future proof)
+        super().__init__(domain, text)
 
 
 class WhoisZhongGuo(WhoisEntry):

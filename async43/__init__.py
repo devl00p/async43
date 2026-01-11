@@ -9,6 +9,7 @@ import sys
 from typing import Any, Optional, Pattern
 
 from async43.exceptions import WhoisError
+from async43.net.resolve import resolve_dns_bundle
 from async43.parsers import load
 from async43.parsers.base import WhoisEntry
 from async43.whois import NICClient
@@ -35,6 +36,7 @@ async def whois(
     ignore_socket_errors: bool = True,
     convert_punycode: bool = True,
     timeout: int = 10,
+    enrich_dns: bool = True,
 ) -> dict[str, Any]:
     """
     url: the URL to search whois
@@ -85,6 +87,12 @@ async def whois(
         if not text:
             raise WhoisError("Whois command returned no output")
     entry = load(domain, text)
+
+    if entry.is_empty:
+        dns_data = await resolve_dns_bundle(domain)
+        if dns_data:
+            entry.attach_dns(dns_data)
+
     if inc_raw:
         entry["raw"] = text
     return entry

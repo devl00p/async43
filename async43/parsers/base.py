@@ -211,3 +211,17 @@ class WhoisEntry(dict):
 
     def __setstate__(self, state: dict) -> None:
         self.__dict__ = state
+
+    @property
+    def is_empty(self) -> bool:
+        meaningful_fields = (
+            "creation_date",
+            "expiration_date",
+            "registrar",
+            "name_servers",
+            "status",
+        )
+        return not any(self.get(f) for f in meaningful_fields)
+
+    def attach_dns(self, dns_data: dict[str, Any]) -> None:
+        self["dns"] = dns_data
