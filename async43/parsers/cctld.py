@@ -1834,7 +1834,7 @@ class WhoisSa(WhoisEntry):
         "domain_name": r"Domain Name: *(.+)",
         "creation_date": r"Created on: *(.+)",
         "updated_date": r"Last Updated on: *(.+)",
-        "name_servers": r"Name Servers:[\s]((?:.+\n)*)",  # servers in one string sep by \n
+        "name_servers": r"Name server: *(.+)",
         "registrant_name": r"Registrant:\s*(.+)",
         "registrant_address": r"(?<=Registrant)[\s\S]*?Address:((?:.+\n)*)",
         "admin_address": r"(?<=Administrative Contact)[\s\S]*?Address:((?:.+\n)*)",
