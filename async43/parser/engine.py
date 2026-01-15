@@ -1,144 +1,137 @@
+from typing import List, Optional, Any, Dict
 from rapidfuzz import process, fuzz
-
 from async43.parser.constants import SCHEMA_MAPPING
 
 
-def get_node_value(node):
-    if node.value:
-        return node.value
+class WhoisTreeProcessor:
+    def __init__(self):
+        self.result = self._is_empty_template()
+        self.current_section: Optional[str] = None
 
-    if node.children:
-        if isinstance(node.children[0], str):
-            return " ".join(node.children)
+        # Pré-calculer les choix pour le fuzzy matching global
+        self.flat_choices = []
+        for aliases in SCHEMA_MAPPING.values():
+            self.flat_choices.extend(aliases)
 
-    return ""
+    def _is_empty_template(self) -> Dict[str, Any]:
+        """Initialise la structure de base du dictionnaire de sortie."""
+        return {
+            "dates": {},
+            "registrar": {},
+            "nameservers": [],
+            "status": [],
+            "contacts": {
+                "registrant": {},
+                "administrative": {},
+                "technical": {},
+                "abuse": {},
+                "billing": {},
+            },
+            "other": {}
+        }
 
-
-def normalize_whois_tree_fuzzy(tree_list):
-    FLAT_CHOICES = []
-    for final_key, aliases in SCHEMA_MAPPING.items():
-        FLAT_CHOICES.extend(aliases)
-
-    result = {
-        "dates": {},
-        "registrar": {},
-        "nameservers": [],
-        "status": [],
-        "contacts": {
-            "registrant": {},
-            "administrative": {},
-            "technical": {},
-            "abuse": {},
-            "billing": {},
-        },
-        "other": {}
-    }
-
-    def map_label(raw_label, current_section=None):
+    def _map_label_to_path(self, raw_label: str) -> Optional[str]:
+        """Transforme un label texte en chemin dans le schéma (ex: contacts.registrant.email)."""
         if not raw_label:
             return None
+
         clean = raw_label.lower().replace(":", "").strip()
 
-        # --- ÉTAPE 1 : Est-ce un changement de section ? ---
-        # On cherche uniquement dans les alias commençant par SECTION_
-        for final_key, aliases in SCHEMA_MAPPING.items():
-            if final_key.startswith("SECTION_"):
-                if clean in [a.lower() for a in aliases]:
-                    return final_key
+        # 1. Détection de changement de section (Priorité haute)
+        for key, aliases in SCHEMA_MAPPING.items():
+            if key.startswith("SECTION_") and clean in [a.lower() for a in aliases]:
+                return key
 
-        # --- ÉTAPE 2 : Recherche avec contexte (Section actuelle) ---
-        if current_section:
-            # On ne cherche que parmi les clés qui commencent par la section actuelle
-            choices = [k for k in SCHEMA_MAPPING.keys() if k.startswith(f"contacts.{current_section}")]
-            for key in choices:
+        # 2. Match avec contexte (Section actuelle)
+        if self.current_section:
+            context_keys = [k for k in SCHEMA_MAPPING.keys() if k.startswith(f"contacts.{self.current_section}")]
+            for key in context_keys:
                 aliases = SCHEMA_MAPPING[key]
-                # Match exact d'abord
                 if clean in [a.lower() for a in aliases]:
                     return key
-                # Fuzzy match restreint à cette section
+                # Fuzzy match restrictif
                 res = process.extractOne(clean, aliases, scorer=fuzz.token_sort_ratio)
-                if res and res[1] > 90:  # Seuil haut pour le spécifique
+                if res and res[1] > 90:
                     return key
 
-        # --- ÉTAPE 3 : Recherche Globale (Si rien trouvé ou si hors section) ---
-        # On évite de matcher les clés de contacts si on n'est pas dans la bonne section
-        match = process.extractOne(clean, FLAT_CHOICES, scorer=fuzz.token_sort_ratio)
-
+        # 3. Match Global
+        match = process.extractOne(clean, self.flat_choices, scorer=fuzz.token_sort_ratio)
         if match and match[1] > 85:
-            for final_key, aliases in SCHEMA_MAPPING.items():
+            for key, aliases in SCHEMA_MAPPING.items():
                 if match[0] in aliases:
-                    # Sécurité : si on trouve un champ de contact mais qu'on n'est pas
-                    # dans la bonne section, on ignore (sauf si match quasi parfait)
-                    if "contacts." in final_key and current_section:
-                        if not final_key.startswith(f"contacts.{current_section}") and match[1] < 95:
+                    # Sécurité : éviter de sauter dans une autre section contact par erreur
+                    if "contacts." in key and self.current_section:
+                        if not key.startswith(f"contacts.{self.current_section}") and match[1] < 95:
                             continue
-                    return final_key
-
+                    return key
         return None
 
-    def set_nested_value(dic, path, value):
+    def _set_value(self, path: str, value: Any):
+        """Injecte une valeur dans le dictionnaire final en suivant le chemin 'pointé'."""
         if not value or str(value).strip().lower() in ["no name servers provided", "none"]:
             return
 
         keys = path.split('.')
+        target = self.result
+
+        # Navigation dans le dictionnaire
         for key in keys[:-1]:
-            dic = dic.setdefault(key, {})
+            target = target.setdefault(key, {})
+
         target_key = keys[-1]
-
         value = str(value).strip()
+
+        # Logique spécifique par type de champ
         if target_key in ["nameservers", "status"]:
-            if target_key not in dic:
-                dic[target_key] = []
-
-            if value not in dic[target_key]:
-                dic[target_key].append(value)
-
-        elif not dic.get(target_key):
-            dic[target_key] = value
+            if target_key not in target:
+                target[target_key] = []
+            if value not in target[target_key]:
+                target[target_key].append(value)
+        elif not target.get(target_key):
+            target[target_key] = value
         else:
-            if "contacts" in path and value not in dic[target_key]:
-                dic[target_key] = f"{dic[target_key]}, {value}"
+            # Accumulation pour les champs de contact (ex: adresses multi-lignes)
+            if "contacts" in path and value not in target[target_key]:
+                target[target_key] = f"{target[target_key]}, {value}"
 
-    def walk_tree(nodes, current_section=None):
+    def process(self, nodes: List[Any]) -> Dict[str, Any]:
+        """Point d'entrée principal pour traiter une liste de nodes."""
         for node in nodes:
             label = getattr(node, 'label', "").strip()
             value = getattr(node, 'value', None)
             children = getattr(node, 'children', [])
 
-            target_path = map_label(label, current_section)
+            target_path = self._map_label_to_path(label)
 
             if target_path:
-                # CAS A : C'est un marqueur de section (ex: "Registrant:")
+                # CAS A : Marqueur de Section
                 if target_path.startswith("SECTION_"):
-                    new_section = target_path.replace("SECTION_", "").lower()
+                    self.current_section = target_path.replace("SECTION_", "").lower()
+                    if value:  # Ex: "Registrant: John Doe"
+                        self._set_value(f"contacts.{self.current_section}.name", value)
+                    self.process(children)
 
-                    # Si la ligne contient une valeur (ex: Registrant: Nom),
-                    # on l'assigne manuellement au champ 'name' de cette section
-                    if value:
-                        # On construit le chemin réel (ex: contacts.registrant.name)
-                        real_path = f"contacts.{new_section}.name"
-                        set_nested_value(result, real_path, value)
-
-                    # On continue l'exploration avec le nouveau contexte
-                    walk_tree(children, new_section)
-
-                # CAS B : C'est une donnée classique
+                # CAS B : Donnée identifiée
                 else:
                     if value:
-                        set_nested_value(result, target_path, value)
+                        self._set_value(target_path, value)
 
-                    # Gestion des données sur plusieurs lignes (enfants strings)
                     for child in children:
                         if isinstance(child, str):
-                            set_nested_value(result, target_path, child)
+                            self._set_value(target_path, child)
                         else:
-                            walk_tree([child], current_section)
+                            self.process([child])
             else:
-                # CAS C : Pas de match, on descend récursivement
+                # CAS C : Inconnu -> "Other"
                 if value:
-                    key_name = f"{current_section}.{label}" if current_section else label
-                    result["other"][key_name] = value
-                walk_tree(children, current_section)
+                    key_name = f"{self.current_section}.{label}" if self.current_section else label
+                    self.result["other"][key_name] = value
+                self.process(children)
 
-    walk_tree(tree_list)
-    return {k: v for k, v in result.items() if v}
+        return {k: v for k, v in self.result.items() if v}
+
+
+def normalize_whois_tree_fuzzy(tree_list):
+    """Fonction wrapper pour garder la compatibilité avec le reste du code."""
+    engine = WhoisTreeProcessor()
+    return engine.process(tree_list)
