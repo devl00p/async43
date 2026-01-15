@@ -9,7 +9,6 @@ from typing import Optional, Pattern
 
 from async43.exceptions import WhoisError
 from async43.model import Whois
-from async43.net.resolve import resolve_dns_bundle
 from async43.parser import parse
 from async43.whois import NICClient
 

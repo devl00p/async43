@@ -36,7 +36,9 @@ def normalize_whois_tree_fuzzy(tree_list):
     }
 
     def map_label(raw_label, section=None):
-        if not raw_label: return None
+        if not raw_label:
+            return None
+
         clean = raw_label.lower().replace(":", "").strip()
 
         search_query = f"{section}.{clean}" if section else clean
@@ -59,8 +61,12 @@ def normalize_whois_tree_fuzzy(tree_list):
 
         value = str(value).strip()
         if target_key in ["nameservers", "status"]:
-            if target_key not in dic: dic[target_key] = []
-            if value not in dic[target_key]: dic[target_key].append(value)
+            if target_key not in dic:
+                dic[target_key] = []
+
+            if value not in dic[target_key]:
+                dic[target_key].append(value)
+
         elif not dic.get(target_key):
             dic[target_key] = value
         else:
@@ -82,7 +88,9 @@ def normalize_whois_tree_fuzzy(tree_list):
             target_path = map_label(label, current_section)
 
             if target_path:
-                if value: set_nested_value(result, target_path, value)
+                if value:
+                    set_nested_value(result, target_path, value)
+
                 for child in children:
                     if isinstance(child, str):
                         set_nested_value(result, target_path, child)
