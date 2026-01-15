@@ -8,7 +8,7 @@ clean:
 		rm -rf dist/ build/ async43.egg-info/
 
 style:
-		pylint --rcfile=.pylintrc async43
+		pylint async43
 
 release: clean
 		python -m build --sdist --wheel

@@ -228,17 +228,17 @@ class NICClient:
                 response = await reader.read()
         except (OSError, asyncio.TimeoutError) as exception:
             raise WhoisNetworkError(f"Network failure for whois.iana.org: {str(exception)}") from exception
-        
+
         match = re.search(r"whois:[ \t]+(.*?)\n", response.decode("utf-8"))
         return match.group(1) if match and match.group(1) else None
 
     async def whois(
-        self,
-        query: str,
-        hostname: str,
-        flags: int,
-        many_results: bool = False,
-        timeout: int = 10,
+            self,
+            query: str,
+            hostname: str,
+            flags: int,
+            many_results: bool = False,
+            timeout: int = 10,
     ) -> str:
         """Perform initial lookup with TLD whois server
         then, if the quick flag is false, search that result
@@ -258,10 +258,10 @@ class NICClient:
                     query_bytes = "=" + query
                 else:
                     query_bytes = query
-                
+
                 writer.write(bytes(query_bytes, "utf-8") + b"\r\n")
                 await writer.drain()
-                
+
                 response = await reader.read()
                 response_str = response.decode("utf-8", "replace")
 
@@ -272,7 +272,7 @@ class NICClient:
                 nhost = self.findwhois_server(response_str, hostname, query)
             if nhost is not None and nhost != "":
                 response_str += await self.whois(query, nhost, 0, timeout=timeout)
-            
+
             return response_str
         except (asyncio.TimeoutError, OSError) as e:
             raise WhoisNetworkError(f"Network failure for {hostname}: {str(e)}") from e
@@ -305,7 +305,7 @@ class NICClient:
         return await self.findwhois_iana(tld, timeout=timeout)
 
     async def whois_lookup(
-        self, options: Optional[dict], query_arg: str, flags: int, timeout: int = 10
+            self, options: Optional[dict], query_arg: str, flags: int, timeout: int = 10
     ) -> str:
         """Main entry point: Perform initial lookup on TLD whois server,
         or other server to get region-specific whois server, then if quick
@@ -315,7 +315,7 @@ class NICClient:
             options = {}
 
         if ("whoishost" not in options or options["whoishost"] is None) and (
-            "country" not in options or options["country"] is None
+                "country" not in options or options["country"] is None
         ):
             self.use_qnichost = True
             options["whoishost"] = NICClient.NICHOST
@@ -510,9 +510,10 @@ async def main():
     nic_client = NICClient(prefer_ipv6=options.prefer_ipv6)
     if options.b_quicklookup:
         flags = flags | NICClient.WHOIS_QUICK
-    
+
     result = await nic_client.whois_lookup(options.__dict__, args[1], flags)
     print(result)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

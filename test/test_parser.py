@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+from datetime import datetime
+from glob import glob
 import json
 import os
 import unittest
-from glob import glob
 
-from dateutil.tz import tzoffset
+from dateutil.tz import tzoffset, tzutc
 
-from async43.exceptions import WhoisUnknownDateFormatError
-
+from async43.parser import cast_date, parse
 
 utc = tzoffset('UTC', 0)
 
@@ -24,8 +23,8 @@ class TestParser(unittest.TestCase):
 
         >>> Last update of whois database: Sun, 31 Aug 2008 00:18:23 UTC <<<
         """
-        w = load("urlowl.com", data)
-        expires = w.expiration_date.strftime("%Y-%m-%d")
+        w = parse(data)
+        expires = w.dates.expires.strftime("%Y-%m-%d")
         self.assertEqual(expires, "2018-02-21")
 
     def test_cast_date(self):
@@ -39,8 +38,7 @@ class TestParser(unittest.TestCase):
             self.assertEqual(r, "2008-04-14")
 
     def test_unknown_date_format(self):
-        with self.assertRaises(WhoisUnknownDateFormatError):
-            cast_date("UNKNOWN")
+        self.assertEqual(cast_date("UNKNOWN"), "UNKNOWN")
 
     def test_com_allsamples(self):
         """
@@ -72,8 +70,9 @@ class TestParser(unittest.TestCase):
             with open(path, encoding="utf-8") as whois_fp:
                 data = whois_fp.read()
 
-            w = load(domain, data)
-            results = {key: w.get(key) for key in keys_to_test}
+            w = parse(data)
+            whois_dict = w.model_dump()
+            results = {key: whois_dict.get(key) for key in keys_to_test}
 
             # NOTE: Toggle condition below to write expected results from the
             # parse results This will overwrite the existing expected results.
@@ -82,7 +81,7 @@ class TestParser(unittest.TestCase):
             if False:
 
                 def date2str4json(obj):
-                    if isinstance(obj, datetime.datetime):
+                    if isinstance(obj, datetime):
                         return str(obj)
                     raise TypeError("{} is not JSON serializable".format(repr(obj)))
 
@@ -106,7 +105,7 @@ class TestParser(unittest.TestCase):
                 result = results.get(key)
                 if isinstance(result, list):
                     result = [str(element) for element in result]
-                if isinstance(result, datetime.datetime):
+                if isinstance(result, datetime):
                     result = str(result)
                 expected = expected_results.get(key)
                 self.assertEqual(expected, result, '{}: {} != {} for {}'.format(key, expected, result, domain))
@@ -145,25 +144,99 @@ class TestParser(unittest.TestCase):
         Name server:           a3-3.akam.net
         """
         expected_results = {
-            "admin_name": "Test Person1",
-            "creation_date": datetime.datetime(2000, 11, 20, 0, 0, tzinfo=utc),
-            "dnssec": "Unsigned",
-            "domain_name": "testdomain.ca",
-            "emails": ["testperson1@testcompany.ca", "testpersion2@testcompany.ca"],
-            "expiration_date": datetime.datetime(2020, 3, 8, 0, 0, tzinfo=utc),
-            "fax": ["+1.123434123", "+1.12312993873"],
-            "name_servers": ["a1-1.akam.net", "a2-2.akam.net", "a3-3.akam.net"],
-            "phone": ["+1.1235434123x123", "+1.09876545123"],
-            "registrant_name": "Test Industries",
-            "registrant_number": "70",
-            "registrar": "Webnames.ca Inc.",
-            "registrar_url": None,
-            "status": "registered",
-            "updated_date": datetime.datetime(2016, 4, 29, 0, 0, tzinfo=utc),
-            "whois_server": None,
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': 'Test City, TestVille',
+                    'country': None,
+                    'email': 'testperson1@testcompany.ca',
+                    'fax': '+1.123434123',
+                    'handle': None,
+                    'name': 'Test Person1',
+                    'organization': None,
+                    'phone': '+1.1235434123x123',
+                    'postal_code': None,
+                    'state': None,
+                    'street': 'Test Address'
+                },
+                'billing': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'registrant': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': 'Test Industries',
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'technical': {
+                    'city': None,
+                    'country': None,
+                    'email': 'testpersion2@testcompany.ca',
+                    'fax': '+1.12312993873',
+                    'handle': None,
+                    'name': 'Test Persion2',
+                    'organization': None,
+                    'phone': '+1.09876545123',
+                    'postal_code': None,
+                    'state': None,
+                    'street': 'Other TestAddress, TestTown OCAS '
+                              'Canada'
+                }
+            },
+            'dates': {
+                'created': datetime(2000, 11, 20, 0, 0, tzinfo=tzutc()),
+                'expires': datetime(2020, 3, 8, 0, 0, tzinfo=tzutc()),
+                'updated': datetime(2016, 4, 29, 0, 0, tzinfo=tzutc())
+            },
+            'dnssec': 'Unsigned',
+            'domain': 'testdomain.ca',
+            'nameservers': ['a1-1.akam.net', 'a2-2.akam.net', 'a3-3.akam.net'],
+            'registrar': {
+                'city': None,
+                'country': None,
+                'email': None,
+                'fax': None,
+                'handle': None,
+                'name': 'Webnames.ca Inc.',
+                'organization': None,
+                'phone': None,
+                'postal_code': None,
+                'state': None,
+                'street': None
+            },
+            'status': ['registered']
         }
         self._parse_and_compare(
-            "testcompany.ca", data, expected_results, whois_entry=WhoisCa
+            "testcompany.ca", data, expected_results
         )
 
     def test_ai_parse(self):
@@ -229,61 +302,107 @@ DNSSEC: unsigned
         """
 
         expected_results = {
-            "admin_address": "1600 Amphitheatre Parkway",
-            "admin_city": "Mountain View",
-            "admin_country": "US",
-            "admin_email": "dns-admin@google.com",
-            "admin_name": "Domain Administrator",
-            "admin_org": "Google LLC",
-            "admin_phone": "+1.6502530000",
-            "admin_postal_code": "94043",
-            "admin_state": "CA",
-            "billing_address": None,
-            "billing_city": None,
-            "billing_country": None,
-            "billing_email": None,
-            "billing_name": None,
-            "billing_org": None,
-            "billing_phone": None,
-            "billing_postal_code": None,
-            "billing_state": None,
-            "creation_date": datetime.datetime(2017, 12, 16, 5, 37, 20, tzinfo=utc),
-            "domain_id": "6eddd132ab114b12bd2bd4cf9c492a04-DONUTS",
-            "domain_name": "google.ai",
-            'expiration_date': datetime.datetime(2025, 9, 25, 5, 37, 20, tzinfo=utc),
-            "name_servers": [
-                "ns2.zdns.google",
-                "ns3.zdns.google",
-                "ns4.zdns.google",
-                "ns1.zdns.google",
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': 'abusecomplaints@markmonitor.com',
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': '+1.2083895740',
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': 'Mountain View',
+                    'country': 'US',
+                    'email': 'dns-admin@google.com',
+                    'fax': '+1.6502530001',
+                    'handle': None,
+                    'name': 'Domain Administrator',
+                    'organization': 'Google LLC',
+                    'phone': '+1.6502530000',
+                    'postal_code': '94043',
+                    'state': 'CA',
+                    'street': '1600 Amphitheatre Parkway'
+                },
+                'billing': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'registrant': {
+                    'city': 'Mountain View',
+                    'country': 'US',
+                    'email': 'dns-admin@google.com',
+                    'fax': '+1.6502530001',
+                    'handle': None,
+                    'name': 'Domain Administrator',
+                    'organization': 'Google LLC',
+                    'phone': '+1.6502530000',
+                    'postal_code': '94043',
+                    'state': 'CA',
+                    'street': '1600 Amphitheatre Parkway'
+                },
+                'technical': {
+                    'city': 'Mountain View',
+                    'country': 'US',
+                    'email': 'dns-admin@google.com',
+                    'fax': '+1.6502530001',
+                    'handle': None,
+                    'name': 'Domain Administrator',
+                    'organization': 'Google LLC',
+                    'phone': '+1.6502530000',
+                    'postal_code': '94043',
+                    'state': 'CA',
+                    'street': '1600 Amphitheatre Parkway'
+                }
+            },
+            'dates': {
+                'created': datetime(2017, 12, 16, 5, 37, 20, tzinfo=tzutc()),
+                'expires': datetime(2025, 9, 25, 5, 37, 20, tzinfo=tzutc()),
+                'updated': datetime(2025, 1, 23, 22, 17, 3, tzinfo=tzutc())
+            },
+            'dnssec': 'unsigned',
+            'domain': 'google.ai',
+            'nameservers': [
+                'ns2.zdns.google',
+                'ns3.zdns.google',
+                'ns4.zdns.google',
+                'ns1.zdns.google'
             ],
-            "registrant_address": "1600 Amphitheatre Parkway",
-            "registrant_city": "Mountain View",
-            "registrant_country": "US",
-            "registrant_email": "dns-admin@google.com",
-            "registrant_name": "Domain Administrator",
-            "registrant_org": "Google LLC",
-            "registrant_phone": "+1.6502530000",
-            "registrant_postal_code": "94043",
-            "registrant_state": "CA",
-            "registrar": "MarkMonitor Inc.",
-            "registrar_email": "abusecomplaints@markmonitor.com",
-            "registrar_phone": "+1.2083895740",
-            "tech_address": "1600 Amphitheatre Parkway",
-            "tech_city": "Mountain View",
-            "tech_country": "US",
-            "tech_email": "dns-admin@google.com",
-            "tech_name": "Domain Administrator",
-            "tech_org": "Google LLC",
-            "tech_phone": "+1.6502530000",
-            "tech_postal_code": "94043",
-            "tech_state": "CA",
-            "status": [
-                'clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited',
-                'clientTransferProhibited https://icann.org/epp#clientTransferProhibited',
-                'clientUpdateProhibited https://icann.org/epp#clientUpdateProhibited'
-            ],
-            "updated_date": datetime.datetime(2025, 1, 23, 22, 17, 3, tzinfo=utc)
+            'registrar': {
+                'city': None,
+                'country': None,
+                'email': None,
+                'fax': None,
+                'handle': None,
+                'name': 'MarkMonitor Inc.',
+                'organization': None,
+                'phone': None,
+                'postal_code': None,
+                'state': None,
+                'street': None
+            },
+            'status': [
+                'clientDeleteProhibited '
+                'https://icann.org/epp#clientDeleteProhibited',
+                'clientTransferProhibited '
+                'https://icann.org/epp#clientTransferProhibited',
+                'clientUpdateProhibited '
+                'https://icann.org/epp#clientUpdateProhibited'
+            ]
         }
         self._parse_and_compare("google.ai", data, expected_results)
 
@@ -308,89 +427,105 @@ DNSSEC: unsigned
             DNSSEC: unsigned
         """
         expected_results = {
-            "creation_date": datetime.datetime(2000, 9, 14, 0, 0, tzinfo=utc),
-            "dnssec": "unsigned",
-            "domain_name": "cnnic.com.cn",
-            "emails": "servicei@cnnic.cn",
-            "expiration_date": datetime.datetime(2023, 8, 16, 16, 26, 39, tzinfo=utc),
-            "name": "中国互联网络信息中心",
-            "name_servers": [
-                "a.cnnic.cn",
-                "b.cnnic.cn",
-                "c.cnnic.cn",
-                "d.cnnic.cn",
-                "e.cnnic.cn",
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'billing': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'registrant': {
+                    'city': None,
+                    'country': None,
+                    'email': 'servicei@cnnic.cn',
+                    'fax': None,
+                    'handle': None,
+                    'name': '中国互联网络信息中心',
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'technical': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                }
+            },
+            'dates': {
+                'created': datetime(2000, 9, 14, 0, 0, tzinfo=tzutc()),
+                'expires': datetime(2023, 8, 16, 16, 26, 39, tzinfo=tzutc()),
+                'updated': None
+            },
+            'dnssec': 'unsigned',
+            'domain': 'cnnic.com.cn',
+            'nameservers': [
+                'a.cnnic.cn',
+                'b.cnnic.cn',
+                'c.cnnic.cn',
+                'd.cnnic.cn',
+                'e.cnnic.cn'
             ],
-            "registrar": "北京新网数码信息技术有限公司",
-            "status": [
-                "serverDeleteProhibited",
-                "serverUpdateProhibited",
-                "serverTransferProhibited",
-            ],
+            'registrar': None,
+            'status': [
+                'serverDeleteProhibited',
+                'serverUpdateProhibited',
+                'serverTransferProhibited'
+            ]
         }
         self._parse_and_compare("cnnic.com.cn", data, expected_results)
 
     def test_ie_parse(self):
         data = """
-        refer:        whois.weare.ie
-
-domain:       IE
-
-organisation: University College Dublin
-organisation: Computing Services
-organisation: Computer Centre
-address:      Belfield
-address:      Dublin City,  Dublin 4
-address:      Ireland
-
-contact:      administrative
-name:         Chief Executive
-organisation: IE Domain Registry Limited
-address:      2 Harbour Square
-address:      Dún Laoghaire
-address:      Co. Dublin
-address:      Ireland
-phone:        +353 1 236 5412
-fax-no:       +353 1 230 1273
-e-mail:       tld-admin@weare.ie
-
-contact:      technical
-name:         Technical Services Manager
-organisation: IE Domain Registry Limited
-address:      2 Harbour Square
-address:      Dún Laoghaire
-address:      Co. Dublin
-address:      Ireland
-phone:        +353 1 236 5421
-fax-no:       +353 1 230 1273
-e-mail:       tld-tech@weare.ie
-
-nserver:      B.NS.IE 2a01:4b0:0:0:0:0:0:2 77.72.72.34
-nserver:      C.NS.IE 194.146.106.98 2001:67c:1010:25:0:0:0:53
-nserver:      D.NS.IE 2a01:3f0:0:309:0:0:0:53 77.72.229.245
-nserver:      G.NS.IE 192.111.39.100 2001:7c8:2:a:0:0:0:64
-nserver:      H.NS.IE 192.93.0.4 2001:660:3005:1:0:0:1:2
-nserver:      I.NS.IE 194.0.25.35 2001:678:20:0:0:0:0:35
-ds-rdata:     64134 13 2 77B9519D16B62D0A70A7301945CBB3092A7978BFDE75A3BCFB3D4719396E436A
-
-whois:        whois.weare.ie
-
-status:       ACTIVE
-remarks:      Registration information: https://www.weare.ie
-
-created:      1988-01-27
-changed:      2021-03-11
-source:       IANA
-
-# whois.weare.ie
-
 Domain Name: rte.ie
 Registry Domain ID: 672279-IEDR
 Registrar WHOIS Server: whois.weare.ie
 Registrar URL: https://www.blacknight.com
-Updated Date: 2020-11-15T17:55:24Z
+Updated Date: 2024-12-01T14:14:15Z
 Creation Date: 2000-02-11T00:00:00Z
-Registry Expiry Date: 2025-03-31T13:20:07Z
+Registry Expiry Date: 2034-03-31T13:20:07Z
 Registrar: Blacknight Solutions
 Registrar IANA ID: not applicable
 Registrar Abuse Contact Email: abuse@blacknight.com
@@ -406,20 +541,106 @@ Name Server: ns2.rte.ie
 Name Server: ns3.rte.ie
 Name Server: ns4.rte.ie
 DNSSEC: signedDelegation
+>>> Last update of WHOIS database: 2026-01-15T16:25:15Z <<<
+
+% Important Notice
+% If you believe that information published on this page is incorrect, or should not be published,please contact your Registrar, or the .IE Registration Services Department who will advise you further.
+% You can also contact your Registrar or .IE if your Registrant name is not showing and you would like it to be published.
+% Our contact information is available at https://www.weare.ie/contact-us/
+% Rights restricted by copyright: https://www.weare.ie/registrant-terms-conditions-policy/
+% Do not remove this notice
         """
         expected_results = {
-            "admin_id": "202753-IEDR",
-            "creation_date": datetime.datetime(2000, 2, 11, 0, 0, tzinfo=utc),
-            "domain_name": "rte.ie",
-            "expiration_date": datetime.datetime(2025, 3, 31, 13, 20, 7, tzinfo=utc),
-            "name_servers": ["ns1.rte.ie", "ns2.rte.ie", "ns3.rte.ie", "ns4.rte.ie"],
-            "registrar": "Blacknight Solutions",
-            "registrar_contact": "abuse@blacknight.com",
-            "status": "ok https://icann.org/epp#ok",
-            "tech_id": "3159-IEDR",
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': 'abuse@blacknight.com',
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': '+353.599183072',
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'billing': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'registrant': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': 'RTE Commercial Enterprises Limited',
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'technical': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                }
+            },
+            'dates': {
+                'created': datetime(2000, 2, 11, 0, 0, tzinfo=tzutc()),
+                'expires': datetime(2034, 3, 31, 13, 20, 7, tzinfo=tzutc()),
+                'updated': datetime(2024, 12, 1, 14, 14, 15, tzinfo=tzutc())
+            },
+            'dnssec': 'signedDelegation',
+            'domain': 'rte.ie',
+            'nameservers': ['ns1.rte.ie', 'ns2.rte.ie', 'ns3.rte.ie', 'ns4.rte.ie'],
+            'registrar': {
+                'city': None,
+                'country': None,
+                'email': None,
+                'fax': None,
+                'handle': None,
+                'name': 'Blacknight Solutions',
+                'organization': None,
+                'phone': None,
+                'postal_code': None,
+                'state': None,
+                'street': None},
+            'status': ['ok https://icann.org/epp#ok']
         }
         self._parse_and_compare("rte.ie", data, expected_results)
-
 
     def test_nl_expiration(self):
         data = """
@@ -430,8 +651,8 @@ DNSSEC: signedDelegation
         Date out of quarantine: 2020-12-06T20:31:25
         """
 
-        w = load("randomtest.nl", data)
-        expires = w.expiration_date.strftime("%Y-%m-%d")
+        w = parse(data)
+        expires = w.dates.expires.strftime("%Y-%m-%d")
         self.assertEqual(expires, "2020-12-06")
 
     def test_dk_parse(self):
@@ -475,74 +696,153 @@ Hostname:             p.nic.dk
 """
 
         expected_results = {
-            "creation_date": datetime.datetime(1998, 1, 19, 0, 0, tzinfo=utc),
-            "dnssec": "Signed delegation",
-            "domain_name": "dk-hostmaster.dk",
-            "expiration_date": datetime.datetime(2022, 3, 31, 0, 0, tzinfo=utc),
-            "name_servers": [
-                "auth01.ns.dk-hostmaster.dk",
-                "auth02.ns.dk-hostmaster.dk",
-                "p.nic.dk",
-            ],
-            "registrant_address": "Ørestads Boulevard 108, 11.",
-            "registrant_city": "København S",
-            "registrant_country": "DK",
-            "registrant_handle": "DKHM1-DK",
-            "registrant_name": "DK HOSTMASTER A/S",
-            "registrant_postal_code": "2300",
-            "registrar": None,
-            "status": "Active",
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'billing': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'registrant': {
+                    'city': 'København S',
+                    'country': 'DK',
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': 'DK HOSTMASTER A/S',
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': '2300',
+                    'state': None,
+                    'street': 'Ørestads Boulevard 108, 11.'
+                },
+                'technical': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                }
+            },
+            'dates': {
+                'created': datetime(1998, 1, 19, 0, 0, tzinfo=tzutc()),
+                'expires': datetime(2022, 3, 31, 0, 0, tzinfo=tzutc()),
+                'updated': None
+            },
+            'dnssec': 'Signed delegation',
+            'domain': 'dk-hostmaster.dk',
+            'nameservers': ['auth01.ns.dk-hostmaster.dk',
+                            'auth02.ns.dk-hostmaster.dk',
+                            'p.nic.dk'],
+            'registrar': None,
+            'status': ['Active']
         }
         self._parse_and_compare("dk-hostmaster.dk", data, expected_results)
 
     def _parse_and_compare(
-        self, domain_name, data, expected_results, whois_entry=WhoisEntry
+            self, domain_name, data, expected_results
     ):
-        actual_results = load(domain_name, data)
+        actual_results = parse(data)
+        actual_dict = actual_results.model_dump(exclude={"raw_text"})
         # import pprint; pprint.pprint(actual_results)
-        self.assertEqual(expected_results, actual_results)
+        self.assertEqual(expected_results, actual_dict)
 
     def test_sk_parse(self):
         data = """
-        # whois.sk-nic.sk
-
         Domain:                       pipoline.sk
-        Registrant:                   H410977
-        Admin Contact:                H410977
-        Tech Contact:                 H410977
-        Registrar:                    PIPO-0002
         Created:                      2012-07-23
-        Updated:                      2020-07-02
-        Valid Until:                  2021-07-13
-        Nameserver:                   ns1.cloudlikeaboss.com
-        Nameserver:                   ns2.cloudlikeaboss.com
-        EPP Status:                   ok
-
-        Registrar:                    PIPO-0002
-        Name:                         Pipoline s.r.o.
+        Valid Until:                  2026-07-13
+        Updated:                      2025-05-05
+        Domain Status:                ok
+        Nameserver:                   nikon.ns.cloudflare.com
+        Nameserver:                   sreeni.ns.cloudflare.com
+        
+        Domain registrant:            FORPSI-S616940-1
+        Name:                         Peter Gonda
         Organization:                 Pipoline s.r.o.
         Organization ID:              48273317
-        Phone:                        +421.949347169
-        Email:                        peter.gonda@pipoline.com
-        Street:                       Ladožská 8
-        City:                         Košice
-        Postal Code:                  040 12
+        Street:                       Závada 30
+        City:                         Levoča
+        Postal Code:                  05401
         Country Code:                 SK
-        Created:                      2017-09-01
-        Updated:                      2020-07-02
-
-        Contact:                      H410977
-        Name:                         Ing. Peter Gonda
-        Organization:                 Pipoline s.r.o
+        Authorised Registrar:         INCZ-0001
+        Created:                      2025-03-17
+        Updated:                      2025-04-11
+        
+        Registrar:                    INCZ-0001
+        Name:                         INTERNET CZ, a.s.
+        Organization:                 INTERNET CZ, a.s.
+        Organization ID:              26043319
+        Phone:                        +420.383835353
+        Email:                        domain@forpsi.com
+        Street:                       Ktiš 2
+        City:                         Ktiš
+        Postal Code:                  38403
+        Country Code:                 CZ
+        Created:                      2019-10-01
+        Updated:                      2026-01-15
+        
+        Administrative Contact:       FORPSI-S616940-1
+        Name:                         Peter Gonda
+        Organization:                 Pipoline s.r.o.
         Organization ID:              48273317
-        Email:                        info@pipoline.com
-        Street:                       Ladozska 8
-        City:                         Kosice
-        Postal Code:                  04012
+        Street:                       Závada 30
+        City:                         Levoča
+        Postal Code:                  05401
         Country Code:                 SK
-        Registrar:                    PIPO-0002
-        Created:                      2017-11-22
-        Updated:                      2017-11-22"""
+        Created:                      2025-03-17
+        Updated:                      2025-04-11
+        
+        Technical Contact:            FORPSI-S616940-1
+        Name:                         Peter Gonda
+        Organization:                 Pipoline s.r.o.
+        Organization ID:              48273317
+        Street:                       Závada 30
+        City:                         Levoča
+        Postal Code:                  05401
+        Country Code:                 SK
+        Created:                      2025-03-17
+        Updated:                      2025-04-11
+        """
 
         expected_results = {
             "admin": "H410977",
@@ -552,9 +852,9 @@ Hostname:             p.nic.dk
             "admin_organization": "Pipoline s.r.o",
             "admin_postal_code": "04012",
             "admin_street": "Ladozska 8",
-            "creation_date": datetime.datetime(2012, 7, 23, 0, 0, tzinfo=utc),
+            "creation_date": datetime(2012, 7, 23, 0, 0, tzinfo=utc),
             "domain_name": "pipoline.sk",
-            "expiration_date": datetime.datetime(2021, 7, 13, 0, 0, tzinfo=utc),
+            "expiration_date": datetime(2021, 7, 13, 0, 0, tzinfo=utc),
             "name_servers": ["ns1.cloudlikeaboss.com", "ns2.cloudlikeaboss.com"],
             "registrar": "Pipoline s.r.o.",
             "registrar_city": "Košice",
@@ -567,7 +867,7 @@ Hostname:             p.nic.dk
             "registrar_postal_code": "040 12",
             "registrar_street": "Ladožská 8",
             "registrar_updated": "2020-07-02",
-            "updated_date": datetime.datetime(2020, 7, 2, 0, 0, tzinfo=utc),
+            "updated_date": datetime(2020, 7, 2, 0, 0, tzinfo=utc),
         }
         self._parse_and_compare("pipoline.sk", data, expected_results)
 
@@ -688,45 +988,118 @@ DNSSEC: unsigned
 """
 
         expected_results = {
-            "admin_address": "1600 Amphitheatre Parkway",
-            "admin_city": "Mountain View",
-            "admin_country": "US",
-            "admin_email": "dns-adminATgoogle.com",
-            "admin_name": "Google LLC",
-            "admin_org": "Google LLC",
-            "admin_phone": "+1.6502530000",
-            "billing_address": "3540 East Longwing Lane Suite 300",
-            "billing_city": "Meridian",
-            "billing_country": "US",
-            "billing_email": "ccopsbillingATmarkmonitor.com",
-            "billing_name": "MarkMonitor Inc.",
-            "billing_org": "CCOPS Billing",
-            "billing_phone": "+1.2083895740",
-            "creation_date": datetime.datetime(2012, 11, 12, 22, 0, tzinfo=utc),
-            "dnssec": "unsigned",
-            "domain_id": "3486-bwnic",
-            "domain_name": "google.co.bw",
-            "name_servers": [
-                "ns1.google.com",
-                "ns2.google.com",
-                "ns3.google.com",
-                "ns4.google.com",
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': 'Mountain View',
+                    'country': 'US',
+                    'email': 'dns-adminATgoogle.com',
+                    'fax': '+1.6502530001',
+                    'handle': None,
+                    'name': 'Google LLC',
+                    'organization': 'Google LLC',
+                    'phone': '+1.6502530000',
+                    'postal_code': '94043',
+                    'state': 'CA',
+                    'street': '1600 Amphitheatre Parkway'
+                },
+                'billing': {
+                    'city': 'Meridian',
+                    'country': 'US',
+                    'email': 'ccopsbillingATmarkmonitor.com',
+                    'fax': '+1.2083895771',
+                    'handle': None,
+                    'name': 'MarkMonitor Inc.',
+                    'organization': 'CCOPS Billing',
+                    'phone': '+1.2083895740',
+                    'postal_code': '83646',
+                    'state': 'ID',
+                    'street': '3540 East Longwing Lane Suite 300'
+                },
+                'registrant': {
+                    'city': 'Mountain View',
+                    'country': 'US',
+                    'email': 'ramotsababa@bocra.org.bw, '
+                             'matlapeng@bocra.org.bw, '
+                             'dns-adminATgoogle.com',
+                    'fax': '+1.6502530001',
+                    'handle': None,
+                    'name': 'Engineer - ccTLD, Google LLC',
+                    'organization': 'Google LLC',
+                    'phone': '+2673685419, +267 368 5410, '
+                             '+1.6502530000',
+                    'postal_code': '94043',
+                    'state': 'CA',
+                    'street': 'Plot 206/207 Independence Avenue, '
+                              'Private Bag 00495, Gaborone, Botswana, '
+                              '1600 Amphitheatre Parkway'
+                },
+                'technical': {
+                    'city': 'Mountain View',
+                    'country': 'US',
+                    'email': 'dns-adminATgoogle.com',
+                    'fax': '+1.6502530001',
+                    'handle': None,
+                    'name': 'Google LLC',
+                    'organization': 'Google LLC',
+                    'phone': '+1.6502530000',
+                    'postal_code': '94043',
+                    'state': None,
+                    'street': '1600 Amphitheatre Parkway'
+                }
+            },
+            'dates': {
+                'created': datetime(1993, 3, 19, 0, 0, tzinfo=tzutc()),
+                'expires': datetime(2023, 12, 31, 5, 0, tzinfo=tzutc()),
+                'updated': datetime(2022, 7, 27, 0, 0, tzinfo=tzutc())
+            },
+            'dnssec': 'unsigned',
+            'domain': 'BW',
+            'nameservers': [
+                'DNS1.NIC.NET.BW 168.167.98.226 2c0f:ff00:1:3:0:0:0:226',
+                'MASTER.BTC.NET.BW 168.167.168.37 2c0f:ff00:0:6:0:0:0:3 '
+                '2c0f:ff00:0:6:0:0:0:5',
+                'NS-BW.AFRINIC.NET 196.216.168.72 2001:43f8:120:0:0:0:0:72',
+                'PCH.NIC.NET.BW 2001:500:14:6070:ad:0:0:1 204.61.216.70',
+                'ns1.google.com',
+                'ns2.google.com',
+                'ns3.google.com',
+                'ns4.google.com'
             ],
-            "registrant_address": "1600 Amphitheatre Parkway",
-            "registrant_city": "Mountain View",
-            "registrant_country": "US",
-            "registrant_email": "dns-adminATgoogle.com",
-            "registrant_name": "Google LLC",
-            "registrant_org": "Google LLC",
-            "registrant_phone": "+1.6502530000",
-            "registrar": "MarkMonitor Inc",
-            "tech_address": "1600 Amphitheatre Parkway",
-            "tech_city": "Mountain View",
-            "tech_country": "US",
-            "tech_email": "dns-adminATgoogle.com",
-            "tech_name": "Google LLC",
-            "tech_org": "Google LLC",
-            "tech_phone": "+1.6502530000",
+            'registrar': {
+                'city': None,
+                'country': None,
+                'email': None,
+                'fax': None,
+                'handle': None,
+                'name': 'MarkMonitor Inc',
+                'organization': None,
+                'phone': None,
+                'postal_code': None,
+                'state': None,
+                'street': None
+            },
+            'status': [
+                'ACTIVE',
+                'clientTransferProhibited '
+                'https://icann.org/epp#clientTransferProhibited',
+                'clientDeleteProhibited '
+                'https://icann.org/epp#clientDeleteProhibited',
+                'clientUpdateProhibited '
+                'https://icann.org/epp#clientUpdateProhibited'
+            ]
         }
         self._parse_and_compare("google.co.bw", data, expected_results)
 
@@ -765,19 +1138,101 @@ compilation, repackaging, dissemination or other use of this Data is prohibited.
 """
 
         expected_results = {
-            "domain_name": "icp.cm",
-            "registry_domain_id": "1104110-RegCM",
-            "updated_date": datetime.datetime(2025, 5, 27, 4, 46, 44, 214000, tzinfo=utc),
-            "creation_date": datetime.datetime(2024, 8, 24, 13, 17, 43, 633000, tzinfo=utc),
-            "expiration_date": datetime.datetime(2026, 8, 24, 13, 17, 44, 316000, tzinfo=utc),
-            "status": "ok https://icann.org/epp#ok",
-            "registrar": "Netcom.cm Sarl",
-            "reseller": "NetSto Inc. - https://www.netsto.com",
-            "name_servers": ['ns1.huaweicloud-dns.com', 'ns1.huaweicloud-dns.net', 'ns1.huaweicloud-dns.cn',
-                             'ns1.huaweicloud-dns.org']
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'billing': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'registrant': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'technical': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                }
+            },
+            'dates': {
+                'created': datetime(2024, 8, 24, 13, 17, 43, 633000, tzinfo=tzutc()),
+                'expires': datetime(2026, 8, 24, 13, 17, 44, 316000, tzinfo=tzutc()),
+                'updated': datetime(2025, 5, 27, 4, 46, 44, 214000, tzinfo=tzutc())
+            },
+            'dnssec': None,
+            'domain': 'icp.cm',
+            'nameservers': ['ns1.huaweicloud-dns.com',
+                            'ns1.huaweicloud-dns.net',
+                            'ns1.huaweicloud-dns.cn',
+                            'ns1.huaweicloud-dns.org'],
+            'registrar': {
+                'city': None,
+                'country': None,
+                'email': None,
+                'fax': None,
+                'handle': None,
+                'name': 'Netcom.cm Sarl',
+                'organization': None,
+                'phone': None,
+                'postal_code': None,
+                'state': None,
+                'street': None
+            },
+            'status': ['ok https://icann.org/epp#ok']
         }
         self._parse_and_compare("icp.cm", data, expected_results)
-        
+
 
 if __name__ == "__main__":
     unittest.main()

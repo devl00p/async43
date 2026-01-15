@@ -22,27 +22,16 @@ class TestQuery(unittest.IsolatedAsyncioTestCase):
         """Verify ipv4 addresses."""
         domain = "172.217.3.110"
         whois_results = await whois(domain)
-        if isinstance(whois_results["domain_name"], list):
-            domain_names = [_.lower() for _ in whois_results["domain_name"]]
-        else:
-            domain_names = [whois_results["domain_name"].lower()]
-
-        print(whois_results)
-        self.assertIn("1e100.net", domain_names)
+        assert whois_results.domain.lower() == "1e100.net"
         self.assertIn(
-            "ns1.google.com", [_.lower() for _ in whois_results["name_servers"]]
+            "ns1.google.com", [_.lower() for _ in whois_results.nameservers]
         )
 
     async def test_ipv6(self):
         """Verify ipv6 addresses."""
         domain = "2607:f8b0:4006:802::200e"
         whois_results = await whois(domain)
-        if isinstance(whois_results["domain_name"], list):
-            domain_names = [_.lower() for _ in whois_results["domain_name"]]
-        else:
-            domain_names = [whois_results["domain_name"].lower()]
-
-        self.assertIn("1e100.net", domain_names)
+        assert whois_results.domain.lower() == "1e100.net"
         self.assertIn(
-            "ns1.google.com", [_.lower() for _ in whois_results["name_servers"]]
+            "ns1.google.com", [_.lower() for _ in whois_results.nameservers]
         )

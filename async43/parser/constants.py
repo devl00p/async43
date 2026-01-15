@@ -80,10 +80,11 @@ LEGAL_MENTIONS = [
 
 SCHEMA_MAPPING = {
     "domain": ["domain name", "domain", "dn", "dns", "nom de domaine"],
-    "registrar.name": ["registrar", "registrar name"],
+    "registrar.name": ["registrar name", "registrar"],
+    "registrar.url": ["registrar url", "registrar web"],
     "dates.created": [
         "creation date", "created", "registered", "created date", "record created", "domain created",
-        "created-date", "注册时间(creation date)"
+        "created-date", "注册时间(creation date)", "registration time"
     ],
     "dates.updated": [
         "updated date", "last update", "last modified", "changed", "modified", "dernière modification",
@@ -92,10 +93,11 @@ SCHEMA_MAPPING = {
     ],
     "dates.expires": [
         "registry expiry date", "expiration date", "expiry", "expires", "date d'expiration", "expire date",
-        "record expires on", "expires on", "valid until", "到期时间(registry expiry date)"
+        "record expires on", "expires on", "valid until", "到期时间(registry expiry date)",
+        "Date out of quarantine", "expiration time"
     ],
     "nameservers": [
-        "name server", "nserver", "serveur de noms", "primary server", "secondary server", "dns",
+        "name server", "nserver", "serveur de noms", "primary server", "secondary server", "dns", "hostname",
         "ns 1", "ns 2", "ns 3", "ns 4", "ns 5", "ns 6", "ns 7", "ns 8", "ns 9", "ns 10", "域名服务器(name server)"
     ],
     "status": ["domain status", "status", "registration status", "域状态(domain status)"],
@@ -142,10 +144,12 @@ SCHEMA_MAPPING = {
     # REGISTRANT
     "contacts.registrant.email": [
         "registrant.email", "registrant email", "email", "courriel", "owner email",
-        "注册联系人电子邮件(registrant email)"
+        "注册联系人电子邮件(registrant email)", "registrant contact email"
     ],
+    "contacts.registrant.id": ["registrant id"],
     "contacts.registrant.name": [
-        "registrant.name", "registrant.contact", "name", "owner name", "注册联系人姓名(registrant name)"
+        "registrant.name", "registrant.contact", "registrant name", "name", "owner name",
+        "注册联系人姓名(registrant name)", "registrant"
     ],
     "contacts.registrant.street": [
         "registrant.street", "registrant street", "address", "postal address", "street address",

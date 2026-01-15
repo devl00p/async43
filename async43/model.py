@@ -1,4 +1,5 @@
-from typing import List, Optional
+from datetime import datetime
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 
 
@@ -25,9 +26,9 @@ class DomainContacts(BaseModel):
 
 
 class DomainDates(BaseModel):
-    created: Optional[str] = None
-    updated: Optional[str] = None
-    expires: Optional[str] = None
+    created: Optional[Union[str, datetime]] = None
+    updated: Optional[Union[str, datetime]] = None
+    expires: Optional[Union[str, datetime]] = None
 
 
 class Whois(BaseModel):
@@ -86,7 +87,7 @@ class Whois(BaseModel):
 
     @property
     def is_empty(self) -> bool:
-        data = self.model_dump(exclude={'raw_text'})
+        data = self.model_dump(exclude={"raw_text"})
 
         def check_empty(v):
             if isinstance(v, dict):
