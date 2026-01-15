@@ -5,8 +5,11 @@ class PywhoisError(Exception):
 class WhoisError(PywhoisError):
     pass
 
+class WhoisNetworkError(WhoisError):
+    pass
 
-class UnknownTldError(WhoisError):
+
+class WhoisInternalError(WhoisError):
     pass
 
 

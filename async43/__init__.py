@@ -2,16 +2,15 @@
 
 import asyncio
 import logging
-import os
 import re
 import socket
 import sys
-from typing import Any, Optional, Pattern
+from typing import Optional, Pattern
 
 from async43.exceptions import WhoisError
+from async43.model import Whois
 from async43.net.resolve import resolve_dns_bundle
-from async43.parsers import load
-from async43.parsers.base import WhoisEntry
+from async43.parser import parse
 from async43.whois import NICClient
 
 import tldextract
@@ -31,21 +30,15 @@ async def whois(
     flags: int = 0,
     executable: str = "whois",
     executable_opts: Optional[list[str]] = None,
-    inc_raw: bool = False,
-    quiet: bool = False,
-    ignore_socket_errors: bool = True,
     convert_punycode: bool = True,
     timeout: int = 10,
-    enrich_dns: bool = True,
-) -> dict[str, Any]:
+) -> Whois:
     """
     url: the URL to search whois
     command: whether to use the native whois command (default False)
     executable: executable to use for native whois command (default 'whois')
     flags: flags to pass to the whois client (default 0)
     inc_raw: whether to include the raw text from whois in the result (default False)
-    quiet: whether to avoid printing output (default False)
-    ignore_socket_errors: whether to ignore socket errors (default True)
     convert_punycode: whether to convert the given URL punycode (default True)
     timeout: timeout for WHOIS request (default 10 seconds)
     """
@@ -83,19 +76,13 @@ async def whois(
         nic_client = NICClient()
         if convert_punycode:
             domain = domain.encode("idna").decode("utf-8")
-        text = await nic_client.whois_lookup(None, domain, flags, quiet=quiet, ignore_socket_errors=ignore_socket_errors, timeout=timeout)
+        text = await nic_client.whois_lookup(None, domain, flags, timeout=timeout)
         if not text:
             raise WhoisError("Whois command returned no output")
-    entry = load(domain, text)
 
-    if entry.is_empty:
-        dns_data = await resolve_dns_bundle(domain)
-        if dns_data:
-            entry.attach_dns(dns_data)
+    whois_object = parse(text)
 
-    if inc_raw:
-        entry["raw"] = text
-    return entry
+    return whois_object
 
 
 suffixes: Optional[set] = None
@@ -150,8 +137,11 @@ async def main():
     except IndexError:
         logger.error("Usage: %s url" % sys.argv[0])
     else:
-        result = await whois(url)
-        logger.info(result)
+        try:
+            whois_object = await whois(url)
+            logger.info(whois_object.model_dump_json(indent=2, exclude={'raw_text'}))
+        except Exception as exception:
+            logger.error(f"could not process {url}: {exception}")
 
 if __name__ == "__main__":
     asyncio.run(main())

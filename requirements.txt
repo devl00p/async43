@@ -1,5 +1,7 @@
 async-lru>=2.0.5
 dnspython>=2.8.0
+pydantic>=2.12.5
 python-dateutil>=2.9.0.post0
 PySocks>=1.7.1
+rapidfuzz>=3.14.3
 tldextract>=5.3.1

@@ -10,6 +10,8 @@ from typing import Optional, Tuple, AsyncGenerator, Iterator
 
 from async_lru import alru_cache
 
+from async43.exceptions import WhoisNetworkError
+
 logger = logging.getLogger(__name__)
 
 
@@ -152,18 +154,24 @@ class NICClient:
         port = 43
 
         if "SOCKS" in os.environ:
-            s = NICClient.get_socks_socket()
-            s.settimeout(timeout)
-            s.connect((hostname, port))
-            return await asyncio.open_connection(sock=s)
+            try:
+                s = NICClient.get_socks_socket()
+                s.settimeout(timeout)
+                s.connect((hostname, port))
+                return await asyncio.open_connection(sock=s)
+            except (OSError, asyncio.TimeoutError) as e:
+                raise WhoisNetworkError(f"SOCKS connection failed for {hostname}: {e}") from e
 
-        loop = asyncio.get_running_loop()
-        addr_infos = await loop.getaddrinfo(
-            hostname,
-            port,
-            family=socket.AF_UNSPEC,
-            type=socket.SOCK_STREAM,
-        )
+        try:
+            loop = asyncio.get_running_loop()
+            addr_infos = await loop.getaddrinfo(
+                hostname,
+                port,
+                family=socket.AF_UNSPEC,
+                type=socket.SOCK_STREAM,
+            )
+        except socket.gaierror as e:
+            raise WhoisNetworkError(f"Could not resolve WHOIS server {hostname}: {e}") from e
 
         if self.prefer_ipv6:
             addr_infos.sort(key=lambda x: x[0], reverse=True)
@@ -188,7 +196,11 @@ class NICClient:
             except (OSError, asyncio.TimeoutError) as e:
                 last_err = e
 
-        raise last_err or OSError(f"Could not connect to {hostname}")
+        msg = f"Interface connection failed for {hostname}"
+        if last_err:
+            raise WhoisNetworkError(f"{msg}: {last_err}") from last_err
+
+        raise WhoisNetworkError(msg)
 
     @asynccontextmanager
     async def _connect(
@@ -208,11 +220,14 @@ class NICClient:
 
     @alru_cache(ttl=86400)
     async def findwhois_iana(self, tld: str, timeout: int = 10) -> Optional[str]:
-        # noinspection PyArgumentList
-        async with self._connect("whois.iana.org", timeout) as (reader, writer):
-            writer.write(bytes(tld, "utf-8") + b"\r\n")
-            await writer.drain()
-            response = await reader.read()
+        try:
+            # noinspection PyArgumentList
+            async with self._connect("whois.iana.org", timeout) as (reader, writer):
+                writer.write(bytes(tld, "utf-8") + b"\r\n")
+                await writer.drain()
+                response = await reader.read()
+        except (OSError, asyncio.TimeoutError) as exception:
+            raise WhoisNetworkError(f"Network failure for whois.iana.org: {str(exception)}") from exception
         
         match = re.search(r"whois:[ \t]+(.*?)\n", response.decode("utf-8"))
         return match.group(1) if match and match.group(1) else None
@@ -223,9 +238,7 @@ class NICClient:
         hostname: str,
         flags: int,
         many_results: bool = False,
-        quiet: bool = False,
         timeout: int = 10,
-        ignore_socket_errors: bool = True
     ) -> str:
         """Perform initial lookup with TLD whois server
         then, if the quick flag is false, search that result
@@ -254,20 +267,15 @@ class NICClient:
 
             nhost = None
             if 'with "=xxx"' in response_str:
-                return await self.whois(query, hostname, flags, True, quiet=quiet, ignore_socket_errors=ignore_socket_errors, timeout=timeout)
+                return await self.whois(query, hostname, flags, True, timeout=timeout)
             if flags & NICClient.WHOIS_RECURSE and nhost is None:
                 nhost = self.findwhois_server(response_str, hostname, query)
             if nhost is not None and nhost != "":
-                response_str += await self.whois(query, nhost, 0, quiet=quiet, ignore_socket_errors=ignore_socket_errors, timeout=timeout)
+                response_str += await self.whois(query, nhost, 0, timeout=timeout)
             
             return response_str
-        except (socket.error, asyncio.TimeoutError, OSError) as e:
-            if not quiet:
-                logger.error(f"Error during WHOIS lookup: {e}")
-            if ignore_socket_errors:
-                return f"Socket not responding: {e}"
-            else:
-                raise e
+        except (asyncio.TimeoutError, OSError) as e:
+            raise WhoisNetworkError(f"Network failure for {hostname}: {str(e)}") from e
 
     async def choose_server(self, domain: str, timeout: int = 10) -> Optional[str]:
         """Choose initial lookup NIC host"""
@@ -297,7 +305,7 @@ class NICClient:
         return await self.findwhois_iana(tld, timeout=timeout)
 
     async def whois_lookup(
-        self, options: Optional[dict], query_arg: str, flags: int, quiet: bool = False, ignore_socket_errors: bool = True, timeout: int = 10
+        self, options: Optional[dict], query_arg: str, flags: int, timeout: int = 10
     ) -> str:
         """Main entry point: Perform initial lookup on TLD whois server,
         or other server to get region-specific whois server, then if quick
@@ -319,18 +327,16 @@ class NICClient:
                 query_arg,
                 options["country"] + NICClient.QNICHOST_TAIL,
                 flags,
-                quiet=quiet,
-                ignore_socket_errors=ignore_socket_errors,
                 timeout=timeout
             )
         elif self.use_qnichost:
             nichost = await self.choose_server(query_arg, timeout=timeout)
             if nichost is not None:
-                result = await self.whois(query_arg, nichost, flags, quiet=quiet, ignore_socket_errors=ignore_socket_errors, timeout=timeout)
+                result = await self.whois(query_arg, nichost, flags, timeout=timeout)
             else:
                 result = ""
         else:
-            result = await self.whois(query_arg, options["whoishost"], flags, quiet=quiet, ignore_socket_errors=ignore_socket_errors, timeout=timeout)
+            result = await self.whois(query_arg, options["whoishost"], flags, timeout=timeout)
         return result
 
 
@@ -505,8 +511,6 @@ async def main():
     if options.b_quicklookup:
         flags = flags | NICClient.WHOIS_QUICK
     
-    # The original code used logger.debug, which doesn't print to stdout by default.
-    # To see the output, we'll print it.
     result = await nic_client.whois_lookup(options.__dict__, args[1], flags)
     print(result)
 
