@@ -1,1 +1,96 @@
-{"domain_name": "SQUATTER.NET", "expiration_date": "2008-11-06 00:00:00+00:00", "updated_date": "2007-11-07 00:00:00+00:00", "registrar": "DOMAINDISCOVER", "registrar_url": null, "creation_date": "1999-11-06 00:00:00+00:00", "status": "clientTransferProhibited"}
+{
+  "domain": "SQUATTER.NET",
+  "status": [
+    "clientTransferProhibited"
+  ],
+  "dates": {
+    "created": "1999-11-06T00:00:00Z",
+    "updated": "2007-11-07T00:00:00Z",
+    "expires": "2008-11-06T00:00:00Z"
+  },
+  "nameservers": [
+    "NS1.SBRACK.COM",
+    "NS2.SBRACK.COM"
+  ],
+  "dnssec": null,
+  "registrar": {
+    "email": null,
+    "name": "DOMAINDISCOVER",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

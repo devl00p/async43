@@ -1,1 +1,95 @@
-{"domain_name": "YANDEX.RU", "expiration_date": "2018-09-30 21:00:00+00:00", "updated_date": null, "registrar": "RU-CENTER-RU", "registrar_url": null, "creation_date": "1997-09-23 09:45:07+00:00", "status": ["REGISTERED", "DELEGATED", "VERIFIED"]}
+{
+  "domain": "YANDEX.RU",
+  "status": [],
+  "dates": {
+    "created": "1997-09-23T09:45:07Z",
+    "updated": null,
+    "expires": null
+  },
+  "nameservers": [
+    "ns1.yandex.ru. 213.180.193.1, 2a02:6b8::1",
+    "ns2.yandex.ru. 93.158.134.1, 2a02:6b8:0:1::1",
+    "ns9.z5h64q92x9.net."
+  ],
+  "dnssec": null,
+  "registrar": {
+    "email": null,
+    "name": "RU-CENTER-RU",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": "https://www.nic.ru/whois",
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

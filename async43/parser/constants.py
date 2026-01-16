@@ -124,6 +124,7 @@ SCHEMA_MAPPING = {
     ],
     "contacts.administrative.organization": ["admin.organization", "admin organization",
                                              "管理联系人组织(admin organization)"],
+    "contacts.administrative.organization_id": ["admin organization id"],
     "contacts.administrative.phone": ["admin.phone", "admin phone", "管理联系人电话(admin phone)"],
     "contacts.administrative.fax": ["admin.fax", "admin fax", "管理联系人传真(admin fax)"],
     "contacts.administrative.created": ["admin created"],
@@ -154,6 +155,7 @@ SCHEMA_MAPPING = {
     "contacts.billing.organization": [
         "billing.organization", "billing organization", "注册联系人组织(billing organization)"
     ],
+    "contacts.billing.organization_id": ["billing organization id"],
     "contacts.billing.phone": [
         "billing.phone", "billing phone", "注册联系人电话(billing phone)"
     ],
@@ -218,6 +220,7 @@ SCHEMA_MAPPING = {
     "registrar.organization": [
         "registrar.organization", "registrar organization", "registrar contact organisation", "技术联系人组织(registrar organization)"
     ],
+    "registrar.organization_id": ["registrar organization id"],
     "registrar.phone": ["registrar.phone", "registrar phone", "技术联系人电话(registrar phone)"],
     "registrar.fax": ["registrar.fax", "registrar fax", "技术联系人传真(registrar fax)"],
     "registrar.created": ["registrar created"],
@@ -238,6 +241,7 @@ SCHEMA_MAPPING = {
     "contacts.technical.organization": [
         "tech.organization", "tech organization", "tech contact organisation", "技术联系人组织(tech organization)"
     ],
+    "contacts.technical.organization_id": ["tech organization id"],
     "contacts.technical.phone": ["tech.phone", "tech phone", "技术联系人电话(tech phone)"],
     "contacts.technical.fax": ["tech.fax", "tech fax", "技术联系人传真(tech fax)"],
     "contacts.technical.created": ["tech created"],

@@ -1,1 +1,99 @@
-{"domain_name": "CYBERCITI.BIZ", "expiration_date": "2024-06-30 23:59:59+00:00", "updated_date": "2018-07-11 05:55:25+00:00", "registrar": "GoDaddy.com, LLC", "registrar_url": "http://www.godaddy.com", "creation_date": "2002-07-01 09:31:21+00:00", "status": ["clientTransferProhibited http://www.icann.org/epp#clientTransferProhibited", "clientUpdateProhibited http://www.icann.org/epp#clientUpdateProhibited", "clientRenewProhibited http://www.icann.org/epp#clientRenewProhibited", "clientDeleteProhibited http://www.icann.org/epp#clientDeleteProhibited"]}
+{
+  "domain": "CYBERCITI.BIZ",
+  "status": [
+    "clientTransferProhibited http://www.icann.org/epp#clientTransferProhibited",
+    "clientUpdateProhibited http://www.icann.org/epp#clientUpdateProhibited",
+    "clientRenewProhibited http://www.icann.org/epp#clientRenewProhibited",
+    "clientDeleteProhibited http://www.icann.org/epp#clientDeleteProhibited"
+  ],
+  "dates": {
+    "created": "2002-07-01T09:31:21Z",
+    "updated": "2018-07-11T05:55:25Z",
+    "expires": null
+  },
+  "nameservers": [
+    "CLAY.NS.CLOUDFLARE.COM",
+    "FAY.NS.CLOUDFLARE.COM"
+  ],
+  "dnssec": "unsigned",
+  "registrar": {
+    "email": null,
+    "name": "GoDaddy.com, LLC",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": "CYBERCITI.BIZ@domainsbyproxy.com",
+      "name": "Registration Private",
+      "street": "DomainsByProxy.com, 14455 N. Hayden Road",
+      "city": "Scottsdale",
+      "postal_code": "85260",
+      "state": "Arizona",
+      "country": "US",
+      "organization": "Domains By Proxy, LLC",
+      "phone": "+1.4806242599",
+      "fax": "+1.4806242598",
+      "handle": null
+    },
+    "administrative": {
+      "email": "CYBERCITI.BIZ@domainsbyproxy.com",
+      "name": "Registration Private",
+      "street": "DomainsByProxy.com, 14455 N. Hayden Road",
+      "city": "Scottsdale",
+      "postal_code": "85260",
+      "state": "Arizona",
+      "country": "US",
+      "organization": "Domains By Proxy, LLC",
+      "phone": "+1.4806242599",
+      "fax": "+1.4806242598",
+      "handle": null
+    },
+    "technical": {
+      "email": "CYBERCITI.BIZ@domainsbyproxy.com",
+      "name": "Registration Private",
+      "street": "DomainsByProxy.com, 14455 N. Hayden Road",
+      "city": "Scottsdale",
+      "postal_code": "85260",
+      "state": "Arizona",
+      "country": "US",
+      "organization": "Domains By Proxy, LLC",
+      "phone": "+1.4806242599",
+      "fax": "+1.4806242598",
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": "abuse@godaddy.com",
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": "+1.4806242505",
+      "fax": null,
+      "handle": null
+    }
+  }
+}

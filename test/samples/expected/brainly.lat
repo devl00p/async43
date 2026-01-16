@@ -1,1 +1,96 @@
-{"domain_name": "brainly.lat", "expiration_date": "2019-07-31 15:59:27+00:00", "updated_date": "2018-07-22 09:01:05+00:00", "registrar": "Instra Corporation Pty Ltd.", "registrar_url": "http://www.instra.com/", "creation_date": "2015-07-31 15:59:27+00:00", "status": "ok http://www.icann.org/epp#OK"}
+{
+  "domain": "brainly.lat",
+  "status": [
+    "ok http://www.icann.org/epp#OK"
+  ],
+  "dates": {
+    "created": "2015-07-31T15:59:27Z",
+    "updated": "2018-07-22T09:01:05Z",
+    "expires": "2019-07-31T15:59:27Z"
+  },
+  "nameservers": [
+    "adi.ns.cloudflare.com",
+    "chad.ns.cloudflare.com"
+  ],
+  "dnssec": "unsigned",
+  "registrar": {
+    "email": null,
+    "name": "Instra Corporation Pty Ltd.",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name",
+      "name": "REDACTED FOR PRIVACY",
+      "street": "REDACTED FOR PRIVACY",
+      "city": "REDACTED FOR PRIVACY",
+      "postal_code": "REDACTED FOR PRIVACY",
+      "state": "Malopolska",
+      "country": "PL",
+      "organization": "Brainly Sp. z o.o.",
+      "phone": "REDACTED FOR PRIVACY",
+      "fax": "REDACTED FOR PRIVACY",
+      "handle": null
+    },
+    "administrative": {
+      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name",
+      "name": "REDACTED FOR PRIVACY",
+      "street": "REDACTED FOR PRIVACY",
+      "city": "REDACTED FOR PRIVACY",
+      "postal_code": "REDACTED FOR PRIVACY",
+      "state": "REDACTED FOR PRIVACY",
+      "country": "REDACTED FOR PRIVACY",
+      "organization": "REDACTED FOR PRIVACY",
+      "phone": "REDACTED FOR PRIVACY",
+      "fax": "REDACTED FOR PRIVACY",
+      "handle": null
+    },
+    "technical": {
+      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name",
+      "name": "REDACTED FOR PRIVACY",
+      "street": "REDACTED FOR PRIVACY",
+      "city": "REDACTED FOR PRIVACY",
+      "postal_code": "REDACTED FOR PRIVACY",
+      "state": "REDACTED FOR PRIVACY",
+      "country": "REDACTED FOR PRIVACY",
+      "organization": "REDACTED FOR PRIVACY",
+      "phone": "REDACTED FOR PRIVACY",
+      "fax": "REDACTED FOR PRIVACY",
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

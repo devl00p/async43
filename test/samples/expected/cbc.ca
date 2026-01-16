@@ -1,1 +1,104 @@
-{"domain_name": "cbc.ca", "expiration_date": "2019-11-24 05:00:00+00:00", "updated_date": "2018-10-26 02:15:16+00:00", "registrar": "Authentic Web Inc.", "registrar_url": "authenticweb.com", "creation_date": "2000-10-16 13:56:05+00:00", "status": ["clientTransferProhibited https://icann.org/epp#clientTransferProhibited", "clientUpdateProhibited https://icann.org/epp#clientUpdateProhibited", "serverDeleteProhibited https://icann.org/epp#serverDeleteProhibited", "serverTransferProhibited https://icann.org/epp#serverTransferProhibited", "serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited"]}
+{
+  "domain": "cbc.ca",
+  "status": [
+    "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
+    "clientUpdateProhibited https://icann.org/epp#clientUpdateProhibited",
+    "serverDeleteProhibited https://icann.org/epp#serverDeleteProhibited",
+    "serverTransferProhibited https://icann.org/epp#serverTransferProhibited",
+    "serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited"
+  ],
+  "dates": {
+    "created": "2000-10-16T13:56:05Z",
+    "updated": "2018-10-26T02:15:16Z",
+    "expires": "2019-11-24T05:00:00Z"
+  },
+  "nameservers": [
+    "a5-65.akam.net",
+    "a9-66.akam.net",
+    "a26-67.akam.net",
+    "a1-29.akam.net",
+    "a4-64.akam.net",
+    "a14-66.akam.net"
+  ],
+  "dnssec": "unsigned",
+  "registrar": {
+    "email": null,
+    "name": "Authentic Web Inc.",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": "domain-name@cbc.ca",
+      "name": "Canadian Broadcasting Corporation",
+      "street": "250 Front St W",
+      "city": "Toronto",
+      "postal_code": "M5V3G5",
+      "state": "ON",
+      "country": "CA",
+      "organization": null,
+      "phone": "+1.4162053482",
+      "fax": "+1.4162057750",
+      "handle": null
+    },
+    "administrative": {
+      "email": "domain-name@cbc.ca",
+      "name": "Karen Stephen",
+      "street": "250 Front St W",
+      "city": "Toronto",
+      "postal_code": "M5V3G5",
+      "state": "ON",
+      "country": "CA",
+      "organization": "Canadian Broadcasting Corporation",
+      "phone": "+1.4162053482",
+      "fax": "+1.4162057750",
+      "handle": null
+    },
+    "technical": {
+      "email": "domain-name@cbc.ca",
+      "name": "Karen Stephen",
+      "street": "250 Front St W",
+      "city": "Toronto",
+      "postal_code": "M5V3G5",
+      "state": "ON",
+      "country": "CA",
+      "organization": "Canadian Broadcasting Corporation",
+      "phone": "+1.4162053482",
+      "fax": "+1.4162057750",
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

@@ -1,7 +1,7 @@
+from datetime import datetime, timezone
 from typing import Optional, Union
 
 import dateutil.parser as dp
-from datetime import datetime, timezone
 
 
 def cast_date(date_string: str) -> Optional[Union[str, datetime]]:
