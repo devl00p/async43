@@ -12,8 +12,6 @@ class MappingTarget:
 
     @property
     def section_name(self) -> str:
-        # "contacts.admin.email" -> "admin"
-        # "registrar.name" -> "registrar"
         parts = self.path.split('.')
         return parts[1] if parts[0] == "contacts" else parts[0]
 
@@ -37,6 +35,13 @@ class WhoisContext:
             return
 
         keys = path.split('.')
+
+        # --- PROTECTION DES DATES ---
+        # Si on est dans une section (admin/tech/etc), on n'écrit pas dans 'dates' global.
+        # Le format .sk a des dates de création/update pour CHAQUE contact.
+        if keys[0] == "dates" and self.current_section:
+            return
+
         target = self.data
         for key in keys[:-1]:
             target = target.setdefault(key, {})
@@ -44,63 +49,60 @@ class WhoisContext:
         last_key = keys[-1]
         val_str = str(value).strip()
 
-        # Logique d'accumulation pour les listes ou les adresses multi-lignes
         if last_key in ["nameservers", "status"]:
             if last_key not in target: target[last_key] = []
             if val_str not in target[last_key]: target[last_key].append(val_str)
         elif not target.get(last_key):
             target[last_key] = val_str
         elif "contacts" in path or "registrar" in path:
+            # Accumulation pour les adresses multi-lignes
             if val_str not in target[last_key]:
                 target[last_key] = f"{target[last_key]}, {val_str}"
 
 
 class SchemaMapper:
-    """Responsable de la traduction des labels WHOIS en MappingTarget."""
-
     def __init__(self, mapping: Dict[str, List[str]]):
         self.mapping = mapping
-        # Sections définies dans les constantes (ex: "SECTION_ADMIN" devient "administrative")
-        self.sections = {
-            "SECTION_ADMIN": "administrative",
-            "SECTION_TECH": "technical",
-            "SECTION_REGISTRANT": "registrant",
-            "SECTION_BILLING": "billing",
-            "SECTION_REGISTRAR": "registrar"  # On peut l'ajouter s'il existe
-        }
         self.flat_choices = [alias for aliases in mapping.values() for alias in aliases]
 
     def resolve(self, label: str, current_section: Optional[str]) -> Optional[MappingTarget]:
         clean = label.lower().replace(":", "").strip()
         if not clean: return None
 
-        # 1. Vérifier si c'est un changement de section
+        # 1. Détection de changement de section (Labels spéciaux comme "Administrative Contact")
         for key, aliases in self.mapping.items():
             if key.startswith("SECTION_"):
                 if clean in [a.lower() for a in aliases]:
-                    # Traduction du nom de la section (ex: SECTION_ADMIN -> administrative)
-                    sect_name = self.sections.get(key, key.replace("SECTION_", "").lower())
+                    # Traduit "SECTION_REGISTRANT" -> "registrant"
+                    sect_name = key.replace("SECTION_", "").lower()
                     path = f"contacts.{sect_name}" if sect_name != "registrar" else "registrar"
                     return MappingTarget(path=path, is_section=True)
 
-        # 2. Match avec contexte de section (Registrar inclus !)
-        if current_section:
-            prefix = "registrar" if current_section == "registrar" else f"contacts.{current_section}"
-            choices = [k for k in self.mapping.keys() if k.startswith(prefix)]
-            for key in choices:
-                if clean in [a.lower() for a in self.mapping[key]]:
-                    return MappingTarget(path=key)
+        # Spécial pour .sk : "Registrar" ou "Domain registrant" sont des déclencheurs
+        if clean == "registrar" or clean == "authorised registrar":
+            return MappingTarget(path="registrar", is_section=True)
+        if clean == "domain registrant":
+            return MappingTarget(path="contacts.registrant", is_section=True)
 
-        # 3. Match Global
-        match = process.extractOne(clean, self.flat_choices, scorer=fuzz.token_sort_ratio)
-        if match and match[1] > 85:
-            for key, aliases in self.mapping.items():
-                if match[0] in aliases and not key.startswith("SECTION_"):
-                    # Sécurité section
-                    if ("contacts." in key or "registrar." in key) and current_section:
-                        if not key.startswith(f"contacts.{current_section}") and not key.startswith("registrar."):
-                            if match[1] < 95: continue
-                    return MappingTarget(path=key)
+        # 2. Construction du label virtuel avec préfixe (ton idée)
+        search_terms = []
+        if current_section:
+            search_terms.append(f"{current_section} {clean}")  # ex: "registrar name"
+        search_terms.append(clean)  # ex: "name"
+
+        for term in search_terms:
+            # Match Exact d'abord
+            for path, aliases in self.mapping.items():
+                if term in [a.lower() for a in aliases]:
+                    return MappingTarget(path=path)
+
+            # Fuzzy Match ensuite
+            match = process.extractOne(term, self.flat_choices, scorer=fuzz.token_sort_ratio)
+            if match and match[1] > 90:  # Seuil haut pour éviter les faux positifs
+                for path, aliases in self.mapping.items():
+                    if match[0] in aliases and not key.startswith("SECTION_"):
+                        return MappingTarget(path=path)
+
         return None
 
 
@@ -117,28 +119,33 @@ class WhoisEngine:
             value = getattr(node, 'value', None)
             children = getattr(node, 'children', [])
 
+            if label == "SECTION_BREAK":
+                self.ctx.current_section = None
+                continue
+
             target = self.mapper.resolve(label, self.ctx.current_section)
 
             if target:
                 if target.is_section:
+                    # On définit la section courante (ex: "registrar")
                     self.ctx.current_section = target.section_name
+
+                    # Si la ligne de section a une valeur (ex: Registrar: INCZ-0001)
                     if value:
-                        # Si la section a une valeur directe (ex: "Registrant: John Doe")
-                        # On l'assigne au champ 'name' de cette section
-                        self.ctx.update_value(f"{target.path}.name", value)
-                    self.walk(children)
+                        # On cherche une clé .id ou .handle ou .name pour cette section
+                        field = "name" if self.ctx.current_section == "registrar" else "handle"
+                        self.ctx.update_value(f"{target.path}.{field}", value)
                 else:
-                    if value: self.ctx.update_value(target.path, value)
-                    for child in children:
-                        if isinstance(child, str):
-                            self.ctx.update_value(target.path, child)
-                        else:
-                            self.walk([child])
+                    # On est dans un champ de données classique
+                    self.ctx.update_value(target.path, value)
+
+                # On traite les enfants (si structure hiérarchique)
+                self.walk(children)
             else:
-                # Cas Inconnu
+                # Cas Inconnu : On garde le contexte pour classer l'info
                 if value:
-                    key = f"{self.ctx.current_section}.{label}" if self.ctx.current_section else label
-                    self.ctx.data["other"][key] = value
+                    prefix = self.ctx.current_section if self.ctx.current_section else "global"
+                    self.ctx.data["other"][f"{prefix}.{label}"] = value
                 self.walk(children)
 
 

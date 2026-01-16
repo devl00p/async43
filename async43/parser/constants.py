@@ -80,8 +80,23 @@ LEGAL_MENTIONS = [
 
 SCHEMA_MAPPING = {
     "domain": ["domain name", "domain", "dn", "dns", "nom de domaine"],
-    "registrar.name": ["registrar name", "registrar"],
+    # REGISTRAR
+    "registrar.name": ["registrar.name", "registrar.contact", "registrar name", "技术联系人姓名(registrar name)"],
     "registrar.url": ["registrar url", "registrar web"],
+    "registrar.email": [
+        "registrar.email", "registrar.contact email", "registrar email", "registrar contact email", "技术联系人电子邮件(registrar email)"
+    ],
+    "registrar.street": ["registrar.street", "registrar street", "registrar.address", "技术联系人所在街道(registrar street)"],
+    "registrar.city": ["registrar.city", "registrar city", "技术联系人所在城市(registrar city)"],
+    "registrar.postal_code": ["registrar.postal code", "registrar postal code", "技术联系人邮政编码(registrar postal code)"],
+    "registrar.state": ["registrar.state", "registrar state/province", "技术联系人所在州/省(registrar state/province)"],
+    "registrar.country": ["registrar.country", "registrar country", "技术联系人所在国家和地区(registrar country)"],
+    "registrar.organization": [
+        "registrar.organization", "registrar organization", "registrar contact organisation", "技术联系人组织(registrar organization)"
+    ],
+    "registrar.phone": ["registrar.phone", "registrar phone", "技术联系人电话(registrar phone)"],
+    "registrar.fax": ["registrar.fax", "registrar fax", "技术联系人传真(registrar fax)"],
+
     "dates.created": [
         "creation date", "created", "registered", "created date", "record created", "domain created",
         "created-date", "注册时间(creation date)", "registration time"

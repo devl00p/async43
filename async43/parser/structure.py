@@ -79,6 +79,8 @@ def parse_whois(text: str) -> List[Node]:
 
         if is_blank(content):
             stack.clear()
+            if root and root[-1].label != "SECTION_BREAK":
+                root.append(Node(label="SECTION_BREAK", indent=0, value=None))
             continue
 
         label, value = split_label_value(content)
