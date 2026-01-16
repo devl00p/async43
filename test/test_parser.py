@@ -208,8 +208,7 @@ class TestParser(unittest.TestCase):
                     'phone': '+1.09876545123',
                     'postal_code': None,
                     'state': None,
-                    'street': 'Other TestAddress, TestTown OCAS '
-                              'Canada'
+                    'street': 'Other TestAddress'
                 }
             },
             'dates': {
@@ -845,29 +844,94 @@ Hostname:             p.nic.dk
         """
 
         expected_results = {
-            "admin": "H410977",
-            "admin_city": "Kosice",
-            "admin_country_code": "SK",
-            "admin_email": "info@pipoline.com",
-            "admin_organization": "Pipoline s.r.o",
-            "admin_postal_code": "04012",
-            "admin_street": "Ladozska 8",
-            "creation_date": datetime(2012, 7, 23, 0, 0, tzinfo=utc),
-            "domain_name": "pipoline.sk",
-            "expiration_date": datetime(2021, 7, 13, 0, 0, tzinfo=utc),
-            "name_servers": ["ns1.cloudlikeaboss.com", "ns2.cloudlikeaboss.com"],
-            "registrar": "Pipoline s.r.o.",
-            "registrar_city": "Košice",
-            "registrar_country_code": "SK",
-            "registrar_created": "2012-07-23",
-            "registrar_email": "peter.gonda@pipoline.com",
-            "registrar_name": "Pipoline s.r.o.",
-            "registrar_organization_id": "48273317",
-            "registrar_phone": "+421.949347169",
-            "registrar_postal_code": "040 12",
-            "registrar_street": "Ladožská 8",
-            "registrar_updated": "2020-07-02",
-            "updated_date": datetime(2020, 7, 2, 0, 0, tzinfo=utc),
+            'contacts': {
+                'abuse': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None
+                },
+                'administrative': {
+                    'city': 'Levoča',
+                    'country': 'SK',
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': 'Peter Gonda',
+                    'organization': 'Pipoline s.r.o.',
+                    'phone': None,
+                    'postal_code': '05401',
+                    'state': None,
+                    'street': 'Závada 30'
+                },
+                'billing': {
+                    'city': None,
+                    'country': None,
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': None,
+                    'organization': None,
+                    'phone': None,
+                    'postal_code': None,
+                    'state': None,
+                    'street': None},
+                'registrant': {
+                    'city': 'Levoča',
+                    'country': 'SK',
+                    'email': None,
+                    'fax': None,
+                    'handle': 'FORPSI-S616940-1',
+                    'name': 'Peter Gonda',
+                    'organization': 'Pipoline s.r.o.',
+                    'phone': None,
+                    'postal_code': '05401',
+                    'state': None,
+                    'street': 'Závada 30'
+                },
+                'technical': {
+                    'city': 'Levoča',
+                    'country': 'SK',
+                    'email': None,
+                    'fax': None,
+                    'handle': None,
+                    'name': 'Peter Gonda',
+                    'organization': 'Pipoline s.r.o.',
+                    'phone': None,
+                    'postal_code': '05401',
+                    'state': None,
+                    'street': 'Závada 30'
+                }
+            },
+            'dates': {
+                'created': datetime(2012, 7, 23, 0, 0, tzinfo=tzutc()),
+                'expires': datetime(2026, 7, 13, 0, 0, tzinfo=tzutc()),
+                'updated': datetime(2025, 5, 5, 0, 0, tzinfo=tzutc())
+            },
+            'dnssec': None,
+            'domain': 'pipoline.sk',
+            'nameservers': ['nikon.ns.cloudflare.com', 'sreeni.ns.cloudflare.com'],
+            'registrar': {
+                'city': 'Ktiš',
+                'country': 'CZ',
+                'email': 'domain@forpsi.com',
+                'fax': None,
+                'handle': None,
+                'name': 'INCZ-0001, INTERNET CZ, a.s.',
+                'organization': 'INTERNET CZ, a.s.',
+                'phone': '+420.383835353',
+                'postal_code': '38403',
+                'state': None,
+                'street': 'Ktiš 2'
+            },
+            'status': ['ok']
         }
         self._parse_and_compare("pipoline.sk", data, expected_results)
 

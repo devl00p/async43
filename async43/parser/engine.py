@@ -94,6 +94,7 @@ class SchemaMapper:
             # Match Exact d'abord
             for path, aliases in self.mapping.items():
                 if term in [a.lower() for a in aliases]:
+                    print(f"exact: '{term}' -> '{path}'")
                     return MappingTarget(path=path)
 
             # Fuzzy Match ensuite
@@ -101,8 +102,10 @@ class SchemaMapper:
             if match and match[1] > 90:  # Seuil haut pour éviter les faux positifs
                 for path, aliases in self.mapping.items():
                     if match[0] in aliases and not key.startswith("SECTION_"):
+                        print(f"fuzzy: '{term}' -> '{match[0]}' -> '{path}'")
                         return MappingTarget(path=path)
 
+            print(f"{term} -> None")
         return None
 
 
@@ -126,15 +129,22 @@ class WhoisEngine:
             target = self.mapper.resolve(label, self.ctx.current_section)
 
             if target:
+                # --- NOUVELLE LOGIQUE DE RESET ---
+                # Si le path cible ne commence ni par 'contacts' ni par 'registrar',
+                # c'est une info globale (dates, nameservers, status, dnssec).
+                # On doit sortir de toute section en cours.
+                is_global = not any(target.path.startswith(p) for p in ["contacts", "registrar"])
+
+                if is_global:
+                    self.ctx.current_section = None
+
                 if target.is_section:
                     # On définit la section courante (ex: "registrar")
                     self.ctx.current_section = target.section_name
 
                     # Si la ligne de section a une valeur (ex: Registrar: INCZ-0001)
                     if value:
-                        # On cherche une clé .id ou .handle ou .name pour cette section
-                        field = "name" if self.ctx.current_section == "registrar" else "handle"
-                        self.ctx.update_value(f"{target.path}.{field}", value)
+                        self.ctx.update_value(f"{target.path}.name", value)
                 else:
                     # On est dans un champ de données classique
                     self.ctx.update_value(target.path, value)

@@ -80,23 +80,8 @@ LEGAL_MENTIONS = [
 
 SCHEMA_MAPPING = {
     "domain": ["domain name", "domain", "dn", "dns", "nom de domaine"],
-    # REGISTRAR
-    "registrar.name": ["registrar.name", "registrar.contact", "registrar name", "技术联系人姓名(registrar name)"],
-    "registrar.url": ["registrar url", "registrar web"],
-    "registrar.email": [
-        "registrar.email", "registrar.contact email", "registrar email", "registrar contact email", "技术联系人电子邮件(registrar email)"
-    ],
-    "registrar.street": ["registrar.street", "registrar street", "registrar.address", "技术联系人所在街道(registrar street)"],
-    "registrar.city": ["registrar.city", "registrar city", "技术联系人所在城市(registrar city)"],
-    "registrar.postal_code": ["registrar.postal code", "registrar postal code", "技术联系人邮政编码(registrar postal code)"],
-    "registrar.state": ["registrar.state", "registrar state/province", "技术联系人所在州/省(registrar state/province)"],
-    "registrar.country": ["registrar.country", "registrar country", "技术联系人所在国家和地区(registrar country)"],
-    "registrar.organization": [
-        "registrar.organization", "registrar organization", "registrar contact organisation", "技术联系人组织(registrar organization)"
-    ],
-    "registrar.phone": ["registrar.phone", "registrar phone", "技术联系人电话(registrar phone)"],
-    "registrar.fax": ["registrar.fax", "registrar fax", "技术联系人传真(registrar fax)"],
-
+    "registrar_iana_id": ["registrar iana id", "注册商互联网号码分配当局(iana)id(sponsoring registrar iana id)"],
+    "dnssec": ["dnssec", "域名系统安全扩展协议(dnssec)"],
     "dates.created": [
         "creation date", "created", "registered", "created date", "record created", "domain created",
         "created-date", "注册时间(creation date)", "registration time"
@@ -109,21 +94,21 @@ SCHEMA_MAPPING = {
     "dates.expires": [
         "registry expiry date", "expiration date", "expiry", "expires", "date d'expiration", "expire date",
         "record expires on", "expires on", "valid until", "到期时间(registry expiry date)",
-        "Date out of quarantine", "expiration time"
+        "Date out of quarantine", "expiration time", "expiry date"
     ],
     "nameservers": [
         "name server", "nserver", "serveur de noms", "primary server", "secondary server", "dns", "hostname",
-        "ns 1", "ns 2", "ns 3", "ns 4", "ns 5", "ns 6", "ns 7", "ns 8", "ns 9", "ns 10", "域名服务器(name server)"
+        "ns 1", "ns 2", "ns 3", "ns 4", "ns 5", "ns 6", "ns 7", "ns 8", "ns 9", "ns 10", "域名服务器(name server)",
+        "nameserver"
     ],
     "status": ["domain status", "status", "registration status", "域状态(domain status)"],
 
-    "SECTION_ADMIN": ["administrative contact", "admin contact"],
-    "SECTION_TECH": ["technical contact", "tech contact"],
-    "SECTION_REGISTRANT": ["registrant", "registrant contact", "holder"],
-    "SECTION_BILLING": ["billing"],
+    # ABUSE
+    "contacts.abuse.email": ["abuse.email", "registrar abuse contact email"],
+    "contacts.abuse.phone": ["registrar abuse contact phone", "abuse-phone"],
 
     # ADMIN
-    "contacts.administrative.email": ["admin.email", "admin.contact email", "管理联系人电子邮件(admin email)"],
+    "contacts.administrative.email": ["admin.email", "admin email", "admin.contact email", "管理联系人电子邮件(admin email)"],
     "contacts.administrative.name": ["admin.name", "admin.contact", "admin name", "管理联系人姓名(admin name)"],
     "contacts.administrative.street": [
         "admin.street", "admin street", "admin.address", "admin address", "管理联系人所在街道(admin street)"
@@ -134,63 +119,15 @@ SCHEMA_MAPPING = {
     ],
     "contacts.administrative.state": ["admin.state", "admin state/province",
                                       "管理联系人所在州/省(admin state/province)"],
-    "contacts.administrative.country": ["admin.country", "admin country", "管理联系人所在国家和地区(admin country)"],
+    "contacts.administrative.country": [
+        "admin.country", "admin country", "管理联系人所在国家和地区(admin country)", "admin country code",
+    ],
     "contacts.administrative.organization": ["admin.organization", "admin organization",
                                              "管理联系人组织(admin organization)"],
     "contacts.administrative.phone": ["admin.phone", "admin phone", "管理联系人电话(admin phone)"],
     "contacts.administrative.fax": ["admin.fax", "admin fax", "管理联系人传真(admin fax)"],
-
-    # TECH
-    "contacts.technical.email": [
-        "tech.email", "technical.contact email", "tech email", "tech contact email", "技术联系人电子邮件(tech email)"
-    ],
-    "contacts.technical.name": ["tech.name", "tech.contact", "tech name", "技术联系人姓名(tech name)"],
-    "contacts.technical.street": ["tech.street", "tech street", "tech.address", "技术联系人所在街道(tech street)"],
-    "contacts.technical.city": ["tech.city", "tech city", "技术联系人所在城市(tech city)"],
-    "contacts.technical.postal_code": ["tech.postal code", "tech postal code", "技术联系人邮政编码(tech postal code)"],
-    "contacts.technical.state": ["tech.state", "tech state/province", "技术联系人所在州/省(tech state/province)"],
-    "contacts.technical.country": ["tech.country", "tech country", "技术联系人所在国家和地区(tech country)"],
-    "contacts.technical.organization": [
-        "tech.organization", "tech organization", "tech contact organisation", "技术联系人组织(tech organization)"
-    ],
-    "contacts.technical.phone": ["tech.phone", "tech phone", "技术联系人电话(tech phone)"],
-    "contacts.technical.fax": ["tech.fax", "tech fax", "技术联系人传真(tech fax)"],
-
-    # REGISTRANT
-    "contacts.registrant.email": [
-        "registrant.email", "registrant email", "email", "courriel", "owner email",
-        "注册联系人电子邮件(registrant email)", "registrant contact email"
-    ],
-    "contacts.registrant.id": ["registrant id"],
-    "contacts.registrant.name": [
-        "registrant.name", "registrant.contact", "registrant name", "name", "owner name",
-        "注册联系人姓名(registrant name)", "registrant"
-    ],
-    "contacts.registrant.street": [
-        "registrant.street", "registrant street", "address", "postal address", "street address",
-        "owner address", "street", "registrant address", "注册联系人所在街道(registrant street)"
-    ],
-    "contacts.registrant.city": [
-        "registrant.city", "registrant city", "ville", "city", "owner city", "注册联系人所在城市(registrant city)"
-    ],
-    "contacts.registrant.postal_code": [
-        "registrant.postal code", "registrant postal code", "postal code", "postalcode", "postal", "owner zipcode",
-        "postal-code", "注册联系人邮政编码(registrant postal code)"
-    ],
-    "contacts.registrant.state": [
-        "registrant.state", "registrant state/province", "state", "注册联系人所在州/省(registrant state/province)"
-    ],
-    "contacts.registrant.country": [
-        "registrant.country", "registrant country", "country", "pays", "owner country code", "country code",
-        "country-loc", "注册联系人所在国家和地区(registrant country)"
-    ],
-    "contacts.registrant.organization": [
-        "registrant.organization", "registrant organization", "org", "注册联系人组织(registrant organization)"
-    ],
-    "contacts.registrant.phone": [
-        "registrant.phone", "registrant phone", "phone", "téléphone", "注册联系人电话(registrant phone)"
-    ],
-    "contacts.registrant.fax": ["registrant.fax", "registrant fax", "fax", "注册联系人传真(registrant fax)"],
+    "contacts.administrative.created": ["admin created"],
+    "contacts.administrative.updated": ["admin updated"],
 
     # BILLING
     "contacts.billing.email": [
@@ -222,10 +159,92 @@ SCHEMA_MAPPING = {
     ],
     "contacts.billing.fax": ["billing.fax", "billing fax", "注册联系人传真(billing fax)"],
 
-    # ABUSE
-    "contacts.abuse.email": ["abuse.email", "registrar abuse contact email"],
-    "contacts.abuse.phone": ["registrar abuse contact phone", "abuse-phone"],
+    # REGISTRANT
+    "contacts.registrant.email": [
+        "registrant.email", "registrant email", "owner email",
+        "注册联系人电子邮件(registrant email)", "registrant contact email",  # "email", "courriel",
+    ],
+    "contacts.registrant.id": ["registrant id", "domain registrant"],
+    "contacts.registrant.name": [
+        "registrant.name", "registrant.contact", "registrant name", "owner name",
+        "注册联系人姓名(registrant name)", "registrant", "registrant registrant"
+    ],
+    "contacts.registrant.street": [
+        "registrant.street", "registrant street", "registrant postal address",
+        "owner address", "registrant address", "注册联系人所在街道(registrant street)",
+        #  "address", "postal address", "street address", "street"
 
-    "registrar_iana_id": ["registrar iana id", "注册商互联网号码分配当局(iana)id(sponsoring registrar iana id)"],
-    "dnssec": ["dnssec", "域名系统安全扩展协议(dnssec)"]
+    ],
+    "contacts.registrant.city": [
+        "registrant.city", "registrant city", "registrant ville", "registrant city", "owner city",
+        "注册联系人所在城市(registrant city)"
+    ],
+    "contacts.registrant.postal_code": [
+        "registrant.postal code", "registrant postal code", "registrant postalcode", "registrant postal",
+        "owner zipcode", "registrant postal-code", "注册联系人邮政编码(registrant postal code)",
+        #  "postal code",
+    ],
+    "contacts.registrant.state": [
+        "registrant.state", "registrant state/province", "registrant state", "注册联系人所在州/省(registrant state/province)"
+    ],
+    "contacts.registrant.country": [
+        "registrant.country", "registrant country", "registrant pays", "owner country code", "registrant country code",
+        "registrant country-loc", "注册联系人所在国家和地区(registrant country)"
+    ],
+    "contacts.registrant.organization": [
+        "registrant.organization", "registrant organization", "registrant org", "注册联系人组织(registrant organization)"
+    ],
+    "contacts.registrant.organization_id": [
+        "registrant.organization_id", "registrant organization id", "registrant org id",
+    ],
+    "contacts.registrant.phone": [
+        "registrant.phone", "registrant phone", "registrant téléphone", "注册联系人电话(registrant phone)"
+    ],
+    "contacts.registrant.fax": ["registrant.fax", "registrant fax", "注册联系人传真(registrant fax)"],
+
+    # REGISTRAR
+    "registrar.name": ["registrar.name", "registrar.contact", "registrar name", "技术联系人姓名(registrar name)"],
+    "registrar.url": ["registrar url", "registrar web"],
+    "registrar.email": [
+        "registrar.email", "registrar.contact email", "registrar email", "registrar contact email", "技术联系人电子邮件(registrar email)"
+    ],
+    "registrar.street": ["registrar.street", "registrar street", "registrar.address", "技术联系人所在街道(registrar street)"],
+    "registrar.city": ["registrar.city", "registrar city", "技术联系人所在城市(registrar city)"],
+    "registrar.postal_code": ["registrar.postal code", "registrar postal code", "技术联系人邮政编码(registrar postal code)"],
+    "registrar.state": ["registrar.state", "registrar state/province", "技术联系人所在州/省(registrar state/province)"],
+    "registrar.country": [
+        "registrar.country", "registrar country", "技术联系人所在国家和地区(registrar country)", "registrar country code"
+    ],
+    "registrar.organization": [
+        "registrar.organization", "registrar organization", "registrar contact organisation", "技术联系人组织(registrar organization)"
+    ],
+    "registrar.phone": ["registrar.phone", "registrar phone", "技术联系人电话(registrar phone)"],
+    "registrar.fax": ["registrar.fax", "registrar fax", "技术联系人传真(registrar fax)"],
+    "registrar.created": ["registrar created"],
+    "registrar.updated": ["registrar updated"],
+
+    # TECH
+    "contacts.technical.email": [
+        "tech.email", "technical.contact email", "tech email", "tech contact email", "技术联系人电子邮件(tech email)"
+    ],
+    "contacts.technical.name": ["tech.name", "tech.contact", "tech name", "技术联系人姓名(tech name)"],
+    "contacts.technical.street": ["tech.street", "tech street", "tech.address", "技术联系人所在街道(tech street)"],
+    "contacts.technical.city": ["tech.city", "tech city", "技术联系人所在城市(tech city)"],
+    "contacts.technical.postal_code": ["tech.postal code", "tech postal code", "技术联系人邮政编码(tech postal code)"],
+    "contacts.technical.state": ["tech.state", "tech state/province", "技术联系人所在州/省(tech state/province)"],
+    "contacts.technical.country": [
+        "tech.country", "tech country", "技术联系人所在国家和地区(tech country)", "tech country code",
+    ],
+    "contacts.technical.organization": [
+        "tech.organization", "tech organization", "tech contact organisation", "技术联系人组织(tech organization)"
+    ],
+    "contacts.technical.phone": ["tech.phone", "tech phone", "技术联系人电话(tech phone)"],
+    "contacts.technical.fax": ["tech.fax", "tech fax", "技术联系人传真(tech fax)"],
+    "contacts.technical.created": ["tech created"],
+    "contacts.technical.updated": ["tech updated"],
+
+    "SECTION_ADMIN": ["administrative contact", "admin contact"],
+    "SECTION_TECH": ["technical contact", "tech contact"],
+    "SECTION_REGISTRANT": ["registrant", "registrant contact", "holder"],
+    "SECTION_BILLING": ["billing"],
 }
