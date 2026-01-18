@@ -1,1 +1,86 @@
-{"domain_name": "sapo.pt", "expiration_date": "2019-11-02 23:59:00+00:00", "updated_date": null, "registrar": null, "registrar_url": null, "creation_date": "2002-10-30 00:00:00+00:00", "status": "Registered"}
+{
+  "domain": "sapo.pt",
+  "status": [
+    "Registered"
+  ],
+  "dates": {
+    "created": "2002-10-30T00:00:00Z",
+    "updated": null,
+    "expires": "2019-02-11T23:59:00Z"
+  },
+  "nameservers": [
+    "ns2.sapo.pt | IPv4: 212.55.154.194 and IPv6:",
+    "dns01.sapo.pt | IPv4: 213.13.28.116 and IPv6: 2001:8a0:2106:4:213:13:28:116",
+    "dns02.sapo.pt | IPv4: 213.13.30.116 and IPv6: 2001:8a0:2206:4:213:13:30:116",
+    "ns.sapo.pt | IPv4: 212.55.154.202 and IPv6:"
+  ],
+  "dnssec": null,
+  "registrar": null,
+  "contacts": {
+    "registrant": {
+      "email": "gestao.dominios@telecom.pt",
+      "name": "MEO - SERVI?OS DE COMUNICA??ES E MULTIM?DIA S.A.",
+      "street": "A/C Dire??o de Tecnologias de Informa??o",
+      "city": null,
+      "postal_code": "1069-300",
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": "gestao.dominios@telecom.pt",
+      "name": "MEO - SERVI?OS DE COMUNICA??ES E MULTIM?DIA S.A.",
+      "street": "A/C Dire??o de Tecnologias de Informa??o",
+      "city": null,
+      "postal_code": "1069-300",
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

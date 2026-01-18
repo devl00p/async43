@@ -1,1 +1,96 @@
-{"domain_name": "google.lu", "expiration_date": null, "updated_date": null, "registrar": "Markmonitor", "registrar_url": null, "creation_date": null, "status": "ACTIVE"}
+{
+  "domain": "google.lu",
+  "status": [],
+  "dates": {
+    "created": null,
+    "updated": null,
+    "expires": null
+  },
+  "nameservers": [
+    "ns1.google.com",
+    "ns2.google.com",
+    "ns3.google.com",
+    "ns4.google.com"
+  ],
+  "dnssec": null,
+  "registrar": {
+    "email": "ccops@markmonitor.com",
+    "name": "Markmonitor",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": "GB",
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

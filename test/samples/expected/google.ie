@@ -1,1 +1,99 @@
-{"domain_name": "google.ie", "expiration_date": "2022-03-21 14:13:27+00:00", "updated_date": null, "registrar": "Markmonitor Inc", "registrar_url": null, "creation_date": "2002-03-21 00:00:00+00:00", "status": ["serverDeleteProhibited https://icann.org/epp#serverDeleteProhibited", "serverTransferProhibited https://icann.org/epp#serverTransferProhibited", "serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited"]}
+{
+  "domain": "google.ie",
+  "status": [
+    "serverDeleteProhibited https://icann.org/epp#serverDeleteProhibited",
+    "serverTransferProhibited https://icann.org/epp#serverTransferProhibited",
+    "serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited"
+  ],
+  "dates": {
+    "created": "2002-03-21T00:00:00Z",
+    "updated": "2021-05-05T14:19:51Z",
+    "expires": "2022-03-21T14:13:27Z"
+  },
+  "nameservers": [
+    "ns1.google.com",
+    "ns2.google.com",
+    "ns3.google.com"
+  ],
+  "dnssec": "unsigned",
+  "registrar": {
+    "email": null,
+    "name": "Markmonitor Inc",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": "Google LLC",
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": "abusecomplaints@markmonitor.com",
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": "+1.2086851865",
+      "fax": null,
+      "handle": null
+    }
+  }
+}

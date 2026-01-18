@@ -1,1 +1,126 @@
-{"domain_name": "GOOGLE.COM", "expiration_date": "2011-09-14 00:00:00+00:00", "updated_date": "2006-04-10 00:00:00+00:00", "registrar": "MARKMONITOR INC.", "registrar_url": null, "creation_date": "1997-09-15 00:00:00+00:00", "status": ["clientDeleteProhibited", "clientTransferProhibited", "clientUpdateProhibited"]}
+{
+  "domain": "GOOGLE.COM",
+  "status": [
+    "clientDeleteProhibited",
+    "clientTransferProhibited",
+    "clientUpdateProhibited"
+  ],
+  "dates": {
+    "created": "1997-09-15T00:00:00Z",
+    "updated": "2006-04-10T00:00:00Z",
+    "expires": "2011-09-14T00:00:00Z"
+  },
+  "nameservers": [
+    "GOOGLE.COM.ZZZZZ.GET.LAID.AT.WWW.SWINGINGCOMMUNITY.COM",
+    "GOOGLE.COM.ZOMBIED.AND.HACKED.BY.WWW.WEB-HACK.COM",
+    "GOOGLE.COM.YAHOO.COM.MYSPACE.COM.YOUTUBE.COM.FACEBOOK.COM.THEYSUCK.DNSABOUT.COM",
+    "GOOGLE.COM.WORDT.DOOR.VEEL.WHTERS.GEBRUIKT.SERVERTJE.NET",
+    "GOOGLE.COM.VN",
+    "GOOGLE.COM.UY",
+    "GOOGLE.COM.UA",
+    "GOOGLE.COM.TW",
+    "GOOGLE.COM.TR",
+    "GOOGLE.COM.SUCKS.FIND.CRACKZ.WITH.SEARCH.GULLI.COM",
+    "GOOGLE.COM.SPROSIUYANDEKSA.RU",
+    "GOOGLE.COM.SERVES.PR0N.FOR.ALLIYAH.NET",
+    "GOOGLE.COM.SA",
+    "GOOGLE.COM.PLZ.GIVE.A.PR8.TO.AUDIOTRACKER.NET",
+    "GOOGLE.COM.MX",
+    "GOOGLE.COM.IS.NOT.HOSTED.BY.ACTIVEDOMAINDNS.NET",
+    "GOOGLE.COM.IS.HOSTED.ON.PROFITHOSTING.NET",
+    "GOOGLE.COM.IS.APPROVED.BY.NUMEA.COM",
+    "GOOGLE.COM.HAS.LESS.FREE.PORN.IN.ITS.SEARCH.ENGINE.THAN.SECZY.COM",
+    "GOOGLE.COM.DO",
+    "GOOGLE.COM.COLLEGELEARNER.COM",
+    "GOOGLE.COM.CO",
+    "GOOGLE.COM.BR",
+    "GOOGLE.COM.BEYONDWHOIS.COM",
+    "GOOGLE.COM.AU",
+    "GOOGLE.COM.ACQUIRED.BY.CALITEC.NET",
+    "NS1.GOOGLE.COM",
+    "NS2.GOOGLE.COM",
+    "NS3.GOOGLE.COM",
+    "NS4.GOOGLE.COM"
+  ],
+  "dnssec": null,
+  "registrar": {
+    "email": null,
+    "name": "INNERWISE, INC. D/B/A ITSYOURDOMAIN.COM, ONLINENIC, INC., GODADDY.COM, INC., KEY-SYSTEMS GMBH, DIRECTI INTERNET SOLUTIONS PVT. LTD. D/B/A PUBLICDOMAINREGISTRY.COM, WEB COMMERCE COMMUNICATIONS LIMITED DBA WEBNIC.CC, EPAG DOMAINSERVICES GMBH, MELBOURNE IT, LTD. D/B/A INTERNET NAMES WORLDWIDE, OMNIS NETWORK, LLC, OVH, ENOM, INC., NAME.COM LLC, GANDI SAS, NAMESECURE.COM, TUCOWS INC., PLANETDOMAIN PTY LTD., MARKMONITOR INC., Markmonitor.com",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

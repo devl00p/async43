@@ -1,1 +1,96 @@
-{"domain_name": "yandex.kz", "expiration_date": null, "updated_date": "2022-08-04 10:20:10+00:00", "registrar": "HOSTER.KZ", "registrar_url": null, "creation_date": "2009-07-01 12:44:02+00:00", "status": ["status : clientTransferProhibited", "clientDeleteProhibited", "clientRenewProhibited"]}
+{
+  "domain": "yandex.kz",
+  "status": [
+    "clientTransferProhibited - status prohibits domain transfer without documents (статус запрещает трансфер домена без предоставления документов)"
+  ],
+  "dates": {
+    "created": "2009-07-01T12:44:02Z",
+    "updated": "2022-08-04T10:20:10Z",
+    "expires": null
+  },
+  "nameservers": [
+    "ns1.yandex.net",
+    "ns2.yandex.net"
+  ],
+  "dnssec": null,
+  "registrar": {
+    "email": null,
+    "name": null,
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

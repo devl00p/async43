@@ -1,1 +1,96 @@
-{"domain_name": "google.at", "expiration_date": null, "updated_date": ["2011-04-26 17:57:27+00:00", "2011-01-11 00:07:31+00:00", "2005-06-17 21:36:20+00:00", "2011-01-11 00:08:30+00:00"], "registrar": "MarkMonitor Inc. ( https://nic.at/registrar/434 )", "registrar_url": null, "creation_date": null, "status": null}
+{
+  "domain": "google.at",
+  "status": [],
+  "dates": {
+    "created": null,
+    "updated": "2011-04-26T17:57:27Z",
+    "expires": null
+  },
+  "nameservers": [
+    "ns1.google.com",
+    "ns2.google.com",
+    "ns3.google.com",
+    "ns4.google.com"
+  ],
+  "dnssec": null,
+  "registrar": {
+    "email": null,
+    "name": "MarkMonitor Inc. ( https://nic.at/registrar/434 )",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": "GI7803022-NICAT",
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

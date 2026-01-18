@@ -1,1 +1,107 @@
-{"domain_name": "nic.live", "expiration_date": "2025-04-27 22:04:24+00:00", "updated_date": "2024-06-11 22:04:34+00:00", "registrar": "Registry Operator acts as Registrar (9999)", "registrar_url": "https://identity.digital", "creation_date": "2015-04-27 22:04:24+00:00", "status": ["ACTIVE", "serverTransferProhibited https://icann.org/epp#serverTransferProhibited"]}
+{
+  "domain": "LIVE",
+  "status": [
+    "ACTIVE",
+    "serverTransferProhibited https://icann.org/epp#serverTransferProhibited"
+  ],
+  "dates": {
+    "created": "2015-06-25T00:00:00Z",
+    "updated": "2023-09-12T00:00:00Z",
+    "expires": "2025-04-27T22:04:24Z"
+  },
+  "nameservers": [
+    "V0N0.NIC.LIVE 2a01:8840:16:0:0:0:0:1 65.22.20.1",
+    "V0N1.NIC.LIVE 2a01:8840:17:0:0:0:0:1 65.22.21.1",
+    "V0N2.NIC.LIVE 2a01:8840:18:0:0:0:0:1 65.22.22.1",
+    "V0N3.NIC.LIVE 161.232.10.1 2a01:8840:f4:0:0:0:0:1",
+    "V2N0.NIC.LIVE 2a01:8840:19:0:0:0:0:1 65.22.23.1",
+    "V2N1.NIC.LIVE 161.232.11.1 2a01:8840:f5:0:0:0:0:1",
+    "v0n0.nic.live",
+    "v0n1.nic.live",
+    "v0n2.nic.live",
+    "v0n3.nic.live",
+    "v2n0.nic.live",
+    "v2n1.nic.live"
+  ],
+  "dnssec": "unsigned",
+  "registrar": {
+    "email": null,
+    "name": "Registry Operator acts as Registrar (9999)",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name.",
+      "name": "REDACTED FOR PRIVACY",
+      "street": "REDACTED FOR PRIVACY",
+      "city": "REDACTED FOR PRIVACY",
+      "postal_code": "REDACTED FOR PRIVACY",
+      "state": "Dublin 2",
+      "country": "IE",
+      "organization": "United TLD Holdco Ltd.",
+      "phone": "REDACTED FOR PRIVACY",
+      "fax": "REDACTED FOR PRIVACY",
+      "handle": null
+    },
+    "administrative": {
+      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name.",
+      "name": "REDACTED FOR PRIVACY",
+      "street": "REDACTED FOR PRIVACY",
+      "city": "REDACTED FOR PRIVACY",
+      "postal_code": "REDACTED FOR PRIVACY",
+      "state": "REDACTED FOR PRIVACY",
+      "country": "REDACTED FOR PRIVACY",
+      "organization": "REDACTED FOR PRIVACY",
+      "phone": "REDACTED FOR PRIVACY",
+      "fax": "REDACTED FOR PRIVACY",
+      "handle": null
+    },
+    "technical": {
+      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name.",
+      "name": "REDACTED FOR PRIVACY",
+      "street": "REDACTED FOR PRIVACY",
+      "city": "REDACTED FOR PRIVACY",
+      "postal_code": "REDACTED FOR PRIVACY",
+      "state": "REDACTED FOR PRIVACY",
+      "country": "REDACTED FOR PRIVACY",
+      "organization": "REDACTED FOR PRIVACY",
+      "phone": "REDACTED FOR PRIVACY",
+      "fax": "REDACTED FOR PRIVACY",
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": "abuse@identity.digital",
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": "+1.6664447777",
+      "fax": null,
+      "handle": null
+    }
+  }
+}

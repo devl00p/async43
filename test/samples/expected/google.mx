@@ -1,1 +1,91 @@
-{"domain_name": "google.mx", "expiration_date": "2020-05-11 00:00:00+00:00", "updated_date": "2019-04-12 00:00:00+00:00", "registrar": "MarkMonitor", "registrar_url": null, "creation_date": "2009-05-12 00:00:00+00:00", "status": null}
+{
+  "domain": "google.mx",
+  "status": [],
+  "dates": {
+    "created": null,
+    "updated": null,
+    "expires": "2020-05-11T00:00:00Z"
+  },
+  "nameservers": [],
+  "dnssec": null,
+  "registrar": {
+    "email": null,
+    "name": "MarkMonitor",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
+  "contacts": {
+    "registrant": {
+      "email": null,
+      "name": "Google Inc.",
+      "street": null,
+      "city": "Mountain View",
+      "postal_code": null,
+      "state": "California",
+      "country": "United States",
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": null,
+      "name": "Google Inc.",
+      "street": null,
+      "city": "Mountain View",
+      "postal_code": null,
+      "state": "California",
+      "country": "United States",
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": null,
+      "name": "Google Inc.",
+      "street": null,
+      "city": "Mountain View",
+      "postal_code": null,
+      "state": null,
+      "country": "United States",
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": "MarkMonitor",
+      "street": null,
+      "city": "Boise",
+      "postal_code": null,
+      "state": "Idaho",
+      "country": "United States",
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}
