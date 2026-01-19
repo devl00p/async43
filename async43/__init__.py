@@ -10,7 +10,7 @@ from typing import Optional, Union
 
 import tldextract
 
-from async43.exceptions import WhoisError, WhoisNonRoutableIPError, WhoisNetworkError
+from async43.exceptions import WhoisError, WhoisNonRoutableIPError, WhoisNetworkError, PywhoisError
 from async43.model import Whois
 from async43.parser import parse
 from async43.whois import NICClient
@@ -150,7 +150,7 @@ async def main():
         try:
             whois_object = await whois(url)
             logger.info(whois_object.model_dump_json(indent=2, exclude={'raw_text'}))
-        except Exception as exception:
+        except PywhoisError as exception:
             logger.error("could not process %s: %s", url, exception)
 
 

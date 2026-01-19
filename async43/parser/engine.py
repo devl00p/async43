@@ -152,7 +152,7 @@ class SchemaMapper:
         }
 
     def detect_section_from_value(
-        self, label: str, value: Optional[str]
+            self, label: str, value: Optional[str]
     ) -> Optional[str]:
         """Detect section transitions from the field value."""
         if not value:
@@ -189,11 +189,115 @@ class SchemaMapper:
 
         return None
 
+    def _try_auto_map_section_header(
+            self,
+            clean_label: str,
+            section_name: str,
+            value: Optional[str],
+    ) -> Optional[MappingTarget]:
+        """
+        Auto-map section header labels with values to the .name field.
+
+        Example: "Registrar: MarkMonitor Inc." -> registrar.name
+        """
+        if clean_label not in {"registrar", "domain registrant", "authorised registrar"}:
+            return None
+
+        if not value:
+            return None
+
+        path = (
+            "registrar.name"
+            if section_name == "registrar"
+            else f"contacts.{section_name}.name"
+        )
+        logger.debug("Auto-mapping section header with value to %s", path)
+        return MappingTarget(path)
+
+    def _build_search_terms(
+            self,
+            clean_label: str,
+            effective_section: Optional[str],
+    ) -> List[str]:
+        """
+        Build search terms for label matching with context.
+
+        Handles cases like "RegistrantCity" by separating prefix from suffix.
+        """
+        search_terms: List[str] = []
+
+        if effective_section and clean_label.startswith(effective_section):
+            suffix = clean_label[len(effective_section):].strip()
+            if suffix:
+                search_terms.append(f"{effective_section} {suffix}")
+
+        if effective_section:
+            search_terms.append(f"{effective_section} {clean_label}")
+
+        search_terms.append(clean_label)
+        return search_terms
+
+    def _try_exact_match(self, term: str) -> Optional[MappingTarget]:
+        """
+        Attempt exact match of term against mapping aliases.
+
+        Returns the first matching path, or None if no match found.
+        """
+        for path, aliases in self.mapping.items():
+            if path.startswith("SECTION_"):
+                continue
+            if term in (a.lower() for a in aliases):
+                logger.debug("Exact match: '%s' -> %s", term, path)
+                return MappingTarget(path)
+        return None
+
+    def _try_fuzzy_match(self, term: str) -> Optional[MappingTarget]:
+        """
+        Attempt fuzzy match of term against mapping aliases.
+
+        Uses rapidfuzz with token_sort_ratio and 90% threshold.
+        Returns the first matching path, or None if no match found.
+        """
+        match = process.extractOne(
+            term, self.flat_choices, scorer=fuzz.token_sort_ratio
+        )
+        if not match or match[1] <= 90:
+            return None
+
+        for path, aliases in self.mapping.items():
+            if path.startswith("SECTION_"):
+                continue
+            if match[0] in aliases:
+                logger.debug(
+                    "Fuzzy match: '%s' -> '%s' -> %s",
+                    term, match[0], path,
+                )
+                return MappingTarget(path)
+        return None
+
+    def _try_map_to_field(self, search_terms: List[str]) -> Optional[MappingTarget]:
+        """
+        Try to map search terms to a field path.
+
+        Attempts exact matches first, then fuzzy matches.
+        """
+        for term in search_terms:
+            mapping = self._try_exact_match(term)
+            if mapping:
+                return mapping
+
+        for term in search_terms:
+            mapping = self._try_fuzzy_match(term)
+            if mapping:
+                return mapping
+
+        return None
+
     def resolve(
-        self,
-        label: str,
-        value: Optional[str],
-        current_section: Optional[str],
+            self,
+            label: str,
+            value: Optional[str],
+            current_section: Optional[str],
     ) -> ResolveResult:
         """Resolve a label/value pair into a section trigger and/or a mapping."""
         clean = label.lower().replace(":", "").strip()
@@ -219,60 +323,22 @@ class SchemaMapper:
             )
             result.section_trigger = SectionTrigger(section_from_label)
 
-            if clean in {
-                "registrar",
-                "domain registrant",
-                "authorised registrar",
-            } and value:
-                path = (
-                    "registrar.name"
-                    if section_from_label == "registrar"
-                    else f"contacts.{section_from_label}.name"
-                )
-                logger.debug(
-                    "Auto-mapping section header with value to %s", path
-                )
-                result.mapping = MappingTarget(path)
+            auto_mapping = self._try_auto_map_section_header(
+                clean, section_from_label, value
+            )
+            if auto_mapping:
+                result.mapping = auto_mapping
                 return result
 
         effective_section = section_from_label or current_section
-        search_terms: List[str] = []
+        search_terms = self._build_search_terms(clean, effective_section)
 
-        if effective_section and clean.startswith(effective_section):
-            suffix = clean[len(effective_section):].strip()
-            if suffix:
-                search_terms.append(f"{effective_section} {suffix}")
+        mapping = self._try_map_to_field(search_terms)
+        if mapping:
+            result.mapping = mapping
+        else:
+            logger.debug("Unresolved label: %s", clean)
 
-        if effective_section:
-            search_terms.append(f"{effective_section} {clean}")
-        search_terms.append(clean)
-
-        for term in search_terms:
-            for path, aliases in self.mapping.items():
-                if path.startswith("SECTION_"):
-                    continue
-                if term in (a.lower() for a in aliases):
-                    logger.debug("Exact match: '%s' -> %s", term, path)
-                    result.mapping = MappingTarget(path)
-                    return result
-
-        for term in search_terms:
-            match = process.extractOne(
-                term, self.flat_choices, scorer=fuzz.token_sort_ratio
-            )
-            if match and match[1] > 90:
-                for path, aliases in self.mapping.items():
-                    if path.startswith("SECTION_"):
-                        continue
-                    if match[0] in aliases:
-                        logger.debug(
-                            "Fuzzy match: '%s' -> '%s' -> %s",
-                            term, match[0], path,
-                        )
-                        result.mapping = MappingTarget(path)
-                        return result
-
-        logger.debug("Unresolved label: %s", clean)
         return result
 
 
