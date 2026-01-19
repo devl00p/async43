@@ -1,9 +1,11 @@
-from .constants import NO_SUCH_RECORD_LABELS, TEMP_ERROR
-from .dates import cast_date
-from .structure import parse_whois
-from .engine import normalize_whois_tree_fuzzy
-from ..exceptions import WhoisDomainNotFoundError, WhoisInternalError
-from ..model import Whois
+import sys
+
+from async43.parser.constants import NO_SUCH_RECORD_LABELS, TEMP_ERROR
+from async43.parser.dates import cast_date
+from async43.parser.structure import parse_whois
+from async43.parser.engine import normalize_whois_tree_fuzzy
+from async43.exceptions import WhoisDomainNotFoundError, WhoisInternalError
+from async43.model import Whois
 
 
 def print_nodes(nodes, indent=0):
@@ -41,3 +43,9 @@ def parse(raw_text: str) -> Whois:
         raise WhoisDomainNotFoundError("No record found in Whois database (no data returned)")
 
     return obj
+
+
+if __name__ == "__main__":
+    with open(sys.argv[1], encoding="utf-8", errors="replace") as fd:
+        whois_obj = parse(fd.read())
+        print(whois_obj.model_dump_json(indent=2, exclude={'raw_text'}))

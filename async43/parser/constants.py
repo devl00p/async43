@@ -79,12 +79,12 @@ LEGAL_MENTIONS = [
 ]
 
 SCHEMA_MAPPING = {
-    "domain": ["domain name", "domain", "dn", "dns", "nom de domaine"],
+    "domain": ["domain name", "domain", "dn", "nom de domaine"],
     "registrar_iana_id": ["registrar iana id", "注册商互联网号码分配当局(iana)id(sponsoring registrar iana id)"],
-    "dnssec": ["dnssec", "域名系统安全扩展协议(dnssec)"],
+    "dnssec": ["dnssec", "域名系统安全扩展协议(dnssec)", "dnssec signed"],
     "dates.created": [
         "creation date", "created", "registered", "created date", "record created", "domain created",
-        "created-date", "注册时间(creation date)", "registration time"
+        "created-date", "注册时间(creation date)", "registration time", "registration date"
     ],
     "dates.updated": [
         "updated date", "last update", "last modified", "changed", "modified", "dernière modification",
@@ -109,7 +109,9 @@ SCHEMA_MAPPING = {
 
     # ADMIN
     "contacts.administrative.email": ["admin.email", "admin email", "admin.contact email", "管理联系人电子邮件(admin email)"],
-    "contacts.administrative.name": ["admin.name", "admin.contact", "admin name", "管理联系人姓名(admin name)"],
+    "contacts.administrative.name": [
+        "admin.name", "admin.contact", "admin name", "管理联系人姓名(admin name)", "admin contact"
+    ],
     "contacts.administrative.street": [
         "admin.street", "admin street", "admin.address", "admin address", "管理联系人所在街道(admin street)"
     ],
@@ -135,7 +137,7 @@ SCHEMA_MAPPING = {
         "billing.email", "billing email", "注册联系人电子邮件(billing email)"
     ],
     "contacts.billing.name": [
-        "billing.name", "billing.contact", "注册联系人姓名(billing name)"
+        "billing.name", "billing.contact", "注册联系人姓名(billing name)", "billing contact"
     ],
     "contacts.billing.street": [
         "billing.street", "billing street", "billing address", "注册联系人所在街道(billing street)"
@@ -169,7 +171,7 @@ SCHEMA_MAPPING = {
     "contacts.registrant.id": ["registrant id", "domain registrant"],
     "contacts.registrant.name": [
         "registrant.name", "registrant.contact", "registrant name", "owner name",
-        "注册联系人姓名(registrant name)", "registrant", "registrant registrant"
+        "注册联系人姓名(registrant name)", "registrant", "registrant registrant", "registrant contact"
     ],
     "contacts.registrant.street": [
         "registrant.street", "registrant street", "registrant postal address",
@@ -205,7 +207,9 @@ SCHEMA_MAPPING = {
     "contacts.registrant.fax": ["registrant.fax", "registrant fax", "注册联系人传真(registrant fax)"],
 
     # REGISTRAR
-    "registrar.name": ["registrar.name", "registrar.contact", "registrar name", "技术联系人姓名(registrar name)"],
+    "registrar.name": [
+        "registrar.name", "registrar.contact", "registrar name", "技术联系人姓名(registrar name)", "registrar contact"
+    ],
     "registrar.url": ["registrar url", "registrar web"],
     "registrar.email": [
         "registrar.email", "registrar.contact email", "registrar email", "registrar contact email", "技术联系人电子邮件(registrar email)"
@@ -230,8 +234,13 @@ SCHEMA_MAPPING = {
     "contacts.technical.email": [
         "tech.email", "technical.contact email", "tech email", "tech contact email", "技术联系人电子邮件(tech email)"
     ],
-    "contacts.technical.name": ["tech.name", "tech.contact", "tech name", "技术联系人姓名(tech name)"],
-    "contacts.technical.street": ["tech.street", "tech street", "tech.address", "技术联系人所在街道(tech street)"],
+    "contacts.technical.name": [
+        "tech.name", "tech.contact", "tech name", "技术联系人姓名(tech name)", "technical contact"
+    ],
+    "contacts.technical.street": [
+        "tech.street", "tech street", "tech.address", "技术联系人所在街道(tech street)",
+        "tech address"
+    ],
     "contacts.technical.city": ["tech.city", "tech city", "技术联系人所在城市(tech city)"],
     "contacts.technical.postal_code": ["tech.postal code", "tech postal code", "技术联系人邮政编码(tech postal code)"],
     "contacts.technical.state": ["tech.state", "tech state/province", "技术联系人所在州/省(tech state/province)"],

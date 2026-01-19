@@ -815,9 +815,12 @@ Hostname:             p.nic.dk
             },
             'dnssec': 'Signed delegation',
             'domain': 'dk-hostmaster.dk',
-            'nameservers': ['auth01.ns.dk-hostmaster.dk',
-                            'auth02.ns.dk-hostmaster.dk',
-                            'p.nic.dk'],
+            'nameservers': [
+                'dk-hostmaster.dk',  # entry appear under two different names in raw text
+                'auth01.ns.dk-hostmaster.dk',
+                'auth02.ns.dk-hostmaster.dk',
+                'p.nic.dk'
+            ],
             'registrar': None,
             'status': ['Active']
         }
@@ -948,7 +951,7 @@ Hostname:             p.nic.dk
                     'email': None,
                     'fax': None,
                     'handle': None,
-                    'name': 'Peter Gonda',
+                    'name': 'FORPSI-S616940-1, Peter Gonda',
                     'organization': 'Pipoline s.r.o.',
                     'phone': None,
                     'postal_code': '05401',

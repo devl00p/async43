@@ -42,7 +42,7 @@
     },
     "administrative": {
       "email": null,
-      "name": null,
+      "name": "Google",
       "street": null,
       "city": null,
       "postal_code": null,

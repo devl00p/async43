@@ -4,12 +4,16 @@
     "Active https://www.rnids.rs/en/domain-name-status-codes#Active"
   ],
   "dates": {
-    "created": null,
+    "created": "2008-03-26T16:18:03Z",
     "updated": "2025-11-02T08:24:15Z",
     "expires": "2026-03-26T16:18:03Z"
   },
-  "nameservers": [],
-  "dnssec": null,
+  "nameservers": [
+    "ns1.providus.rs - 164.132.48.70",
+    "ns2.providus.rs - 104.199.179.254",
+    "ns3.providus.rs - 52.5.196.189"
+  ],
+  "dnssec": "no",
   "registrar": {
     "email": null,
     "name": "Mainstream Public Cloud Services d.o.o.",
@@ -52,8 +56,8 @@
     },
     "technical": {
       "email": null,
-      "name": null,
-      "street": null,
+      "name": "SERBIA BROADBAND - SRPSKE KABLOVSKE MREZE D.O.O.",
+      "street": "Bulevar Peka Dapcevica 19, Beograd, Serbia",
       "city": null,
       "postal_code": "11000",
       "state": null,

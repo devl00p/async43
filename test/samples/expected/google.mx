@@ -6,7 +6,12 @@
     "updated": null,
     "expires": "2020-05-11T00:00:00Z"
   },
-  "nameservers": [],
+  "nameservers": [
+    "ns2.google.com",
+    "ns4.google.com",
+    "ns3.google.com",
+    "ns1.google.com"
+  ],
   "dnssec": null,
   "registrar": {
     "email": null,
