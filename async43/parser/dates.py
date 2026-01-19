@@ -5,6 +5,7 @@ import dateutil.parser as dp
 
 
 def cast_date(date_string: str) -> Optional[Union[str, datetime]]:
+    """Leverages dateutil to try to convert a date string to a datetime object"""
     if not date_string:
         return None
 

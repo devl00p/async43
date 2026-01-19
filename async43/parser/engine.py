@@ -39,13 +39,34 @@ class ResolveResult:
 
 
 class WhoisContext:
-    """Maintains parsing state and accumulates normalized WHOIS data."""
+    """
+    Holds the mutable parsing state and accumulates normalized WHOIS data.
+
+    This class acts as a write-context during the WHOIS tree traversal:
+    - tracks the currently active logical section (registrant, admin, registrar, etc.)
+    - stores extracted values in a structured, normalized dictionary
+    - applies contextual rules (e.g. section-aware date handling, value accumulation)
+    """
 
     def __init__(self):
+        """
+        Initialize a new parsing context.
+
+        The context starts with no active section and an empty,
+        pre-initialized data structure ready to receive parsed values.
+        """
         self.current_section: Optional[str] = None
         self.data: Dict[str, Any] = self._init_structure()
 
     def _init_structure(self) -> Dict[str, Any]:
+        """
+        Initialize the base structure used to store normalized WHOIS data.
+
+        This structure matches the expected shape of the final Whois model
+        and ensures all known sections are present even if empty.
+
+        :return: A dictionary representing the initial WHOIS data layout.
+        """
         return {
             "dates": {},
             "registrar": {},
@@ -59,6 +80,21 @@ class WhoisContext:
         }
 
     def update_value(self, path: str, value: Any) -> None:
+        """
+        Store a parsed value into the normalized data structure.
+
+        The target location is defined by a dotted path (e.g.
+        ``contacts.administrative.email`` or ``dates.created``).
+
+        This method applies several normalization rules:
+        - ignores empty or placeholder values
+        - prevents section-scoped dates from overwriting global dates
+        - accumulates list-based fields such as nameservers and status
+        - concatenates multi-line contact and registrar fields
+
+        :param path: Dotted path indicating where the value should be stored.
+        :param value: Raw value extracted from the WHOIS response.
+        """
         if not value or str(value).strip().lower() in {
             "none", "no name servers provided"
         }:
@@ -248,6 +284,16 @@ class WhoisEngine:
         self.ctx = WhoisContext()
 
     def walk(self, nodes: List[Any]) -> None:
+        """
+        Walk a parsed WHOIS tree and build the normalized WHOIS result.
+
+        This method performs a depth-first traversal of the WHOIS parse tree.
+        Each node is resolved using the schema mapper, potentially triggering
+        section changes or producing a mapping into the output data structure.
+
+        The traversal maintains contextual state (current section) and writes
+        results directly into the internal ``WhoisContext`` instance.
+        """
         for node in nodes:
             label = getattr(node, "label", "").strip()
             value = getattr(node, "value", None)

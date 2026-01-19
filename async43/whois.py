@@ -16,6 +16,19 @@ logger = logging.getLogger("async43")
 
 
 class NICClient:
+    """
+    Asynchronous WHOIS client responsible for selecting and querying
+    appropriate NIC (Network Information Center) servers.
+
+    This class handles:
+    - Mapping TLDs to their authoritative WHOIS servers
+    - Discovering WHOIS servers dynamically via IANA
+    - Establishing network connections (IPv4 / IPv6 / SOCKS)
+    - Performing low-level WHOIS queries over port 43
+
+    The client is designed to be reused and is safe to use in asynchronous
+    contexts.
+    """
     ABUSEHOST = "whois.abuse.net"
     ANICHOST = "whois.arin.net"
     BNICHOST = "whois.registro.br"
@@ -91,18 +104,35 @@ class NICClient:
     ip_whois: list[str] = [LNICHOST, RNICHOST, PNICHOST, BNICHOST, PANDIHOST]
 
     def __init__(self, prefer_ipv6: bool = False, ipv6_cycle: Optional[Iterator[str]] = None):
+        """
+        Initialize a NICClient instance.
+
+        :param prefer_ipv6: Whether IPv6 addresses should be preferred when
+            resolving WHOIS server hostnames.
+        :param ipv6_cycle: Optional iterator of IPv6 source addresses to cycle
+            through when establishing IPv6 connections.
+        """
         self.use_qnichost: bool = False
         self.prefer_ipv6 = prefer_ipv6
         self.ipv6_cycle = ipv6_cycle
 
     @staticmethod
     def findwhois_server(buf: str, hostname: str, query: str) -> Optional[str]:
-        """Search the initial TLD lookup results for the regional-specific
-        whois server for getting contact details.
+        """
+        Attempt to extract a referral WHOIS server from a WHOIS response.
+
+        This method inspects the raw response returned by an initial WHOIS
+        query and tries to identify a more specific WHOIS server that should
+        be queried next (for example, a registrar or regional registry).
+
+        :param buf: Raw WHOIS response text.
+        :param hostname: Hostname of the WHOIS server that returned the response.
+        :param query: Original query string (domain or IP).
+        :return: The hostname of the referred WHOIS server if found, otherwise None.
         """
         nhost = None
         match = re.compile(
-            r"Domain Name: {}\s*.*?Whois Server: (.*?)\s".format(query),
+             rf"Domain Name: {re.escape(query)}\s*.*?Whois Server: (.*?)\s",
             flags=re.IGNORECASE | re.DOTALL,
         ).search(buf)
         if match:
@@ -118,8 +148,20 @@ class NICClient:
 
     @staticmethod
     def get_socks_socket():
+        """
+        Create and configure a SOCKS5 socket based on the ``SOCKS`` environment
+        variable.
+
+        The ``SOCKS`` variable must be defined in the form::
+
+            host:port
+            user:password@host:port
+
+        :raises ImportError: If the ``PySocks`` module is not installed.
+        :return: A configured SOCKS socket instance.
+        """
         try:
-            import socks
+            import socks  # pylint: disable=import-outside-toplevel
         except ImportError as e:
             logger.error(
                 "You need to install the Python socks module. Install PIP "
@@ -149,6 +191,20 @@ class NICClient:
             hostname: str,
             timeout: int,
     ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+        """
+        Open an asynchronous TCP connection to a WHOIS server.
+
+        This method resolves the target hostname, optionally prefers IPv6,
+        supports cycling source IPv6 addresses, and falls back across
+        available interfaces until a connection succeeds.
+
+        SOCKS proxies are supported via the ``SOCKS`` environment variable.
+
+        :param hostname: WHOIS server hostname.
+        :param timeout: Connection timeout in seconds.
+        :raises WhoisNetworkError: If no connection could be established.
+        :return: A tuple of (StreamReader, StreamWriter).
+        """
         port = 43
 
         if "SOCKS" in os.environ:
@@ -206,6 +262,17 @@ class NICClient:
             hostname: str,
             timeout: int,
     ) -> AsyncGenerator[Tuple[asyncio.StreamReader, asyncio.StreamWriter], None]:
+        """
+        Asynchronous context manager that opens and safely closes
+        a WHOIS network connection.
+
+        This ensures that the underlying socket and stream writer are
+        properly closed even if an exception occurs during the query.
+
+        :param hostname: WHOIS server hostname.
+        :param timeout: Connection timeout in seconds.
+        :yield: A tuple of (StreamReader, StreamWriter).
+        """
         writer: asyncio.StreamWriter | None = None
 
         try:
@@ -218,6 +285,17 @@ class NICClient:
 
     @alru_cache(ttl=86400)
     async def findwhois_iana(self, tld: str, timeout: int = 10) -> Optional[str]:
+        """
+        Query IANA to discover the authoritative WHOIS server for a TLD.
+
+        The result is cached for 24 hours to reduce network traffic and
+        improve performance.
+
+        :param tld: Top-level domain (without leading dot).
+        :param timeout: Network timeout in seconds.
+        :raises WhoisNetworkError: If the IANA WHOIS server cannot be reached.
+        :return: Hostname of the authoritative WHOIS server, or None if not found.
+        """
         try:
             # noinspection PyArgumentList
             async with self._connect("whois.iana.org", timeout) as (reader, writer):
@@ -508,6 +586,7 @@ def parse_command_line(argv: list[str]) -> tuple[optparse.Values, list[str]]:
 
 
 async def main():
+    """Main entry point for getting the RAW Whois data"""
     flags = 0
     options, args = parse_command_line(sys.argv)
     # When used as a script, IPv6 rotation is not available

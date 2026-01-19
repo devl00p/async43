@@ -136,6 +136,7 @@ async def extract_domain(url: str) -> str:
 
 
 async def main():
+    """Entry point to query WHOIS for a domain and get parsed information"""
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
