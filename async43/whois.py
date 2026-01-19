@@ -78,7 +78,7 @@ class NICClient:
         "xyz": "whois.nic.xyz",
         # IDNs (Punycode et UTF-8)
         "xn--p1acf": "whois.tcinet.ru",  # .рус
-        "xn--p1ai": "whois.registry.tcinet.ru",  # .рф
+        "xn--p1ai": "whois.tcinet.ru",  # .рф
         "xn--j1amh": "whois.dotukr.com",  # .укр
     }
 
