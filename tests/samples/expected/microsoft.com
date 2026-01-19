@@ -45,7 +45,11 @@
     "NS2.MSFT.NET",
     "NS3.MSFT.NET",
     "NS4.MSFT.NET",
-    "NS5.MSFT.NET"
+    "NS5.MSFT.NET",
+    "domainhelp.opensrs.net",
+    "nsi-robo.tmag.de",
+    "whois.aitdomains.com",
+    "www.aitdomains.com"
   ],
   "dnssec": null,
   "registrar": {

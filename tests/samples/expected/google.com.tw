@@ -1,15 +1,20 @@
 {
-  "domain": "abv.bg",
+  "domain": "google.com.tw",
   "status": [
-    "Registered"
+    "clientUpdateProhibited,clientTransferProhibited,clientDeleteProhibited"
   ],
   "dates": {
     "created": null,
     "updated": null,
     "expires": null
   },
-  "nameservers": [],
-  "dnssec": "Inactive",
+  "nameservers": [
+    "ns1.google.com",
+    "ns2.google.com",
+    "ns3.google.com",
+    "ns4.google.com"
+  ],
+  "dnssec": null,
   "registrar": null,
   "contacts": {
     "registrant": {

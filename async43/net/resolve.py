@@ -6,7 +6,7 @@ import dns.asyncresolver
 import dns.resolver
 import dns.exception
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("async43")
 
 _resolver = dns.asyncresolver.Resolver()
 _resolver.lifetime = 3.0
@@ -14,6 +14,7 @@ _resolver.timeout = 2.0
 
 
 async def resolve_ns(domain: str) -> Optional[list[str]]:
+    """Returns the list of NS records for the given domain"""
     try:
         answer = await _resolver.resolve(domain, "NS")
         return sorted(str(rdata.target).rstrip(".") for rdata in answer)
@@ -22,6 +23,7 @@ async def resolve_ns(domain: str) -> Optional[list[str]]:
 
 
 async def resolve_soa(domain: str) -> Optional[Dict[str, Any]]:
+    """Returns SOA information for the given domain"""
     try:
         answer = await _resolver.resolve(domain, "SOA")
         soa = answer[0]

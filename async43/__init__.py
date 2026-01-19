@@ -1,27 +1,52 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import ipaddress
+from ipaddress import IPv4Address, IPv6Address
 import logging
-import re
 import socket
 import sys
-from typing import Optional, Pattern
+from typing import Optional, Union
 
 import tldextract
 
-from async43.exceptions import WhoisError
+from async43.exceptions import WhoisError, WhoisNonRoutableIPError, WhoisNetworkError
 from async43.model import Whois
 from async43.parser import parse
 from async43.whois import NICClient
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("async43")
 extractor = tldextract.TLDExtract(include_psl_private_domains=True)
+IPAddress = Union[IPv4Address, IPv6Address]
 
-# thanks to https://www.regextester.com/104038
-IPV4_OR_V6: Pattern[str] = re.compile(
-    r"((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))"
-    # noqa: E501
-)
+
+def parse_ip(value: str) -> Optional[IPAddress]:
+    """
+    Return an IPv4Address or IPv6Address if value is a valid IP, otherwise None.
+    """
+    try:
+        return ipaddress.ip_address(value)
+    except ValueError:
+        return None
+
+
+async def resolve_ip_to_hostname(ip: IPAddress) -> str:
+    """
+    Resolve a globally routable IP address to a hostname.
+    """
+    if not ip.is_global:
+        raise WhoisNonRoutableIPError(
+            f"IP address {ip} is not globally routable"
+        )
+
+    try:
+        loop = asyncio.get_running_loop()
+        hostname, _ = await loop.getnameinfo((str(ip), 0))
+        return hostname
+    except (socket.herror, socket.gaierror) as exc:
+        raise WhoisNetworkError(
+            f"Failed to resolve IP address {ip}"
+        ) from exc
 
 
 async def whois(
@@ -42,18 +67,7 @@ async def whois(
     convert_punycode: whether to convert the given URL punycode (default True)
     timeout: timeout for WHOIS request (default 10 seconds)
     """
-    # clean domain to expose netloc
-    ip_match = IPV4_OR_V6.match(url)
-    if ip_match:
-        domain = url
-        try:
-            result = await asyncio.get_running_loop().getnameinfo((url, 0))
-        except socket.herror:
-            pass
-        else:
-            domain = await extract_domain(result[0])
-    else:
-        domain = await extract_domain(url)
+    domain = await extract_domain(url)
 
     if command:
         # try native whois command
@@ -86,9 +100,6 @@ async def whois(
     return whois_object
 
 
-suffixes: Optional[set] = None
-
-
 async def extract_domain(url: str) -> str:
     """Extract the domain from the given URL
 
@@ -108,20 +119,17 @@ async def extract_domain(url: str) -> str:
     2o7.net
     >>> logger.info(extract_domain('globoesporte.globo.com'))
     globo.com
-    >>> logger.info(extract_domain('1-0-1-1-1-0-1-1-1-1-1-1-1-.0-0-0-0-0-0-0-0-0-0-0-0-0-10-0-0-0-0-0-0-0-0-0-0-0-0-0.info'))
-    0-0-0-0-0-0-0-0-0-0-0-0-0-10-0-0-0-0-0-0-0-0-0-0-0-0-0.info
+    >>> logger.info(extract_domain('1-0-1-1-1-0-1-1-1-1-1-1-1-.0-0-0-0-0-0-0-0-0-0-0-0-0-10-0-0-0-0-0-0-0-0-0-0.info'))
+    0-0-0-0-0-0-0-0-0-0-0-0-0-10-0-0-0-0-0-0-0-0-0-0.info
     >>> logger.info(extract_domain('2607:f8b0:4006:802::200e'))
     1e100.net
     >>> logger.info(extract_domain('172.217.3.110'))
     1e100.net
     """
-    if IPV4_OR_V6.match(url):
-        try:
-            result = await asyncio.get_running_loop().getnameinfo((url, 0))
-            hostname = result[0]
-            return await extract_domain(hostname)
-        except (socket.herror, socket.gaierror):
-            return url
+    ip = parse_ip(url)
+    if ip:
+        hostname = await resolve_ip_to_hostname(ip)
+        return await extract_domain(hostname)
 
     ext = extractor(url)
     return ext.top_domain_under_public_suffix
@@ -136,13 +144,13 @@ async def main():
     try:
         url = sys.argv[1]
     except IndexError:
-        logger.error("Usage: %s url" % sys.argv[0])
+        logger.error("Usage: %s url", sys.argv[0])
     else:
         try:
             whois_object = await whois(url)
             logger.info(whois_object.model_dump_json(indent=2, exclude={'raw_text'}))
         except Exception as exception:
-            logger.error(f"could not process {url}: {exception}")
+            logger.error("could not process %s: %s", url, exception)
 
 
 if __name__ == "__main__":

@@ -1,19 +1,42 @@
 {
-  "domain": "google.com.sa",
+  "domain": null,
   "status": [],
   "dates": {
-    "created": null,
-    "updated": null,
-    "expires": null
+    "created": "1996-08-19T00:00:00Z",
+    "updated": "2013-10-23T00:00:00Z",
+    "expires": "2020-12-05T00:00:00Z"
   },
-  "nameservers": [],
+  "nameservers": [
+    "ns1.p31.dynect.net",
+    "ns2.p31.dynect.net",
+    "ns3.p31.dynect.net",
+    "ns4.p31.dynect.net",
+    "pdns1.ultradns.net",
+    "pdns2.ultradns.net",
+    "pdns3.ultradns.org",
+    "pdns4.ultradns.org",
+    "pdns5.ultradns.info",
+    "pdns6.ultradns.co.uk [204.74.115.1, 2610:00a1:1017:0000:0000:0000:0000:0001]"
+  ],
   "dnssec": null,
-  "registrar": null,
+  "registrar": {
+    "email": null,
+    "name": null,
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
   "contacts": {
     "registrant": {
       "email": null,
       "name": null,
-      "street": "1600 Amphitheatre Parkway",
+      "street": null,
       "city": null,
       "postal_code": null,
       "state": null,
@@ -26,7 +49,7 @@
     "administrative": {
       "email": null,
       "name": null,
-      "street": "Riyadh Olia",
+      "street": null,
       "city": null,
       "postal_code": null,
       "state": null,
@@ -39,7 +62,7 @@
     "technical": {
       "email": null,
       "name": null,
-      "street": "3540 East Longwing Lane Suite 300",
+      "street": null,
       "city": null,
       "postal_code": null,
       "state": null,

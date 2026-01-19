@@ -1,31 +1,20 @@
 {
-  "domain": "google.lu",
-  "status": [],
+  "domain": "app.nl",
+  "status": [
+    "active"
+  ],
   "dates": {
-    "created": null,
-    "updated": null,
+    "created": "1998-02-20T00:00:00Z",
+    "updated": "2025-09-12T00:00:00Z",
     "expires": null
   },
   "nameservers": [
-    "ns1.google.com",
-    "ns2.google.com",
-    "ns3.google.com",
-    "ns4.google.com"
+    "ns1.hoasted.nl",
+    "ns2.hoasted.eu",
+    "ns3.hoasted.com"
   ],
-  "dnssec": null,
-  "registrar": {
-    "email": "ccops@markmonitor.com",
-    "name": "Markmonitor",
-    "street": null,
-    "city": null,
-    "postal_code": null,
-    "state": null,
-    "country": "GB",
-    "organization": null,
-    "phone": null,
-    "fax": null,
-    "handle": null
-  },
+  "dnssec": "yes",
+  "registrar": null,
   "contacts": {
     "registrant": {
       "email": null,

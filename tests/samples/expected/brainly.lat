@@ -10,7 +10,8 @@
   },
   "nameservers": [
     "adi.ns.cloudflare.com",
-    "chad.ns.cloudflare.com"
+    "chad.ns.cloudflare.com",
+    "www.instra.com"
   ],
   "dnssec": "unsigned",
   "registrar": {

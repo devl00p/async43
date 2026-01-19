@@ -1,14 +1,33 @@
 {
-  "domain": null,
-  "status": [],
+  "domain": "google.ro",
+  "status": [
+    "UpdateProhibited"
+  ],
   "dates": {
-    "created": null,
+    "created": "2000-07-17T00:00:00Z",
     "updated": null,
-    "expires": "2019-08-22T00:00:00Z"
+    "expires": "2019-09-17T00:00:00Z"
   },
-  "nameservers": [],
-  "dnssec": null,
-  "registrar": null,
+  "nameservers": [
+    "ns1.google.com",
+    "ns2.google.com",
+    "ns3.google.com",
+    "ns4.google.com"
+  ],
+  "dnssec": "Inactive",
+  "registrar": {
+    "email": null,
+    "name": "MarkMonitor Inc.",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
   "contacts": {
     "registrant": {
       "email": null,
@@ -52,14 +71,14 @@
     "billing": {
       "email": null,
       "name": null,
-      "street": "Hidden upon user request",
+      "street": null,
       "city": null,
       "postal_code": null,
       "state": null,
       "country": null,
       "organization": null,
-      "phone": "Hidden upon user request",
-      "fax": "Hidden upon user request",
+      "phone": null,
+      "fax": null,
       "handle": null
     },
     "abuse": {

@@ -1,28 +1,27 @@
 {
-  "domain": "google.ro",
-  "status": [
-    "UpdateProhibited"
-  ],
+  "domain": "google.lu",
+  "status": [],
   "dates": {
     "created": null,
     "updated": null,
-    "expires": "2019-09-17T00:00:00Z"
+    "expires": null
   },
   "nameservers": [
     "ns1.google.com",
     "ns2.google.com",
     "ns3.google.com",
-    "ns4.google.com"
+    "ns4.google.com",
+    "www.dns.lu"
   ],
-  "dnssec": "Inactive",
+  "dnssec": null,
   "registrar": {
-    "email": null,
-    "name": "MarkMonitor Inc.",
+    "email": "ccops@markmonitor.com",
+    "name": "Markmonitor",
     "street": null,
     "city": null,
     "postal_code": null,
     "state": null,
-    "country": null,
+    "country": "GB",
     "organization": null,
     "phone": null,
     "fax": null,

@@ -1,34 +1,24 @@
 {
-  "domain": "SBC.ORG.HK",
-  "status": [
-    "Active",
-    "Complete"
-  ],
+  "domain": "google.com.sa",
+  "status": [],
   "dates": {
-    "created": null,
-    "updated": null,
-    "expires": "2020-07-03T00:00:00Z"
+    "created": "2004-01-11T00:00:00Z",
+    "updated": "2019-02-06T00:00:00Z",
+    "expires": null
   },
-  "nameservers": [],
-  "dnssec": "unsigned",
-  "registrar": {
-    "email": null,
-    "name": "Hong Kong Domain Name Registration Company Limited",
-    "street": null,
-    "city": null,
-    "postal_code": null,
-    "state": null,
-    "country": null,
-    "organization": null,
-    "phone": null,
-    "fax": null,
-    "handle": null
-  },
+  "nameservers": [
+    "ns1.google.com",
+    "ns2.google.com",
+    "ns3.google.com",
+    "ns4.google.com"
+  ],
+  "dnssec": null,
+  "registrar": null,
   "contacts": {
     "registrant": {
       "email": null,
       "name": null,
-      "street": null,
+      "street": "1600 Amphitheatre Parkway",
       "city": null,
       "postal_code": null,
       "state": null,
@@ -41,7 +31,7 @@
     "administrative": {
       "email": null,
       "name": null,
-      "street": null,
+      "street": "Riyadh Olia",
       "city": null,
       "postal_code": null,
       "state": null,
@@ -54,7 +44,7 @@
     "technical": {
       "email": null,
       "name": null,
-      "street": null,
+      "street": "3540 East Longwing Lane Suite 300",
       "city": null,
       "postal_code": null,
       "state": null,

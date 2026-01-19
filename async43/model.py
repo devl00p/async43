@@ -4,6 +4,15 @@ from pydantic import BaseModel, Field
 
 
 class Contact(BaseModel):
+    """
+    Represents a WHOIS contact entity.
+
+    This model is used for registrant, administrative, technical,
+    billing, abuse, or registrar contacts as returned by WHOIS servers.
+    All fields are optional, as WHOIS data is often incomplete or
+    registry-dependent.
+    """
+
     email: Optional[str] = None
     name: Optional[str] = None
     street: Optional[str] = None
@@ -18,6 +27,13 @@ class Contact(BaseModel):
 
 
 class DomainContacts(BaseModel):
+    """
+    Groups all WHOIS contacts related to a domain name.
+
+    Each attribute corresponds to a specific contact role
+    defined by registries or registrars.
+    """
+
     registrant: Optional[Contact]
     administrative: Optional[Contact]
     technical: Optional[Contact]
@@ -26,12 +42,28 @@ class DomainContacts(BaseModel):
 
 
 class DomainDates(BaseModel):
+    """
+    Stores important lifecycle dates of a domain name.
+
+    Date values may be provided either as ISO-formatted strings
+    or as datetime objects, depending on parsing capabilities
+    and registry formats.
+    """
+
     created: Optional[Union[str, datetime]] = None
     updated: Optional[Union[str, datetime]] = None
     expires: Optional[Union[str, datetime]] = None
 
 
 class Whois(BaseModel):
+    """
+    Represents the structured result of a WHOIS lookup.
+
+    This model aggregates parsed WHOIS information including
+    domain metadata, contacts, name servers, status flags,
+    DNSSEC state, and the original raw WHOIS text.
+    """
+
     domain: Optional[str] = None
     status: List[str] = Field(default_factory=list)
     dates: DomainDates = Field(default_factory=DomainDates)
@@ -87,6 +119,15 @@ class Whois(BaseModel):
 
     @property
     def is_empty(self) -> bool:
+        """
+        Indicates whether the WHOIS result contains any meaningful data.
+
+        The raw WHOIS text is ignored for this check. The method recursively
+        inspects all structured fields and considers the object empty if
+        all values are either None, empty strings, or empty collections.
+
+        :return: True if no structured WHOIS data is present, False otherwise.
+        """
         data = self.model_dump(exclude={"raw_text"})
 
         def check_empty(v):

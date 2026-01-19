@@ -1,28 +1,17 @@
 {
-  "domain": "allegro.pl",
+  "domain": null,
   "status": [],
   "dates": {
-    "created": "1999-10-27T13:00:00Z",
-    "updated": "2017-10-17T07:01:25Z",
+    "created": null,
+    "updated": null,
     "expires": null
   },
   "nameservers": [
-    "dns1.allegro.pl. [91.194.188.132]"
+    "pdns.llv.li [193.222.114.65]",
+    "scsnms.switch.ch [130.59.31.26, 2001:620:0:ff::a7]"
   ],
-  "dnssec": "Unsigned",
-  "registrar": {
-    "email": "registryrelations@cscinfo.com",
-    "name": null,
-    "street": null,
-    "city": null,
-    "postal_code": null,
-    "state": null,
-    "country": null,
-    "organization": null,
-    "phone": null,
-    "fax": "+1.302.636.5454",
-    "handle": null
-  },
+  "dnssec": "N",
+  "registrar": null,
   "contacts": {
     "registrant": {
       "email": null,
@@ -53,14 +42,14 @@
     "technical": {
       "email": null,
       "name": null,
-      "street": "ul. Grunwaldzka 182",
-      "city": "60-166 Poznan",
+      "street": null,
+      "city": null,
       "postal_code": null,
       "state": null,
       "country": null,
       "organization": null,
-      "phone": "+48.616271220",
-      "fax": "+48.616271220",
+      "phone": null,
+      "fax": null,
       "handle": null
     },
     "billing": {

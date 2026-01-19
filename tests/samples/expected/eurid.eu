@@ -1,16 +1,23 @@
 {
-  "domain": null,
+  "domain": "eurid.eu",
   "status": [],
   "dates": {
     "created": null,
-    "updated": "2013-10-23T00:00:00Z",
-    "expires": "2020-12-05T00:00:00Z"
+    "updated": null,
+    "expires": null
   },
-  "nameservers": [],
+  "nameservers": [
+    "ns1.eurid.eu [185.36.4.252, 2001:67c:9c:3937::252]",
+    "ns2.eurid.eu [185.36.6.252, 2001:67c:40:3937::252]",
+    "ns3.eurid.eu [185.36.4.253, 2001:67c:9c:3937::253]",
+    "ns4.eurid.eu [185.36.6.253, 2001:67c:40:3937::253]",
+    "nsp.netnod.se",
+    "nsx.eurid.eu [185.151.141.1, 2a02:568:fe00::6575]"
+  ],
   "dnssec": null,
   "registrar": {
     "email": null,
-    "name": null,
+    "name": "EURid vzw",
     "street": null,
     "city": null,
     "postal_code": null,

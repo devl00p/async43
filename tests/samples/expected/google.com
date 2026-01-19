@@ -40,7 +40,9 @@
     "NS1.GOOGLE.COM",
     "NS2.GOOGLE.COM",
     "NS3.GOOGLE.COM",
-    "NS4.GOOGLE.COM"
+    "NS4.GOOGLE.COM",
+    "domainhelp.opensrs.net",
+    "domains.omnis.com"
   ],
   "dnssec": null,
   "registrar": {

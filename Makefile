@@ -1,3 +1,5 @@
+.PHONY: install test clean style release
+
 install: clean
 		pip3 install .
 

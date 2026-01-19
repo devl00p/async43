@@ -1,0 +1,85 @@
+{
+  "domain": "SLASHDOT.ORG",
+  "status": [
+    "OK"
+  ],
+  "dates": {
+    "created": "1997-10-05T04:00:00Z",
+    "updated": "2008-06-23T20:00:11Z",
+    "expires": "2008-10-04T04:00:00Z"
+  },
+  "nameservers": [
+    "NS-1.CH3.SOURCEFORGE.COM",
+    "NS-2.CH3.SOURCEFORGE.COM",
+    "NS-3.CORP.SOURCEFORGE.COM"
+  ],
+  "dnssec": null,
+  "registrar": null,
+  "contacts": {
+    "registrant": {
+      "email": "dns-admin@corp.sourceforge.com",
+      "name": "DNS Administration",
+      "street": "650 Castro St., Suite 450",
+      "city": "Mountain View",
+      "postal_code": "94041",
+      "state": "CA",
+      "country": "US",
+      "organization": "SourceForge, Inc.",
+      "phone": "+1.6506942100",
+      "fax": null,
+      "handle": null
+    },
+    "administrative": {
+      "email": "dns-admin@corp.sourceforge.com",
+      "name": "DNS Administration",
+      "street": "650 Castro St., Suite 450",
+      "city": "Mountain View",
+      "postal_code": "94041",
+      "state": "CA",
+      "country": "US",
+      "organization": "SourceForge, Inc.",
+      "phone": "+1.6506942100",
+      "fax": null,
+      "handle": null
+    },
+    "technical": {
+      "email": "dns-tech@corp.sourceforge.com",
+      "name": "DNS Technical",
+      "street": "650 Castro St., Suite 450",
+      "city": "Mountain View",
+      "postal_code": "94041",
+      "state": "CA",
+      "country": "US",
+      "organization": "SourceForge, Inc.",
+      "phone": "+1.6506942100",
+      "fax": null,
+      "handle": null
+    },
+    "billing": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    },
+    "abuse": {
+      "email": null,
+      "name": null,
+      "street": null,
+      "city": null,
+      "postal_code": null,
+      "state": null,
+      "country": null,
+      "organization": null,
+      "phone": null,
+      "fax": null,
+      "handle": null
+    }
+  }
+}

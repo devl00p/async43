@@ -1,14 +1,32 @@
 {
-  "domain": null,
-  "status": [],
+  "domain": "SBC.ORG.HK",
+  "status": [
+    "Active",
+    "Complete"
+  ],
   "dates": {
     "created": null,
-    "updated": "2024-10-01T01:00:44Z",
-    "expires": null
+    "updated": null,
+    "expires": "2020-07-03T00:00:00Z"
   },
-  "nameservers": [],
-  "dnssec": null,
-  "registrar": null,
+  "nameservers": [
+    "ns19.odysseyhost.com",
+    "ns20.odysseyhost.com"
+  ],
+  "dnssec": "unsigned",
+  "registrar": {
+    "email": null,
+    "name": "Hong Kong Domain Name Registration Company Limited",
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": null,
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
   "contacts": {
     "registrant": {
       "email": null,

@@ -12,7 +12,7 @@ from async_lru import alru_cache
 
 from async43.exceptions import WhoisNetworkError
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("async43")
 
 
 class NICClient:
@@ -107,8 +107,6 @@ class NICClient:
         ).search(buf)
         if match:
             nhost = match.group(1)
-            # if the whois address is domain.tld/something then
-            # s.connect((hostname, 43)) does not work
             if nhost.count("/") > 0:
                 nhost = None
         elif hostname == NICClient.ANICHOST:
@@ -277,17 +275,24 @@ class NICClient:
         except (asyncio.TimeoutError, OSError) as e:
             raise WhoisNetworkError(f"Network failure for {hostname}: {str(e)}") from e
 
-    async def choose_server(self, domain: str, timeout: int = 10) -> Optional[str]:
-        """Choose initial lookup NIC host"""
+    async def choose_server(
+            self,
+            domain: str,
+            timeout: int = 10,
+    ) -> Optional[str]:
+        """Choose the initial WHOIS NIC host for a domain."""
         domain = domain.encode("idna").decode("utf-8")
-        if domain.endswith("-NORID"):
-            return NICClient.NORIDHOST
-        if domain.endswith("id"):
-            return NICClient.PANDIHOST
-        if domain.endswith("hr"):
-            return NICClient.HR_HOST
-        if domain.endswith(".pp.ua"):
-            return NICClient.PPUA_HOST
+
+        special_suffixes = {
+            "-NORID": NICClient.NORIDHOST,
+            "id": NICClient.PANDIHOST,
+            "hr": NICClient.HR_HOST,
+            ".pp.ua": NICClient.PPUA_HOST,
+        }
+
+        for suffix, host in special_suffixes.items():
+            if domain.endswith(suffix):
+                return host
 
         domain_parts = domain.split(".")
         if len(domain_parts) < 2:
@@ -299,7 +304,7 @@ class NICClient:
             return self.ANICHOST
 
         server = self.TLD_WHOIS_MAP.get(tld)
-        if server:
+        if server is not None:
             return server
 
         return await self.findwhois_iana(tld, timeout=timeout)
@@ -319,7 +324,7 @@ class NICClient:
         ):
             self.use_qnichost = True
             options["whoishost"] = NICClient.NICHOST
-            if not (flags & NICClient.WHOIS_QUICK):
+            if not flags & NICClient.WHOIS_QUICK:
                 flags |= NICClient.WHOIS_RECURSE
 
         if "country" in options and options["country"] is not None:

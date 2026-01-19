@@ -1,33 +1,51 @@
+import logging
 import sys
 
 from async43.parser.constants import NO_SUCH_RECORD_LABELS, TEMP_ERROR
 from async43.parser.dates import cast_date
+from async43.parser.nameservers import extract_nameservers_from_raw
 from async43.parser.structure import parse_whois
 from async43.parser.engine import normalize_whois_tree_fuzzy
 from async43.exceptions import WhoisDomainNotFoundError, WhoisInternalError
 from async43.model import Whois
 
 
+logger = logging.getLogger("async43")
+
+
 def print_nodes(nodes, indent=0):
-    """Affiche récursivement la structure des Noeuds."""
+    """Recursively print th Node structure."""
     for node in nodes:
         label = getattr(node, 'label', 'NO_LABEL')
         value = getattr(node, 'value', 'NO_VALUE')
         children = getattr(node, 'children', [])
 
         prefix = "  " * indent
-        print(f"{prefix}[{label}] -> {value}")
+        logger.debug("%s[%s] -> %s", prefix, label, value)
         if children:
             print_nodes(children, indent + 1)
 
 def parse(raw_text: str) -> Whois:
     tree = parse_whois(raw_text)
-    print("\n--- DEBUG STRUCTURE ---")
+    logger.debug("\n--- DEBUG STRUCTURE ---")
     print_nodes(tree)
-    print("-----------------------\n")
+    logger.debug("-----------------------\n")
     norm = normalize_whois_tree_fuzzy(tree)
     for date_key, date_string in norm.get("dates", {}).items():
         norm["dates"][date_key] = cast_date(date_string)
+
+    name_servers = extract_nameservers_from_raw(raw_text)
+    if name_servers:
+        if norm.get("nameservers") is None:
+            norm["nameservers"] = []
+
+        known_servers = " ".join(norm["nameservers"]).lower()
+        for hostname, ips in name_servers.items():
+            if hostname.lower() not in known_servers:
+                dns_string = hostname
+                if ips:
+                    dns_string += " [" + ", ".join(ips) + "]"
+                norm["nameservers"].append(dns_string)
 
     norm["raw_text"] = raw_text
     obj = Whois(**norm)

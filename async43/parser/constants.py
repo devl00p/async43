@@ -83,13 +83,13 @@ SCHEMA_MAPPING = {
     "registrar_iana_id": ["registrar iana id", "注册商互联网号码分配当局(iana)id(sponsoring registrar iana id)"],
     "dnssec": ["dnssec", "域名系统安全扩展协议(dnssec)", "dnssec signed"],
     "dates.created": [
-        "creation date", "created", "registered", "created date", "record created", "domain created",
-        "created-date", "注册时间(creation date)", "registration time", "registration date"
+        "creation date", "created", "registered", "created date", "record created", "domain created", "registered on",
+        "created-date", "注册时间(creation date)", "registration time", "registration date", "created on"
     ],
     "dates.updated": [
         "updated date", "last update", "last modified", "changed", "modified", "dernière modification",
         "record last updated on", "updated", "modification date", "updated-date", "expiration-date",
-        "renewed on", "更新时间(Updated Date)"
+        "renewed on", "更新时间(Updated Date)", "last updated on"
     ],
     "dates.expires": [
         "registry expiry date", "expiration date", "expiry", "expires", "date d'expiration", "expire date",
@@ -105,10 +105,13 @@ SCHEMA_MAPPING = {
 
     # ABUSE
     "contacts.abuse.email": ["abuse.email", "registrar abuse contact email"],
-    "contacts.abuse.phone": ["registrar abuse contact phone", "abuse-phone"],
+    "contacts.abuse.phone": ["registrar abuse contact phone", "abuse-phone", "abuse tel"],
+    "contacts.abuse.id": ["abuse handle", "abuse nic handle"],
 
     # ADMIN
-    "contacts.administrative.email": ["admin.email", "admin email", "admin.contact email", "管理联系人电子邮件(admin email)"],
+    "contacts.administrative.email": [
+        "admin.email", "admin email", "admin.contact email", "管理联系人电子邮件(admin email)"
+    ],
     "contacts.administrative.name": [
         "admin.name", "admin.contact", "admin name", "管理联系人姓名(admin name)", "admin contact"
     ],
@@ -127,7 +130,8 @@ SCHEMA_MAPPING = {
     "contacts.administrative.organization": ["admin.organization", "admin organization",
                                              "管理联系人组织(admin organization)"],
     "contacts.administrative.organization_id": ["admin organization id"],
-    "contacts.administrative.phone": ["admin.phone", "admin phone", "管理联系人电话(admin phone)"],
+    "contacts.administrative.id": ["admin handle", "admin nic handle"],
+    "contacts.administrative.phone": ["admin.phone", "admin phone", "管理联系人电话(admin phone)", "admin tel"],
     "contacts.administrative.fax": ["admin.fax", "admin fax", "管理联系人传真(admin fax)"],
     "contacts.administrative.created": ["admin created"],
     "contacts.administrative.updated": ["admin updated"],
@@ -158,8 +162,9 @@ SCHEMA_MAPPING = {
         "billing.organization", "billing organization", "注册联系人组织(billing organization)"
     ],
     "contacts.billing.organization_id": ["billing organization id"],
+    "contacts.billing.id": ["billing handle", "billing nic handle"],
     "contacts.billing.phone": [
-        "billing.phone", "billing phone", "注册联系人电话(billing phone)"
+        "billing.phone", "billing phone", "注册联系人电话(billing phone)", "billing tel"
     ],
     "contacts.billing.fax": ["billing.fax", "billing fax", "注册联系人传真(billing fax)"],
 
@@ -168,7 +173,7 @@ SCHEMA_MAPPING = {
         "registrant.email", "registrant email", "owner email",
         "注册联系人电子邮件(registrant email)", "registrant contact email",  # "email", "courriel",
     ],
-    "contacts.registrant.id": ["registrant id", "domain registrant"],
+    "contacts.registrant.id": ["registrant id", "domain registrant", "registrant handle", "registrant nic handle"],
     "contacts.registrant.name": [
         "registrant.name", "registrant.contact", "registrant name", "owner name",
         "注册联系人姓名(registrant name)", "registrant", "registrant registrant", "registrant contact"
@@ -189,7 +194,8 @@ SCHEMA_MAPPING = {
         #  "postal code",
     ],
     "contacts.registrant.state": [
-        "registrant.state", "registrant state/province", "registrant state", "注册联系人所在州/省(registrant state/province)"
+        "registrant.state", "registrant state/province", "registrant state",
+        "注册联系人所在州/省(registrant state/province)"
     ],
     "contacts.registrant.country": [
         "registrant.country", "registrant country", "registrant pays", "owner country code", "registrant country code",
@@ -202,7 +208,8 @@ SCHEMA_MAPPING = {
         "registrant.organization_id", "registrant organization id", "registrant org id",
     ],
     "contacts.registrant.phone": [
-        "registrant.phone", "registrant phone", "registrant téléphone", "注册联系人电话(registrant phone)"
+        "registrant.phone", "registrant phone", "registrant téléphone", "注册联系人电话(registrant phone)",
+        "registrant tel"
     ],
     "contacts.registrant.fax": ["registrant.fax", "registrant fax", "注册联系人传真(registrant fax)"],
 
@@ -210,22 +217,29 @@ SCHEMA_MAPPING = {
     "registrar.name": [
         "registrar.name", "registrar.contact", "registrar name", "技术联系人姓名(registrar name)", "registrar contact"
     ],
+    "registrar.id": ["registrar handle", "registrar nic handle"],
     "registrar.url": ["registrar url", "registrar web"],
     "registrar.email": [
-        "registrar.email", "registrar.contact email", "registrar email", "registrar contact email", "技术联系人电子邮件(registrar email)"
+        "registrar.email", "registrar.contact email", "registrar email", "registrar contact email",
+        "技术联系人电子邮件(registrar email)"
     ],
-    "registrar.street": ["registrar.street", "registrar street", "registrar.address", "技术联系人所在街道(registrar street)"],
+    "registrar.street": [
+        "registrar.street", "registrar street", "registrar.address", "技术联系人所在街道(registrar street)"
+    ],
     "registrar.city": ["registrar.city", "registrar city", "技术联系人所在城市(registrar city)"],
-    "registrar.postal_code": ["registrar.postal code", "registrar postal code", "技术联系人邮政编码(registrar postal code)"],
+    "registrar.postal_code": [
+        "registrar.postal code", "registrar postal code", "技术联系人邮政编码(registrar postal code)"
+    ],
     "registrar.state": ["registrar.state", "registrar state/province", "技术联系人所在州/省(registrar state/province)"],
     "registrar.country": [
         "registrar.country", "registrar country", "技术联系人所在国家和地区(registrar country)", "registrar country code"
     ],
     "registrar.organization": [
-        "registrar.organization", "registrar organization", "registrar contact organisation", "技术联系人组织(registrar organization)"
+        "registrar.organization", "registrar organization", "registrar contact organisation",
+        "技术联系人组织(registrar organization)"
     ],
     "registrar.organization_id": ["registrar organization id"],
-    "registrar.phone": ["registrar.phone", "registrar phone", "技术联系人电话(registrar phone)"],
+    "registrar.phone": ["registrar.phone", "registrar phone", "技术联系人电话(registrar phone)", "registrar tel"],
     "registrar.fax": ["registrar.fax", "registrar fax", "技术联系人传真(registrar fax)"],
     "registrar.created": ["registrar created"],
     "registrar.updated": ["registrar updated"],
@@ -237,6 +251,7 @@ SCHEMA_MAPPING = {
     "contacts.technical.name": [
         "tech.name", "tech.contact", "tech name", "技术联系人姓名(tech name)", "technical contact"
     ],
+    "contacts.technical.id": ["technical handle", "technical nic handle"],
     "contacts.technical.street": [
         "tech.street", "tech street", "tech.address", "技术联系人所在街道(tech street)",
         "tech address"
@@ -251,7 +266,7 @@ SCHEMA_MAPPING = {
         "tech.organization", "tech organization", "tech contact organisation", "技术联系人组织(tech organization)"
     ],
     "contacts.technical.organization_id": ["tech organization id"],
-    "contacts.technical.phone": ["tech.phone", "tech phone", "技术联系人电话(tech phone)"],
+    "contacts.technical.phone": ["tech.phone", "tech phone", "技术联系人电话(tech phone)", "tech tel"],
     "contacts.technical.fax": ["tech.fax", "tech fax", "技术联系人传真(tech fax)"],
     "contacts.technical.created": ["tech created"],
     "contacts.technical.updated": ["tech updated"],

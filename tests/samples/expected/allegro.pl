@@ -1,30 +1,30 @@
 {
-  "domain": "IMDB.COM",
-  "status": [
-    "clientTransferProhibited"
-  ],
+  "domain": "allegro.pl",
+  "status": [],
   "dates": {
-    "created": "1996-01-05T00:00:00Z",
-    "updated": "2008-03-28T00:00:00Z",
-    "expires": "2016-01-04T00:00:00Z"
+    "created": "1999-10-27T13:00:00Z",
+    "updated": "2017-10-17T07:01:25Z",
+    "expires": null
   },
   "nameservers": [
-    "IMDB.COM.MORE.INFO.AT.WWW.BEYONDWHOIS.COM",
-    "UDNS1.ULTRADNS.NET",
-    "UDNS2.ULTRADNS.NET"
+    "dns1.allegro.pl. [91.194.188.132]",
+    "dns2.allegro.pl [91.207.14.244]",
+    "dns3.allegro.pl [80.50.230.43]",
+    "dns4.allegro.pl [213.180.138.53]",
+    "www.dns.pl"
   ],
-  "dnssec": null,
+  "dnssec": "Unsigned",
   "registrar": {
-    "email": null,
-    "name": "TUCOWS INC., NETWORK SOLUTIONS, LLC.",
+    "email": "registryrelations@cscinfo.com",
+    "name": null,
     "street": null,
     "city": null,
     "postal_code": null,
     "state": null,
     "country": null,
     "organization": null,
-    "phone": null,
-    "fax": null,
+    "phone": "+1.302.636.5400",
+    "fax": "+1.302.636.5454",
     "handle": null
   },
   "contacts": {
@@ -57,14 +57,14 @@
     "technical": {
       "email": null,
       "name": null,
-      "street": null,
-      "city": null,
+      "street": "ul. Grunwaldzka 182",
+      "city": "60-166 Poznan",
       "postal_code": null,
       "state": null,
       "country": null,
       "organization": null,
-      "phone": null,
-      "fax": null,
+      "phone": "+48.616271220",
+      "fax": "+48.616271220",
       "handle": null
     },
     "billing": {

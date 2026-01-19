@@ -1,22 +1,29 @@
 {
-  "domain": "eurid.eu",
-  "status": [],
+  "domain": "google.it",
+  "status": [
+    "ok"
+  ],
   "dates": {
-    "created": null,
-    "updated": null,
-    "expires": null
+    "created": "1999-12-10T00:00:00Z",
+    "updated": "2018-05-07T00:54:15Z",
+    "expires": "2019-04-21T00:00:00Z"
   },
-  "nameservers": [],
-  "dnssec": null,
+  "nameservers": [
+    "ns1.google.com",
+    "ns2.google.com",
+    "ns3.google.com",
+    "ns4.google.com"
+  ],
+  "dnssec": "no",
   "registrar": {
     "email": null,
-    "name": "EURid vzw",
+    "name": "MARKMONITOR-REG",
     "street": null,
     "city": null,
     "postal_code": null,
     "state": null,
     "country": null,
-    "organization": null,
+    "organization": "MarkMonitor International Limited",
     "phone": null,
     "fax": null,
     "handle": null
@@ -25,25 +32,25 @@
     "registrant": {
       "email": null,
       "name": null,
-      "street": null,
+      "street": "70 Sir John Rogerson's Quay",
       "city": null,
       "postal_code": null,
       "state": null,
       "country": null,
-      "organization": null,
+      "organization": "Google Ireland Holdings Unlimited Company",
       "phone": null,
       "fax": null,
       "handle": null
     },
     "administrative": {
       "email": null,
-      "name": null,
-      "street": null,
+      "name": "Christina Chiou",
+      "street": "1600 Amphitheatre Parkway",
       "city": null,
       "postal_code": null,
       "state": null,
       "country": null,
-      "organization": null,
+      "organization": "Google LLC",
       "phone": null,
       "fax": null,
       "handle": null
