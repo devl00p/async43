@@ -11,16 +11,28 @@
     "scsnms.switch.ch [130.59.31.26, 2001:620:0:ff::a7]"
   ],
   "dnssec": "N",
-  "registrar": null,
+  "registrar": {
+    "email": null,
+    "name": null,
+    "street": null,
+    "city": null,
+    "postal_code": null,
+    "state": null,
+    "country": "Antigua and Barbuda",
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
   "contacts": {
     "registrant": {
       "email": null,
       "name": null,
       "street": null,
-      "city": null,
+      "city": "Vaduz",
       "postal_code": null,
       "state": null,
-      "country": null,
+      "country": "Liechtenstein",
       "organization": null,
       "phone": null,
       "fax": null,

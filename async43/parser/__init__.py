@@ -90,6 +90,11 @@ def parse(raw_text: str) -> Whois:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
     with open(sys.argv[1], encoding="utf-8", errors="replace") as fd:
         whois_obj = parse(fd.read())
         print(whois_obj.model_dump_json(indent=2, exclude={'raw_text'}))

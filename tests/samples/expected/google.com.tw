@@ -18,20 +18,20 @@
   "registrar": null,
   "contacts": {
     "registrant": {
-      "email": null,
+      "email": "dns-admin@google.com",
       "name": null,
       "street": null,
-      "city": null,
+      "city": "Topeka, Parkway, California",
       "postal_code": null,
       "state": null,
-      "country": null,
+      "country": "Canada, United States",
       "organization": null,
-      "phone": null,
+      "phone": "+1.6502530000, +1.6506188571",
       "fax": null,
       "handle": null
     },
     "administrative": {
-      "email": null,
+      "email": "dns-admin@google.com",
       "name": null,
       "street": null,
       "city": null,
@@ -39,12 +39,12 @@
       "state": null,
       "country": null,
       "organization": null,
-      "phone": null,
+      "phone": "+1.6502530000, +1.6506188571",
       "fax": null,
       "handle": null
     },
     "technical": {
-      "email": null,
+      "email": "dns-admin@google.com",
       "name": null,
       "street": null,
       "city": null,
@@ -52,7 +52,7 @@
       "state": null,
       "country": null,
       "organization": null,
-      "phone": null,
+      "phone": "+1.6502530000, +1.6506188571",
       "fax": null,
       "handle": null
     },

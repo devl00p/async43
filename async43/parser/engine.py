@@ -3,8 +3,11 @@ from dataclasses import dataclass
 from typing import List, Optional, Any, Dict
 
 from rapidfuzz import process, fuzz
+from text_scrubber.geo import find_city_in_string, find_country_in_string
 
 from async43.parser.constants import SCHEMA_MAPPING
+from async43.parser.detector import HeuristicDetector
+from async43.parser.structure import Node
 
 logger = logging.getLogger("async43")
 
@@ -137,16 +140,20 @@ class SchemaMapper:
         ]
 
         self.section_triggers: Dict[str, str] = {}
+        # Revert mapping so we have a "technical contact" to "technical" section logic
         for key, aliases in mapping.items():
             if key.startswith("SECTION_"):
                 section = key.replace("SECTION_", "").lower()
                 for alias in aliases:
                     self.section_triggers[alias.lower()] = section
 
+        # Allows to detect sections from values like "contact: technical".
+        # Values here can look stupid but may evolve
         self.section_value_triggers = {
             "administrative": "administrative",
             "technical": "technical",
             "registrant": "registrant",
+            "registrar": "registrar",
             "billing": "billing",
             "abuse": "abuse",
         }
@@ -172,20 +179,6 @@ class SchemaMapper:
 
         if clean in self.section_triggers:
             return self.section_triggers[clean]
-
-        if clean in {"registrar", "authorised registrar"}:
-            return "registrar"
-        if clean == "domain registrant":
-            return "registrant"
-
-        for keyword, mapped in {
-            "admin": "administrative",
-            "tech": "technical",
-            "registrant": "registrant",
-            "billing": "billing",
-        }.items():
-            if keyword in clean:
-                return mapped
 
         return None
 
@@ -343,57 +336,187 @@ class SchemaMapper:
 
 
 class WhoisEngine:
-    """Traverses the parsed WHOIS tree and builds normalized output."""
+    """
+    Traverses the parsed WHOIS tree and builds a normalized WHOIS output.
+
+    This engine performs a depth-first traversal of a parsed WHOIS tree,
+    resolving nodes using a schema mapper and enriching the output using
+    heuristic detectors (email, phone, location).
+
+    The traversal maintains contextual state (current section) and writes
+    results directly into a ``WhoisContext`` instance.
+    """
 
     def __init__(self):
         self.mapper = SchemaMapper(SCHEMA_MAPPING)
         self.ctx = WhoisContext()
+        self.detector = HeuristicDetector()
 
     def walk(self, nodes: List[Any]) -> None:
         """
-        Walk a parsed WHOIS tree and build the normalized WHOIS result.
+        Walk a parsed WHOIS tree and populate the normalized WHOIS context.
 
-        This method performs a depth-first traversal of the WHOIS parse tree.
-        Each node is resolved using the schema mapper, potentially triggering
-        section changes or producing a mapping into the output data structure.
-
-        The traversal maintains contextual state (current section) and writes
-        results directly into the internal ``WhoisContext`` instance.
+        This method orchestrates the traversal by delegating the processing
+        of structured nodes and raw text lines to specialized handlers.
         """
+        raw_lines = [n for n in nodes if isinstance(n, str)]
+        detected_countries = (
+            self.detector.get_countries(raw_lines) if raw_lines else set()
+        )
+
         for node in nodes:
-            label = getattr(node, "label", "").strip()
-            value = getattr(node, "value", None)
-            children = getattr(node, "children", [])
+            if isinstance(node, Node):
+                self._handle_node(node)
+            else:
+                self._handle_text_line(node, detected_countries)
 
-            if label == "SECTION_BREAK":
-                self.ctx.current_section = None
-                continue
+    def _handle_node(self, node: Node) -> None:
+        """
+        Handle a structured parse tree node.
 
-            result = self.mapper.resolve(
-                label, value, self.ctx.current_section
+        This resolves schema mappings, manages section transitions,
+        stores mapped or unmapped values, and recursively walks child nodes.
+        """
+        label = node.label.strip()
+
+        if label == "SECTION_BREAK":
+            self.ctx.current_section = None
+            return
+
+        result = self.mapper.resolve(
+            label, node.value, self.ctx.current_section
+        )
+
+        self._handle_section_trigger(result)
+        self._handle_mapping(result, label, node.value)
+
+        self.walk(node.children)
+
+    def _handle_section_trigger(self, result) -> None:
+        """
+        Update the current section if the mapper indicates a section trigger.
+        """
+        if not result.section_trigger:
+            return
+
+        self.ctx.current_section = result.section_trigger.section_name
+        logger.debug("Entering section: %s", self.ctx.current_section)
+
+    def _handle_mapping(self, result, label: str, value: Any) -> None:
+        """
+        Apply a schema mapping or store an unmapped value.
+        """
+        if result.mapping:
+            self._apply_mapping(result.mapping.path, value)
+            return
+
+        if value and not result.section_trigger:
+            self._store_unmapped_value(label, value)
+
+    def _apply_mapping(self, path: str, value: Any) -> None:
+        """
+        Apply a resolved schema mapping to the context.
+        """
+        if not value:
+            return
+
+        if self._is_global_mapping(path):
+            self.ctx.current_section = None
+
+        self.ctx.update_value(path, value)
+
+    @staticmethod
+    def _is_global_mapping(path: str) -> bool:
+        """
+        Determine whether a mapping path belongs to the global scope.
+        """
+        return not path.startswith(("contacts", "registrar"))
+
+    def _store_unmapped_value(self, label: str, value: Any) -> None:
+        """
+        Store a value that could not be resolved by the schema mapper.
+        """
+        prefix = self.ctx.current_section or "global"
+        self.ctx.data["other"][f"{prefix}.{label}"] = value
+
+    def _handle_text_line(
+        self, node: str, detected_countries: set
+    ) -> None:
+        """
+        Handle a raw text line within the current section.
+
+        This method attempts to detect and store email addresses,
+        phone numbers, and location information.
+        """
+        content = node.strip()
+
+        if not content or not self.ctx.current_section:
+            return
+
+        if self._handle_email(content):
+            return
+
+        if self._handle_phone(content):
+            return
+
+        self._handle_location(content, detected_countries)
+
+    def _handle_email(self, content: str) -> bool:
+        """
+        Detect and store an email address from a text line.
+        """
+        if "@" not in content:
+            return False
+
+        email = self.detector.detect_email(content)
+        if not email:
+            return False
+
+        self.ctx.update_value(self._contact_path("email"), email)
+        return True
+
+    def _handle_phone(self, content: str) -> bool:
+        """
+        Detect and store a phone number from a text line.
+        """
+        if not self.detector.detect_phone(content):
+            return False
+
+        self.ctx.update_value(self._contact_path("phone"), content)
+        return True
+
+    def _handle_location(
+        self, content: str, detected_countries: set
+    ) -> None:
+        """
+        Detect and store city and country information from a text line.
+        """
+        if detected_countries:
+            cities = find_city_in_string(
+                content, country_set=detected_countries
+            )
+            if cities:
+                self.ctx.update_value(
+                    self._contact_path("city"),
+                    cities[0].location.canonical_name,
+                )
+
+        country_match = find_country_in_string(content)
+        if country_match:
+            self.ctx.update_value(
+                self._contact_path("country"),
+                country_match[0].location.canonical_name,
             )
 
-            if result.section_trigger:
-                self.ctx.current_section = result.section_trigger.section_name
-                logger.debug(
-                    "Entering section: %s", self.ctx.current_section
-                )
+    def _contact_path(self, field: str) -> str:
+        """
+        Build a contact-related storage path based on the current section.
+        """
+        if self.ctx.current_section == "registrar":
+            return f"registrar.{field}"
 
-            if result.mapping:
-                is_global = not result.mapping.path.startswith(
-                    ("contacts", "registrar")
-                )
-                if is_global:
-                    self.ctx.current_section = None
+        return f"contacts.{self.ctx.current_section}.{field}"
 
-                if value:
-                    self.ctx.update_value(result.mapping.path, value)
-
-            elif not result.section_trigger and value:
-                prefix = self.ctx.current_section or "global"
-                self.ctx.data["other"][f"{prefix}.{label}"] = value
-
-            self.walk(children)
 
 
 def normalize_whois_tree_fuzzy(

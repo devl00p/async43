@@ -94,7 +94,7 @@ SCHEMA_MAPPING = {
     "dates.expires": [
         "registry expiry date", "expiration date", "expiry", "expires", "date d'expiration", "expire date",
         "record expires on", "expires on", "valid until", "到期时间(registry expiry date)",
-        "Date out of quarantine", "expiration time", "expiry date"
+        "Date out of quarantine", "expiration time", "expiry date", "free-date",
     ],
     "nameservers": [
         "name server", "nserver", "serveur de noms", "primary server", "secondary server", "dns", "hostname",
@@ -110,31 +110,47 @@ SCHEMA_MAPPING = {
 
     # ADMIN
     "contacts.administrative.email": [
-        "admin.email", "admin email", "admin.contact email", "管理联系人电子邮件(admin email)"
+        "admin.email", "admin email", "admin.contact email", "管理联系人电子邮件(admin email)",
+        "administrative email",
     ],
     "contacts.administrative.name": [
-        "admin.name", "admin.contact", "admin name", "管理联系人姓名(admin name)", "admin contact"
+        "admin.name", "admin.contact", "admin name", "管理联系人姓名(admin name)", "admin contact",
+        "administrative name", "administrative contact"
     ],
     "contacts.administrative.street": [
-        "admin.street", "admin street", "admin.address", "admin address", "管理联系人所在街道(admin street)"
+        "admin.street", "admin street", "admin.address", "admin address", "管理联系人所在街道(admin street)",
+        "administrative street", "administrative address",
     ],
-    "contacts.administrative.city": ["admin.city", "admin city", "管理联系人所在城市(admin city)"],
+    "contacts.administrative.city": [
+        "admin.city", "admin city", "管理联系人所在城市(admin city)",
+        "administrative city",
+    ],
     "contacts.administrative.postal_code": [
-        "admin.postal code", "admin postal code", "admin zipcode", "管理联系人邮政编码(admin postal code)"
+        "admin.postal code", "admin postal code", "admin zipcode", "管理联系人邮政编码(admin postal code)",
+        "administrative postal code", "administrative zipcode"
     ],
-    "contacts.administrative.state": ["admin.state", "admin state/province",
-                                      "管理联系人所在州/省(admin state/province)"],
+    "contacts.administrative.state": [
+        "admin.state", "admin state/province", "管理联系人所在州/省(admin state/province)", "administrative state",
+        "administrative state/province",
+    ],
     "contacts.administrative.country": [
         "admin.country", "admin country", "管理联系人所在国家和地区(admin country)", "admin country code",
+        "administrative country", "administrative country code",
     ],
-    "contacts.administrative.organization": ["admin.organization", "admin organization",
-                                             "管理联系人组织(admin organization)"],
-    "contacts.administrative.organization_id": ["admin organization id"],
-    "contacts.administrative.id": ["admin handle", "admin nic handle"],
-    "contacts.administrative.phone": ["admin.phone", "admin phone", "管理联系人电话(admin phone)", "admin tel"],
-    "contacts.administrative.fax": ["admin.fax", "admin fax", "管理联系人传真(admin fax)"],
-    "contacts.administrative.created": ["admin created"],
-    "contacts.administrative.updated": ["admin updated"],
+    "contacts.administrative.organization": [
+        "admin.organization", "admin organization", "管理联系人组织(admin organization)", "administrative organization",
+    ],
+    "contacts.administrative.organization_id": ["admin organization id", "administrative organization id"],
+    "contacts.administrative.id": [
+        "admin handle", "admin nic handle", "administrative nic handle", "administrative handle"
+    ],
+    "contacts.administrative.phone": [
+        "admin.phone", "admin phone", "管理联系人电话(admin phone)", "admin tel", "administrative tel",
+        "administrative phone"
+    ],
+    "contacts.administrative.fax": ["admin.fax", "admin fax", "管理联系人传真(admin fax)", "administrative fax"],
+    "contacts.administrative.created": ["admin created", "administrative created"],
+    "contacts.administrative.updated": ["admin updated", "administrative updated"],
 
     # BILLING
     "contacts.billing.email": [
@@ -176,7 +192,7 @@ SCHEMA_MAPPING = {
     "contacts.registrant.id": ["registrant id", "domain registrant", "registrant handle", "registrant nic handle"],
     "contacts.registrant.name": [
         "registrant.name", "registrant.contact", "registrant name", "owner name",
-        "注册联系人姓名(registrant name)", "registrant", "registrant registrant", "registrant contact"
+        "注册联系人姓名(registrant name)", "registrant", "registrant registrant", "registrant contact",
     ],
     "contacts.registrant.street": [
         "registrant.street", "registrant street", "registrant postal address",
@@ -246,33 +262,43 @@ SCHEMA_MAPPING = {
 
     # TECH
     "contacts.technical.email": [
-        "tech.email", "technical.contact email", "tech email", "tech contact email", "技术联系人电子邮件(tech email)"
+        "tech.email", "technical.contact email", "tech email", "tech contact email", "技术联系人电子邮件(tech email)",
+        "technical email",
     ],
     "contacts.technical.name": [
-        "tech.name", "tech.contact", "tech name", "技术联系人姓名(tech name)", "technical contact"
+        "tech.name", "tech.contact", "tech name", "技术联系人姓名(tech name)", "technical contact", "technical name",
     ],
     "contacts.technical.id": ["technical handle", "technical nic handle"],
     "contacts.technical.street": [
         "tech.street", "tech street", "tech.address", "技术联系人所在街道(tech street)",
-        "tech address"
+        "tech address", "technical street", "technical address"
     ],
-    "contacts.technical.city": ["tech.city", "tech city", "技术联系人所在城市(tech city)"],
-    "contacts.technical.postal_code": ["tech.postal code", "tech postal code", "技术联系人邮政编码(tech postal code)"],
-    "contacts.technical.state": ["tech.state", "tech state/province", "技术联系人所在州/省(tech state/province)"],
+    "contacts.technical.city": ["tech.city", "tech city", "技术联系人所在城市(tech city)", "technical city"],
+    "contacts.technical.postal_code": [
+        "tech.postal code", "tech postal code", "技术联系人邮政编码(tech postal code)", "technical postal code",
+    ],
+    "contacts.technical.state": [
+        "tech.state", "tech state/province", "技术联系人所在州/省(tech state/province)", "technical state",
+    ],
     "contacts.technical.country": [
-        "tech.country", "tech country", "技术联系人所在国家和地区(tech country)", "tech country code",
+        "tech.country", "tech country", "技术联系人所在国家和地区(tech country)", "tech country code", "technical country",
+        "technical country code",
     ],
     "contacts.technical.organization": [
-        "tech.organization", "tech organization", "tech contact organisation", "技术联系人组织(tech organization)"
+        "tech.organization", "tech organization", "tech contact organisation", "技术联系人组织(tech organization)",
+        "technical organization",
     ],
-    "contacts.technical.organization_id": ["tech organization id"],
-    "contacts.technical.phone": ["tech.phone", "tech phone", "技术联系人电话(tech phone)", "tech tel"],
-    "contacts.technical.fax": ["tech.fax", "tech fax", "技术联系人传真(tech fax)"],
-    "contacts.technical.created": ["tech created"],
-    "contacts.technical.updated": ["tech updated"],
+    "contacts.technical.organization_id": ["tech organization id", "technical organization id"],
+    "contacts.technical.phone": [
+        "tech.phone", "tech phone", "技术联系人电话(tech phone)", "tech tel", "technical phone", "technical tel"],
+    "contacts.technical.fax": ["tech.fax", "tech fax", "技术联系人传真(tech fax)", "technical fax"],
+    "contacts.technical.created": ["tech created", "technical created"],
+    "contacts.technical.updated": ["tech updated", "technical updated"],
 
-    "SECTION_ADMIN": ["administrative contact", "admin contact"],
-    "SECTION_TECH": ["technical contact", "tech contact"],
-    "SECTION_REGISTRANT": ["registrant", "registrant contact", "holder"],
-    "SECTION_BILLING": ["billing"],
+    "SECTION_ADMINISTRATIVE": ["administrative contact", "admin contact"],
+    "SECTION_TECHNICAL": ["technical contact", "tech contact", "technical contacts"],
+    "SECTION_REGISTRANT": ["registrant", "registrant contact", "holder", "domain registrant", "holder of domain name"],
+    "SECTION_BILLING": ["billing", "billing contact"],
+    "SECTION_REGISTRAR": ["registrar", "registrar contact"],
+    "SECTION_ABUSE": ["abuse", "abuse contact"],
 }

@@ -13,6 +13,9 @@ utc = tzoffset('UTC', 0)
 
 
 class TestParser(unittest.TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
     def test_com_expiration(self):
         data = """
         Status: ok
@@ -913,7 +916,7 @@ Hostname:             p.nic.dk
                     'email': None,
                     'fax': None,
                     'handle': None,
-                    'name': 'Peter Gonda',
+                    'name': 'FORPSI-S616940-1, Peter Gonda',
                     'organization': 'Pipoline s.r.o.',
                     'phone': None,
                     'postal_code': '05401',
@@ -1118,15 +1121,21 @@ DNSSEC: unsigned
                 'administrative': {
                     'city': 'Mountain View',
                     'country': 'US',
-                    'email': 'dns-adminATgoogle.com',
-                    'fax': '+1.6502530001',
+                    'email': 'ramotsababa@bocra.org.bw, '
+                             'dns-adminATgoogle.com',
+                    'fax': '+267 395 7976, +1.6502530001',
                     'handle': None,
-                    'name': 'Google LLC',
-                    'organization': 'Google LLC',
-                    'phone': '+1.6502530000',
+                    'name': 'Engineer - ccTLD, Google LLC',
+                    'organization': 'BOCRA - Botswana '
+                                    'Communications Regulatory '
+                                    'Authority, Google LLC',
+                    'phone': '+2673685419, +1.6502530000',
                     'postal_code': '94043',
                     'state': 'CA',
-                    'street': '1600 Amphitheatre Parkway'
+                    'street': 'Plot 206/207 Independence Avenue, '
+                              'Private Bag 00495, Gaborone, '
+                              'Botswana, 1600 Amphitheatre '
+                              'Parkway'
                 },
                 'billing': {
                     'city': 'Meridian',
@@ -1157,16 +1166,21 @@ DNSSEC: unsigned
                 'technical': {
                     'city': 'Mountain View',
                     'country': 'US',
-                    'email': 'dns-adminATgoogle.com',
+                    'email': 'matlapeng@bocra.org.bw, '
+                             'dns-adminATgoogle.com',
                     'fax': '+1.6502530001',
                     'handle': None,
-                    'name': 'Google LLC',
-                    'organization': 'Google LLC',
-                    'phone': '+1.6502530000',
+                    'name': 'Engineer - ccTLD, Google LLC',
+                    'organization': 'Botswana Communications '
+                                    'Regulatory Authority (BOCRA), '
+                                    'Google LLC',
+                    'phone': '+267 368 5410, +1.6502530000',
                     'postal_code': '94043',
                     'state': None,
-                    'street': '1600 Amphitheatre Parkway'
-                }
+                    'street': 'Plot 206/207 Independence Avenue, '
+                              'Private Bag 00495, Gaborone, Botswana, '
+                              '1600 Amphitheatre Parkway'
+                },
             },
             'dates': {
                 'created': datetime(1993, 3, 19, 0, 0, tzinfo=tzutc()),

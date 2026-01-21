@@ -43,7 +43,7 @@
     },
     "administrative": {
       "email": null,
-      "name": null,
+      "name": "Individual",
       "street": null,
       "city": null,
       "postal_code": null,

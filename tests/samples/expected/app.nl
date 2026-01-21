@@ -14,7 +14,19 @@
     "ns3.hoasted.com"
   ],
   "dnssec": "yes",
-  "registrar": null,
+  "registrar": {
+    "email": null,
+    "name": null,
+    "street": null,
+    "city": "Amsterdam",
+    "postal_code": null,
+    "state": null,
+    "country": "Netherlands",
+    "organization": null,
+    "phone": null,
+    "fax": null,
+    "handle": null
+  },
   "contacts": {
     "registrant": {
       "email": null,
@@ -69,7 +81,7 @@
       "handle": null
     },
     "abuse": {
-      "email": null,
+      "email": "abuse@hostingsecure.com",
       "name": null,
       "street": null,
       "city": null,
@@ -77,7 +89,7 @@
       "state": null,
       "country": null,
       "organization": null,
-      "phone": null,
+      "phone": "+31.0202018165",
       "fax": null,
       "handle": null
     }

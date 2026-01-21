@@ -2,9 +2,9 @@
   "domain": "YANDEX.RU",
   "status": [],
   "dates": {
-    "created": "1997-09-23T09:45:07Z",
+    "created": null,
     "updated": null,
-    "expires": null
+    "expires": "2018-11-01T00:00:00Z"
   },
   "nameservers": [
     "ns1.yandex.ru. 213.180.193.1, 2a02:6b8::1",
