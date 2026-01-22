@@ -406,11 +406,17 @@ class WhoisEngine:
         """
         Apply a schema mapping or store an unmapped value.
         """
+        if not value:
+            return
+
         if result.mapping:
+            if result.mapping.path.endswith(".email"):
+                value = self.detector.detect_email(value) or self.detector.detect_email(value.replace("AT", "@"))
+
             self._apply_mapping(result.mapping.path, value)
             return
 
-        if value and not result.section_trigger:
+        if not result.section_trigger:
             self._store_unmapped_value(label, value)
 
     def _apply_mapping(self, path: str, value: Any) -> None:

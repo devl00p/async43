@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime
 import json
 import unittest
@@ -1122,7 +1120,7 @@ DNSSEC: unsigned
                     'city': 'Mountain View',
                     'country': 'US',
                     'email': 'ramotsababa@bocra.org.bw, '
-                             'dns-adminATgoogle.com',
+                             'dns-admin@google.com',
                     'fax': '+267 395 7976, +1.6502530001',
                     'handle': None,
                     'name': 'Engineer - ccTLD, Google LLC',
@@ -1140,7 +1138,7 @@ DNSSEC: unsigned
                 'billing': {
                     'city': 'Meridian',
                     'country': 'US',
-                    'email': 'ccopsbillingATmarkmonitor.com',
+                    'email': 'ccopsbilling@markmonitor.com',
                     'fax': '+1.2083895771',
                     'handle': None,
                     'name': 'MarkMonitor Inc.',
@@ -1153,7 +1151,7 @@ DNSSEC: unsigned
                 'registrant': {
                     'city': 'Mountain View',
                     'country': 'US',
-                    'email': 'dns-adminATgoogle.com',
+                    'email': 'dns-admin@google.com',
                     'fax': '+1.6502530001',
                     'handle': None,
                     'name': 'Google LLC',
@@ -1167,7 +1165,7 @@ DNSSEC: unsigned
                     'city': 'Mountain View',
                     'country': 'US',
                     'email': 'matlapeng@bocra.org.bw, '
-                             'dns-adminATgoogle.com',
+                             'dns-admin@google.com',
                     'fax': '+1.6502530001',
                     'handle': None,
                     'name': 'Engineer - ccTLD, Google LLC',

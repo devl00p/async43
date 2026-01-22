@@ -29,7 +29,7 @@
   },
   "contacts": {
     "registrant": {
-      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name",
+      "email": null,
       "name": "REDACTED FOR PRIVACY",
       "street": "REDACTED FOR PRIVACY",
       "city": "REDACTED FOR PRIVACY",
@@ -42,7 +42,7 @@
       "handle": null
     },
     "administrative": {
-      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name",
+      "email": null,
       "name": "REDACTED FOR PRIVACY",
       "street": "REDACTED FOR PRIVACY",
       "city": "REDACTED FOR PRIVACY",
@@ -55,7 +55,7 @@
       "handle": null
     },
     "technical": {
-      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name",
+      "email": null,
       "name": "REDACTED FOR PRIVACY",
       "street": "REDACTED FOR PRIVACY",
       "city": "REDACTED FOR PRIVACY",

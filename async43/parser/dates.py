@@ -10,7 +10,13 @@ def cast_date(date_string: str) -> Optional[Union[str, datetime]]:
         return None
 
     try:
-        parsed = dp.parse(date_string, fuzzy=True, dayfirst=False, yearfirst=True)
+        parsed = dp.parse(
+            date_string,
+            fuzzy=True,
+            dayfirst=False,
+            yearfirst=True,
+            default=datetime(2026, 1, 1)
+        )
 
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=timezone.utc)

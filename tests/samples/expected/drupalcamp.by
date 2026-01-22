@@ -12,7 +12,7 @@
   ],
   "dnssec": null,
   "registrar": {
-    "email": "HIDDEN! Details are available at http://www.cctld.by/whois/",
+    "email": null,
     "name": "Active Technologies LLC",
     "street": null,
     "city": null,

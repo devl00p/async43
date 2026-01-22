@@ -28,7 +28,7 @@
   },
   "contacts": {
     "registrant": {
-      "email": "Redacted | EU Data Subject",
+      "email": null,
       "name": "GOOGLE LLC",
       "street": "Av. R?mulo Betancourt 1108, La Julia   Apartado postal 2748, Santo Domingo, Redacted | EU Data Subject",
       "city": "Redacted | EU Data Subject",
@@ -41,7 +41,7 @@
       "handle": null
     },
     "administrative": {
-      "email": "Redacted | EU Data Subject",
+      "email": null,
       "name": "Google LLC",
       "street": "Redacted | EU Data Subject",
       "city": "Redacted | EU Data Subject",
@@ -54,7 +54,7 @@
       "handle": null
     },
     "technical": {
-      "email": "Redacted | EU Data Subject",
+      "email": null,
       "name": "Google LLC",
       "street": "Redacted | EU Data Subject",
       "city": "Redacted | EU Data Subject",
@@ -67,7 +67,7 @@
       "handle": null
     },
     "billing": {
-      "email": "Redacted | EU Data Subject",
+      "email": null,
       "name": "MARKMONITOR",
       "street": "Redacted | EU Data Subject",
       "city": "Redacted | EU Data Subject",

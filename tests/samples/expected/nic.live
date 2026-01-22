@@ -39,7 +39,7 @@
   },
   "contacts": {
     "registrant": {
-      "email": "Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name.",
+      "email": null,
       "name": "REDACTED FOR PRIVACY",
       "street": "REDACTED FOR PRIVACY",
       "city": "REDACTED FOR PRIVACY",
@@ -52,7 +52,7 @@
       "handle": null
     },
     "administrative": {
-      "email": "tldadmin@identity.digital, Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name.",
+      "email": "tldadmin@identity.digital",
       "name": "Vice President, Engineering, REDACTED FOR PRIVACY",
       "street": "10500 NE 8th Street, Suite 750, Bellevue WA 98004, United States of America (the), REDACTED FOR PRIVACY",
       "city": "REDACTED FOR PRIVACY",
@@ -65,7 +65,7 @@
       "handle": null
     },
     "technical": {
-      "email": "tldtech@identity.digital, Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name.",
+      "email": "tldtech@identity.digital",
       "name": "Senior Director, DNS Infrastructure Group, REDACTED FOR PRIVACY",
       "street": "10500 NE 8th Street, Suite 750, Bellevue WA 98004, United States of America (the), REDACTED FOR PRIVACY",
       "city": "REDACTED FOR PRIVACY",
