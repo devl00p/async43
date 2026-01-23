@@ -279,7 +279,8 @@ class TestParser(unittest.TestCase):
                 'state': None,
                 'street': None
             },
-            'status': ['registered']
+            'status': ['registered'],
+            'dns_info': None,
         }
         self._parse_and_compare(
             "testcompany.ca", data, expected_results
@@ -448,7 +449,8 @@ DNSSEC: unsigned
                 'https://icann.org/epp#clientTransferProhibited',
                 'clientUpdateProhibited '
                 'https://icann.org/epp#clientUpdateProhibited'
-            ]
+            ],
+            'dns_info': None,
         }
         self._parse_and_compare("google.ai", data, expected_results)
 
@@ -559,7 +561,8 @@ DNSSEC: unsigned
                 'serverDeleteProhibited',
                 'serverUpdateProhibited',
                 'serverTransferProhibited'
-            ]
+            ],
+            'dns_info': None,
         }
         self._parse_and_compare("cnnic.com.cn", data, expected_results)
 
@@ -684,7 +687,8 @@ DNSSEC: signedDelegation
                 'postal_code': None,
                 'state': None,
                 'street': None},
-            'status': ['ok https://icann.org/epp#ok']
+            'status': ['ok https://icann.org/epp#ok'],
+            'dns_info': None,
         }
         self._parse_and_compare("rte.ie", data, expected_results)
 
@@ -823,7 +827,8 @@ Hostname:             p.nic.dk
                 'p.nic.dk'
             ],
             'registrar': None,
-            'status': ['Active']
+            'status': ['Active'],
+            'dns_info': None,
         }
         self._parse_and_compare("dk-hostmaster.dk", data, expected_results)
 
@@ -981,7 +986,8 @@ Hostname:             p.nic.dk
                 'state': None,
                 'street': 'Ktiš 2'
             },
-            'status': ['ok']
+            'status': ['ok'],
+            'dns_info': None,
         }
         self._parse_and_compare("pipoline.sk", data, expected_results)
 
@@ -1219,7 +1225,8 @@ DNSSEC: unsigned
                 'https://icann.org/epp#clientDeleteProhibited',
                 'clientUpdateProhibited '
                 'https://icann.org/epp#clientUpdateProhibited'
-            ]
+            ],
+            'dns_info': None,
         }
         self._parse_and_compare("google.co.bw", data, expected_results)
 
@@ -1349,7 +1356,8 @@ compilation, repackaging, dissemination or other use of this Data is prohibited.
                 'state': None,
                 'street': None
             },
-            'status': ['ok https://icann.org/epp#ok']
+            'status': ['ok https://icann.org/epp#ok'],
+            'dns_info': None,
         }
         self._parse_and_compare("icp.cm", data, expected_results)
 

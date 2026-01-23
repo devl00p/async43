@@ -3,6 +3,35 @@ from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 
 
+class DnsSec(BaseModel):
+    """
+    Stores DNSSEC information from DNS queries.
+    """
+    enabled: Optional[bool] = None
+
+
+class SoaRecord(BaseModel):
+    """
+    Stores SOA (Start of Authority) record information.
+    """
+    mname: Optional[str] = None
+    rname: Optional[str] = None
+    serial: Optional[int] = None
+    refresh: Optional[int] = None
+    retry: Optional[int] = None
+    expire: Optional[int] = None
+    minimum: Optional[int] = None
+
+
+class DnsInfo(BaseModel):
+    """
+    Stores DNS enrichment data.
+    """
+    nameservers: List[str] = Field(default_factory=list)
+    soa: Optional[SoaRecord] = None
+    dnssec: Optional[bool] = None
+
+
 class Contact(BaseModel):
     """
     Represents a WHOIS contact entity.
@@ -71,6 +100,7 @@ class Whois(BaseModel):
     dnssec: Optional[str] = None
     registrar: Optional[Contact] = None
     contacts: DomainContacts
+    dns_info: Optional[DnsInfo] = None
     raw_text: str
 
     model_config = {
@@ -128,7 +158,7 @@ class Whois(BaseModel):
 
         :return: True if no structured WHOIS data is present, False otherwise.
         """
-        data = self.model_dump(exclude={"raw_text"})
+        data = self.model_dump(exclude={"raw_text", "dns_info"})
 
         def check_empty(v):
             if isinstance(v, dict):

@@ -11,7 +11,8 @@ from typing import Optional, Union
 import tldextract
 
 from async43.exceptions import WhoisError, WhoisNonRoutableIPError, WhoisNetworkError, PywhoisError
-from async43.model import Whois
+from async43.model import Whois, SoaRecord, DnsInfo
+from async43.net.resolve import resolve_dns_bundle
 from async43.parser import parse
 from async43.whois import NICClient
 
@@ -57,45 +58,82 @@ async def whois(
         executable_opts: Optional[list[str]] = None,
         convert_punycode: bool = True,
         timeout: int = 10,
+        enrich_dns: bool = False,
 ) -> Whois:
     """
     url: the URL to search whois
     command: whether to use the native whois command (default False)
     executable: executable to use for native whois command (default 'whois')
     flags: flags to pass to the whois client (default 0)
-    inc_raw: whether to include the raw text from whois in the result (default False)
     convert_punycode: whether to convert the given URL punycode (default True)
     timeout: timeout for WHOIS request (default 10 seconds)
+    enrich_dns: whether to enrich with DNS information (default False)
     """
     domain = await extract_domain(url)
 
-    if command:
-        # try native whois command
-        whois_command = [executable, domain]
-        if executable_opts and isinstance(executable_opts, list):
-            whois_command.extend(executable_opts)
+    async def fetch_whois_text():
+        if command:
+            # try native whois command
+            whois_command = [executable, domain]
+            if executable_opts and isinstance(executable_opts, list):
+                whois_command.extend(executable_opts)
 
-        proc = await asyncio.create_subprocess_exec(
-            *whois_command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await proc.communicate()
+            proc = await asyncio.create_subprocess_exec(
+                *whois_command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await proc.communicate()
 
-        if proc.returncode != 0:
-            raise WhoisError(f"Whois command failed with exit code {proc.returncode}: {stderr.decode()}")
+            if proc.returncode != 0:
+                raise WhoisError(f"Whois command failed with exit code {proc.returncode}: {stderr.decode()}")
 
-        text = stdout.decode()
-    else:
+            return stdout.decode()
+
         # try builtin client
         nic_client = NICClient()
+        punycode_domain = domain
         if convert_punycode:
-            domain = domain.encode("idna").decode("utf-8")
-        text = await nic_client.whois_lookup(None, domain, flags, timeout=timeout)
+            punycode_domain = domain.encode("idna").decode("utf-8")
+
+        text = await nic_client.whois_lookup(None, punycode_domain, flags, timeout=timeout)
         if not text:
             raise WhoisError("Whois command returned no output")
+        return text
 
-    whois_object = parse(text)
+    if enrich_dns:
+        whois_text, dns_result = await asyncio.gather(
+            fetch_whois_text(),
+            resolve_dns_bundle(domain),
+            return_exceptions=True
+        )
+
+        # Whois data is mandatory, if we have an exception, raise it
+        if isinstance(whois_text, Exception):
+            raise whois_text
+
+        # DNS enriched data is optional, set to None in case of exception
+        dns_data = None if isinstance(dns_result, Exception) else dns_result
+
+        if isinstance(dns_result, Exception):
+            logger.debug("DNS enrichment failed for %s: %s", domain, dns_result)
+    else:
+        whois_text = await fetch_whois_text()
+        dns_data = None
+
+    whois_object = parse(whois_text)
+
+    if enrich_dns and dns_data:
+        soa_record = None
+        if "soa" in dns_data:
+            soa_record = SoaRecord(**dns_data["soa"])
+
+        dns_info = DnsInfo(
+            nameservers=dns_data.get("nameservers", []),
+            soa=soa_record,
+            dnssec=dns_data.get("dnssec")
+        )
+        whois_object.dns_info = dns_info
 
     return whois_object
 
@@ -148,7 +186,7 @@ async def main():
         logger.error("Usage: %s url", sys.argv[0])
     else:
         try:
-            whois_object = await whois(url)
+            whois_object = await whois(url, enrich_dns=True)
             logger.info(whois_object.model_dump_json(indent=2, exclude={'raw_text'}))
         except PywhoisError as exception:
             logger.error("could not process %s: %s", url, exception)
