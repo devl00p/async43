@@ -9,6 +9,7 @@ disable =
     too-few-public-methods
 
 [DESIGN]
-max-positional-arguments=8
-max-args=8
+max-positional-arguments=10
+max-args=10
 max-locals=20
+max-attributes=10

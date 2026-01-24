@@ -6,7 +6,7 @@ from ipaddress import IPv4Address, IPv6Address
 import logging
 import socket
 import sys
-from typing import Optional, Union
+from typing import Optional, Union, Iterator
 
 import tldextract
 
@@ -50,33 +50,61 @@ async def resolve_ip_to_hostname(ip: IPAddress) -> str:
         ) from exc
 
 
-async def whois(
-        url: str,
-        command: bool = False,
-        flags: int = 0,
-        executable: str = "whois",
-        executable_opts: Optional[list[str]] = None,
-        convert_punycode: bool = True,
-        timeout: int = 10,
-        enrich_dns: bool = False,
-) -> Whois:
+class WhoisClient:
     """
-    url: the URL to search whois
-    command: whether to use the native whois command (default False)
-    executable: executable to use for native whois command (default 'whois')
-    flags: flags to pass to the whois client (default 0)
-    convert_punycode: whether to convert the given URL punycode (default True)
-    timeout: timeout for WHOIS request (default 10 seconds)
-    enrich_dns: whether to enrich with DNS information (default False)
-    """
-    domain = await extract_domain(url)
+    Asynchronous WHOIS client with optional DNS enrichment.
 
-    async def fetch_whois_text():
-        if command:
-            # try native whois command
-            whois_command = [executable, domain]
-            if executable_opts and isinstance(executable_opts, list):
-                whois_command.extend(executable_opts)
+    This client can be reused for multiple WHOIS queries, avoiding
+    the overhead of recreating NICClient instances.
+    """
+
+    def __init__(
+            self,
+            command: bool = False,
+            executable: str = "whois",
+            executable_opts: Optional[list[str]] = None,
+            convert_punycode: bool = True,
+            timeout: int = 10,
+            enrich_dns: bool = False,
+            prefer_ipv6: bool = False,
+            ipv6_cycle: Optional[Iterator[str]] = None,
+    ):
+        """
+        Initialize the WHOIS client.
+
+        Args:
+            command: whether to use the native whois command (default False)
+            executable: executable to use for native whois command (default 'whois')
+            executable_opts: additional options for the whois executable
+            convert_punycode: whether to convert the given URL punycode (default True)
+            timeout: timeout for WHOIS request (default 10 seconds)
+            enrich_dns: whether to enrich with DNS information (default False)
+            prefer_ipv6: whether to prefer IPv6 connections (default False)
+            ipv6_cycle: iterator for cycling through IPv6 addresses
+        """
+        self.command = command
+        self.executable = executable
+        self.executable_opts = executable_opts
+        self.convert_punycode = convert_punycode
+        self.timeout = timeout
+        self.enrich_dns = enrich_dns
+        self.prefer_ipv6 = prefer_ipv6
+        self.ipv6_cycle = ipv6_cycle
+
+        self._nic_client = None
+        if not command:
+            self._nic_client = NICClient(
+                prefer_ipv6=prefer_ipv6,
+                ipv6_cycle=ipv6_cycle
+            )
+
+    async def _fetch_whois_text(self, domain: str, flags: int) -> str:
+        """Fetch raw WHOIS text for a domain."""
+        if self.command:
+            # Use native whois command
+            whois_command = [self.executable, domain]
+            if self.executable_opts and isinstance(self.executable_opts, list):
+                whois_command.extend(self.executable_opts)
 
             proc = await asyncio.create_subprocess_exec(
                 *whois_command,
@@ -86,56 +114,128 @@ async def whois(
             stdout, stderr = await proc.communicate()
 
             if proc.returncode != 0:
-                raise WhoisError(f"Whois command failed with exit code {proc.returncode}: {stderr.decode()}")
+                raise WhoisError(
+                    f"Whois command failed with exit code {proc.returncode}: {stderr.decode()}"
+                )
 
             return stdout.decode()
 
-        # try builtin client
-        nic_client = NICClient()
+        # Use builtin client
         punycode_domain = domain
-        if convert_punycode:
+        if self.convert_punycode:
             punycode_domain = domain.encode("idna").decode("utf-8")
 
-        text = await nic_client.whois_lookup(None, punycode_domain, flags, timeout=timeout)
+        text = await self._nic_client.whois_lookup(
+            None, punycode_domain, flags, timeout=self.timeout
+        )
+
         if not text:
             raise WhoisError("Whois command returned no output")
+
         return text
 
-    if enrich_dns:
-        whois_text, dns_result = await asyncio.gather(
-            fetch_whois_text(),
-            resolve_dns_bundle(domain),
-            return_exceptions=True
-        )
+    async def whois(
+            self,
+            url: str,
+            flags: int = 0,
+            enrich_dns: Optional[bool] = None,
+    ) -> Whois:
+        """
+        Perform a WHOIS lookup for the given URL.
 
-        # Whois data is mandatory, if we have an exception, raise it
-        if isinstance(whois_text, Exception):
-            raise whois_text
+        Args:
+            url: the URL or domain to search whois
+            flags: flags to pass to the whois client (default 0)
+            enrich_dns: override the default enrich_dns setting for this query
 
-        # DNS enriched data is optional, set to None in case of exception
-        dns_data = None if isinstance(dns_result, Exception) else dns_result
+        Returns:
+            Whois object containing parsed WHOIS data and optional DNS enrichment
 
-        if isinstance(dns_result, Exception):
-            logger.debug("DNS enrichment failed for %s: %s", domain, dns_result)
-    else:
-        whois_text = await fetch_whois_text()
-        dns_data = None
+        Raises:
+            WhoisError: if the WHOIS lookup fails
+        """
+        domain = await extract_domain(url)
 
-    whois_object = parse(whois_text)
+        # Use instance default if not overridden
+        should_enrich_dns = enrich_dns if enrich_dns is not None else self.enrich_dns
 
-    if enrich_dns and dns_data:
-        soa_record = None
-        if "soa" in dns_data:
-            soa_record = SoaRecord(**dns_data["soa"])
+        if should_enrich_dns:
+            whois_text, dns_result = await asyncio.gather(
+                self._fetch_whois_text(domain, flags),
+                resolve_dns_bundle(domain),
+                return_exceptions=True
+            )
 
-        dns_info = DnsInfo(
-            nameservers=dns_data.get("nameservers", []),
-            soa=soa_record,
-            dnssec=dns_data.get("dnssec")
-        )
-        whois_object.dns_info = dns_info
+            # Whois data is mandatory, if we have an exception, raise it
+            if isinstance(whois_text, Exception):
+                raise whois_text
 
-    return whois_object
+            # DNS enriched data is optional, set to None in case of exception
+            dns_data = None if isinstance(dns_result, Exception) else dns_result
+
+            if isinstance(dns_result, Exception):
+                logger.debug("DNS enrichment failed for %s: %s", domain, dns_result)
+        else:
+            whois_text = await self._fetch_whois_text(domain, flags)
+            dns_data = None
+
+        # Parse WHOIS text
+        whois_object = parse(whois_text)
+
+        # Add DNS enrichment if available
+        if should_enrich_dns and dns_data:
+            soa_record = None
+            if "soa" in dns_data:
+                soa_record = SoaRecord(**dns_data["soa"])
+
+            dns_info = DnsInfo(
+                nameservers=dns_data.get("nameservers", []),
+                soa=soa_record,
+                dnssec=dns_data.get("dnssec")
+            )
+            whois_object.dns_info = dns_info
+
+        return whois_object
+
+    async def __aenter__(self):
+        """Support async context manager."""
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Support async context manager."""
+
+
+async def whois(
+        url: str,
+        command: bool = False,
+        flags: int = 0,
+        executable: str = "whois",
+        executable_opts: Optional[list[str]] = None,
+        convert_punycode: bool = True,
+        timeout: int = 10,
+        enrich_dns: bool = False,
+        prefer_ipv6: bool = False,
+        ipv6_cycle: Optional[Iterator[str]] = None,
+) -> Whois:
+    """
+    Convenience function for one-off WHOIS lookups.
+
+    For multiple queries, prefer using WhoisClient directly to avoid
+    recreating the NICClient for each query.
+
+    See WhoisClient.whois() for parameter documentation.
+    """
+    client = WhoisClient(
+        command=command,
+        executable=executable,
+        executable_opts=executable_opts,
+        convert_punycode=convert_punycode,
+        timeout=timeout,
+        enrich_dns=enrich_dns,
+        prefer_ipv6=prefer_ipv6,
+        ipv6_cycle=ipv6_cycle,
+    )
+    return await client.whois(url, flags=flags)
 
 
 async def extract_domain(url: str) -> str:
