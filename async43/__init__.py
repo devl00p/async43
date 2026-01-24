@@ -65,7 +65,6 @@ class WhoisClient:
             executable_opts: Optional[list[str]] = None,
             convert_punycode: bool = True,
             timeout: int = 10,
-            enrich_dns: bool = False,
             prefer_ipv6: bool = False,
             ipv6_cycle: Optional[Iterator[str]] = None,
     ):
@@ -78,7 +77,6 @@ class WhoisClient:
             executable_opts: additional options for the whois executable
             convert_punycode: whether to convert the given URL punycode (default True)
             timeout: timeout for WHOIS request (default 10 seconds)
-            enrich_dns: whether to enrich with DNS information (default False)
             prefer_ipv6: whether to prefer IPv6 connections (default False)
             ipv6_cycle: iterator for cycling through IPv6 addresses
         """
@@ -87,7 +85,6 @@ class WhoisClient:
         self.executable_opts = executable_opts
         self.convert_punycode = convert_punycode
         self.timeout = timeout
-        self.enrich_dns = enrich_dns
         self.prefer_ipv6 = prefer_ipv6
         self.ipv6_cycle = ipv6_cycle
 
@@ -138,7 +135,7 @@ class WhoisClient:
             self,
             url: str,
             flags: int = 0,
-            enrich_dns: Optional[bool] = None,
+            enrich_dns: Optional[bool] = False,
     ) -> Whois:
         """
         Perform a WHOIS lookup for the given URL.
@@ -146,7 +143,7 @@ class WhoisClient:
         Args:
             url: the URL or domain to search whois
             flags: flags to pass to the whois client (default 0)
-            enrich_dns: override the default enrich_dns setting for this query
+            enrich_dns: whether to enrich with DNS information (default False)
 
         Returns:
             Whois object containing parsed WHOIS data and optional DNS enrichment
@@ -157,9 +154,7 @@ class WhoisClient:
         domain = await extract_domain(url)
 
         # Use instance default if not overridden
-        should_enrich_dns = enrich_dns if enrich_dns is not None else self.enrich_dns
-
-        if should_enrich_dns:
+        if enrich_dns:
             whois_text, dns_result = await asyncio.gather(
                 self._fetch_whois_text(domain, flags),
                 resolve_dns_bundle(domain),
@@ -183,7 +178,7 @@ class WhoisClient:
         whois_object = parse(whois_text)
 
         # Add DNS enrichment if available
-        if should_enrich_dns and dns_data:
+        if enrich_dns and dns_data:
             soa_record = None
             if "soa" in dns_data:
                 soa_record = SoaRecord(**dns_data["soa"])
@@ -231,11 +226,10 @@ async def whois(
         executable_opts=executable_opts,
         convert_punycode=convert_punycode,
         timeout=timeout,
-        enrich_dns=enrich_dns,
         prefer_ipv6=prefer_ipv6,
         ipv6_cycle=ipv6_cycle,
     )
-    return await client.whois(url, flags=flags)
+    return await client.whois(url, flags=flags, enrich_dns=enrich_dns)
 
 
 async def extract_domain(url: str) -> str:
