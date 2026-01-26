@@ -26,7 +26,8 @@ Or checkout the latest version from the repository:
 
 ```bash
 git clone https://github.com/devl00p/async43.git
-pip install -r requirements.txt
+cd async43
+pip install .
 ```
 
 ## Example Usage
