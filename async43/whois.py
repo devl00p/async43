@@ -9,8 +9,10 @@ from contextlib import asynccontextmanager
 from typing import Optional, Tuple, AsyncGenerator, Iterator
 
 from async_lru import alru_cache
+from tldextract import extract
 
 from async43.exceptions import WhoisNetworkError
+from async43.servers import WHOIS_SERVERS
 
 logger = logging.getLogger("async43")
 
@@ -49,54 +51,6 @@ class NICClient:
     DENICHOST = "whois.denic.de"
     DK_HOST = "whois.dk-hostmaster.dk"
     QNICHOST_TAIL = ".whois-servers.net"
-    HR_HOST = "whois.dns.hr"
-    PPUA_HOST = "whois.pp.ua"
-
-    # Le mapping centralisé
-    TLD_WHOIS_MAP = {
-        "ae": "whois.aeda.net.ae",
-        "ai": "whois.nic.ai",
-        "app": "whois.nic.google",
-        "ar": "whois.nic.ar",
-        "bw": "whois.nic.net.bw",
-        "by": "whois.cctld.by",
-        "ca": "whois.ca.fury.ca",
-        "chat": "whois.nic.chat",
-        "cl": "whois.nic.cl",
-        "cm": "whois.netcom.cm",
-        "cr": "whois.nic.cr",
-        "de": "whois.denic.de",
-        "dev": "whois.nic.google",
-        "dk": "whois.dk-hostmaster.dk",
-        "do": "whois.nic.do",
-        "games": "whois.nic.games",
-        "goog": "whois.nic.google",
-        "google": "whois.nic.google",
-        "hk": "whois.hkirc.hk",
-        "hn": "whois.nic.hn",
-        "hr": "whois.dns.hr",
-        "jp": "whois.jprs.jp",
-        "kz": "whois.nic.kz",
-        "lat": "whois.nic.lat",
-        "li": "whois.nic.li",
-        "live": "whois.nic.live",
-        "lt": "whois.domreg.lt",
-        "mx": "whois.mx",
-        "nl": "whois.domain-registry.nl",
-        "pe": "kero.yachay.pe",
-        "ru": "whois.tcinet.ru",
-        "su": "whois.tcinet.ru",
-        "site": "whois.nic.site",
-        "ga": "whois.nic.ga",
-        "xyz": "whois.nic.xyz",
-        # IDNs (Punycode et UTF-8)
-        "xn--p1acf": "whois.tcinet.ru",  # .рус
-        "xn--p1ai": "whois.tcinet.ru",  # .рф
-        "xn--j1amh": "whois.dotukr.com",  # .укр
-    }
-
-    SITE_HOST = "whois.nic.site"
-    DESIGN_HOST = "whois.nic.design"
 
     WHOIS_RECURSE = 0x01
     WHOIS_QUICK = 0x02
@@ -360,32 +314,20 @@ class NICClient:
     ) -> Optional[str]:
         """Choose the initial WHOIS NIC host for a domain."""
         domain = domain.encode("idna").decode("utf-8")
-
-        special_suffixes = {
-            "-NORID": NICClient.NORIDHOST,
-            "id": NICClient.PANDIHOST,
-            "hr": NICClient.HR_HOST,
-            ".pp.ua": NICClient.PPUA_HOST,
-        }
-
-        for suffix, host in special_suffixes.items():
-            if domain.endswith(suffix):
-                return host
-
-        domain_parts = domain.split(".")
-        if len(domain_parts) < 2:
-            return None
-
-        tld = domain_parts[-1]
-
-        if tld[0].isdigit():
-            return self.ANICHOST
-
-        server = self.TLD_WHOIS_MAP.get(tld)
-        if server is not None:
+        suffix = extract(domain, include_psl_private_domains=True).suffix
+        server = WHOIS_SERVERS.get(suffix)
+        if server:
+            logger.debug("Server %s was selected for %s", server, domain)
             return server
 
-        return await self.findwhois_iana(tld, timeout=timeout)
+        tld = ""
+        if not suffix and "." in domain:
+            tld = domain.split(".")[-1]
+            if tld[0].isdigit():
+                return self.ANICHOST
+            return None
+
+        return await self.findwhois_iana(suffix or tld, timeout=timeout)
 
     async def whois_lookup(
             self, options: Optional[dict], query_arg: str, flags: int, timeout: int = 10
